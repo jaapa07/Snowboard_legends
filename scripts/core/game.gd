@@ -51,11 +51,12 @@ func _ready() -> void:
 	_apply_mobile_profile()
 
 func is_mobile() -> bool:
-	return OS.has_feature("mobile")
+	## native mobile, or the web build opened on a phone/tablet browser (e.g. Safari on iPhone)
+	return OS.has_feature("mobile") or OS.has_feature("web_ios") or OS.has_feature("web_android")
 
 func _apply_mobile_profile() -> void:
 	## First launch on a phone/tablet: low quality preset (Mobile renderer, 0.75 render scale, no heavy effects).
-	if is_mobile() and not bool(Save.settings().get("mobile_profile_applied", false)):
+	if (is_mobile() or OS.has_feature("web")) and not bool(Save.settings().get("mobile_profile_applied", false)):
 		Save.settings().quality = 0
 		Save.settings().mobile_profile_applied = true
 		Save.write()

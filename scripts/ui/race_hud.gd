@@ -22,6 +22,7 @@ var bar: Control
 var portraits: Dictionary = {}
 var minimap: MinimapView
 var fog_overlay: ColorRect
+var slots: HBoxContainer
 var _center_t: float = 0.0
 var _trick_t: float = 0.0
 var _msg_t: float = 0.0
@@ -54,7 +55,7 @@ func setup(r: RaceManager, rd: RiderController, screens: int) -> void:
 	warn.text = "⚠  !!!  ⚠"
 	warn.visible = false
 	# item slots (offense red frame, utility blue frame) with icon + key hint
-	var slots := HBoxContainer.new()
+	slots = HBoxContainer.new()
 	slots.position = Vector2(230, 16) * scale_f
 	slots.add_theme_constant_override("separation", int(12 * scale_f))
 	add_child(slots)
@@ -99,6 +100,8 @@ func setup(r: RaceManager, rd: RiderController, screens: int) -> void:
 	minimap.size = minimap.custom_minimum_size
 	minimap.position = Vector2(-310, -400) * scale_f
 	add_child(minimap)
+	if TouchControls.enabled() and screens == 1 and rider.device == "touch":
+		_touch_layout()
 	if screens > 1:
 		var human_idx := race.riders.filter(func(x): return x.is_human).find(rider)
 		var tag := _label(40, [Color(1, 0.5, 0.4), Color(0.4, 0.75, 1), Color(0.5, 1, 0.55), Color(1, 0.85, 0.3)][clampi(human_idx, 0, 3)], Vector2(-120, 18), Control.PRESET_TOP_RIGHT)
@@ -111,6 +114,22 @@ func setup(r: RaceManager, rd: RiderController, screens: int) -> void:
 	rider.got_hit.connect(_on_hit)
 	rider.items_changed.connect(func(_r): _refresh_slots())
 	_refresh_slots()
+
+func _touch_layout() -> void:
+	## Phone layout: the on-screen buttons own the bottom-right and the thumb-stick the bottom-left, so the HUD moves
+	## to the top (minimap top-right, coins/speed beside it, position under the lap timer, progress bar on the left);
+	## the item slots are shown on the item buttons themselves.
+	slots.visible = false
+	minimap.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	minimap.position = Vector2(-250, 20)
+	for l in [lbl_coins, lbl_speed]:
+		l.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	lbl_coins.position = Vector2(-470, 24)
+	lbl_speed.position = Vector2(-470, 70)
+	lbl_pos.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	lbl_pos.position = Vector2(24, 100)
+	bar.set_anchors_preset(Control.PRESET_LEFT_WIDE)
+	bar.offset_left = 20; bar.offset_right = 70; bar.offset_top = 230; bar.offset_bottom = -330
 
 func _label(size: int, col: Color, pos: Vector2, preset: int) -> Label:
 	var l := Label.new()

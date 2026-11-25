@@ -36,7 +36,7 @@ static func enabled() -> bool:
 		return true
 	if mode == "off":
 		return false
-	return OS.has_feature("mobile") or DisplayServer.is_touchscreen_available()
+	return OS.has_feature("mobile") or OS.has_feature("web_ios") or OS.has_feature("web_android") or DisplayServer.is_touchscreen_available()
 
 func setup(r: RiderController) -> void:
 	rider = r
