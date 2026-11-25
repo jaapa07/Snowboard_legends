@@ -35,7 +35,8 @@ SFX_DIR = os.path.join(ROOT, "assets", "audio", "sfx")
 MUS_DIR = os.path.join(ROOT, "assets", "audio", "music")
 SRC_DIR = os.path.join(ROOT, "source_art", "audio")
 SR = 44100
-CEIL = 10 ** (-1.0 / 20)          # -1 dBFS true ceiling before encoding
+CEIL = 10 ** (-1.0 / 20)          # -1 dBFS ceiling of the SFX
+MUSIC_CEIL = 10 ** (-1.5 / 20)    # music limiter ceiling (Vorbis adds ~0.5 dB of overshoot on decode)
 MUSIC_RMS_DB = -15.0              # loudness target of the music mixes
 VORBIS_Q = "5"
 
@@ -316,14 +317,14 @@ def I_bell(f, ng, r):
     t = tarr(n)
     x = fm(f, 3.5, 2.0 * np.exp(-t / 0.22) + 0.25, n) * np.exp(-t / 0.8)
     x += 0.35 * sine(f * 2, n) * np.exp(-t / 0.25)
-    e = pdec(ng, 10.0, 0.6, 0.001)[:n]
+    e = pdec(ng, 10.0, 1.2, 0.001)[:n]
     return stereo(x * e * 0.8)
 
 
 def I_glass(f, ng, r):
     n = ng + ns(1.4)
     t = tarr(n)
-    e = pdec(ng, 10.0, 0.8, 0.002)[:n]
+    e = pdec(ng, 10.0, 1.4, 0.002)[:n]
     a = fm(f, 2.0, 1.1 * np.exp(-t / 0.4) + 0.15, n) * np.exp(-t / 1.4)
     b = fm(f * 1.004, 2.0, 1.1 * np.exp(-t / 0.4) + 0.15, n, 0.3) * np.exp(-t / 1.4)
     return np.stack([a, b], 1) * e[:, None] * 0.7
@@ -335,7 +336,7 @@ def I_marimba(f, ng, r):
     tau = 0.5 * (440 / f) ** 0.35
     x = sine(f, n) * np.exp(-t / tau) + 0.35 * sine(f * 3.93, n) * np.exp(-t / 0.06)
     x += 0.08 * sine(f * 9.2, n) * np.exp(-t / 0.012) if f * 9.2 < 20000 else 0
-    e = pdec(ng, 10.0, 0.25, 0.001)[:n]
+    e = pdec(ng, 10.0, 0.5, 0.001)[:n]
     return stereo(x * e)
 
 
@@ -344,7 +345,7 @@ def I_pluck(f, ng, r):
     t = tarr(n)
     x = 0.6 * saw(f, n, r.uniform()) + 0.4 * pulse(f * 1.002, n, 0.3)
     x = tvfilt(x, np.minimum(f * 1.3 + 7000 * np.exp(-t / 0.07), 17000), 1.1)
-    e = pdec(ng, 0.35, 0.2, 0.001)[:n]
+    e = pdec(ng, 0.35, 0.35, 0.001)[:n]
     return stereo(x * e)
 
 
@@ -354,7 +355,7 @@ def I_ep(f, ng, r):
     x = fm(f, 1.0, 1.5 * np.exp(-t / 0.45) + 0.2, n) * np.exp(-t / 1.6)
     if f * 14 < 19000:
         x += 0.2 * fm(f, 14.0, 0.6, n) * np.exp(-t / 0.025)
-    e = pdec(ng, 10.0, 0.35, 0.002)[:n]
+    e = pdec(ng, 10.0, 0.6, 0.002)[:n]
     trem = 0.15 * np.sin(2 * np.pi * 4.5 * t)
     return np.stack([x * (1 + trem), x * (1 - trem)], 1) * e[:, None] * 0.8
 
@@ -443,7 +444,7 @@ def I_bass_pick(f, ng, r):
     n = ng + ns(0.08)
     t = tarr(n)
     x = tvfilt(pulse(f, n, 0.35), 250 + f + 1600 * np.exp(-t / 0.05), 1.0) * 1.3 + 0.6 * sine(f, n)
-    return stereo(x * pdec(ng, 0.55, 0.06, 0.002)[:n])
+    return stereo(x * pdec(ng, 0.55, 0.08, 0.002)[:n])
 
 
 def I_bass_acid(f, ng, r):
@@ -458,7 +459,7 @@ def I_bass_slap(f, ng, r):
     n = ng + ns(0.08)
     t = tarr(n)
     x = fm(f, 1.0, 3.0 * np.exp(-t / 0.04) + 0.5, n) + 0.6 * sine(f, n)
-    return stereo(x * pdec(ng, 0.6, 0.06, 0.001)[:n])
+    return stereo(x * pdec(ng, 0.6, 0.08, 0.001)[:n])
 
 
 INSTR = {k[2:]: v for k, v in list(globals().items()) if k.startswith("I_")}
@@ -820,7 +821,7 @@ class Song:
                 pitches = [self.sstep(fin, -2 * d, sp), self.sstep(fin, -d, sp), fin] if len(cad) == 3 else \
                     [self.sstep(fin, -3 * d, sp), self.sstep(fin, -2 * d, sp), self.sstep(fin, -d, sp), fin]
                 for (st, ln), m in zip(cad, pitches):
-                    out.append((bar, st, ln, m))
+                    out.append((bi, st, ln, m))
                 prev = fin
                 continue
             rh, iv = (R1, m1) if kind == 0 else ((R2, m2) if kind == 1 else (R2, m2v))
@@ -843,7 +844,7 @@ class Song:
                     tgt -= 12
                 while tgt < lo:
                     tgt += 12
-                out.append((bar, st, ln, tgt))
+                out.append((bi, st, ln, tgt))
                 prev = tgt
         self.score["melodies"][key] = out
         return out
@@ -875,7 +876,10 @@ class Song:
                 mel = self.melody("brk", idx, "lyric", lo + 5, hi + 5)
                 minst = [(c["brk_inst"], 0, 0.6, 0.15)]
             if mel:
-                for k, (bar, st, ln, m) in enumerate(mel):
+                for (k, st, ln, m) in mel:
+                    if k >= len(idx):
+                        continue
+                    bar = idx[k]
                     for inst, octv, vel, p in minst:
                         self.note("lead", inst, m + 12 * octv, bar, st, ln, vel * (1.0 if st % 4 == 0 else 0.88), p,
                                   0.98 if ln >= 4 else 0.85)
@@ -923,7 +927,7 @@ class Song:
             r = seeded("wind", self.name)
             w = filt(r.uniform(-1, 1, (n, 2)), "bp", 600, 0.5, circular=True)
             t = np.arange(n) / n
-            w *= (0.55 + 0.45 * np.sin(2 * np.pi * (3 * t + np.array([[0.0, 0.25]]).T.T)) ** 2)
+            w *= 0.55 + 0.45 * np.sin(2 * np.pi * (3 * t[:, None] + np.array([0.0, 0.25]))) ** 2
             self.bus["fx"][:n] += norm(w) * 0.6
 
     def drum_bar(self, b, typ, k, nb, si, nxt_typ):
@@ -1035,7 +1039,7 @@ class Song:
         out = sum(B.values()) + wet * self.c.get("wet", 0.5) + dly * 0.6
         out = filt(out, "hp", 28, circular=True)
         out *= 10 ** ((MUSIC_RMS_DB - rms_db(out)) / 20)
-        out, gr = limiter(out)
+        out, gr = limiter(out, MUSIC_CEIL)
         return out, gr
 
 
@@ -1088,7 +1092,7 @@ SONGS = {
         hook=[("supersaw", 0, 0.9, 0.0), ("saw_lead", -1, 0.45, 0.0)], hook_rh="fast", brk_inst="bell", rt=1.4, wet=0.4),
     # aurora night festival: disco / funk with brass and an arcade lead (triplet swing)
     "track_festival_boreal": dict(
-        bpm=124, key="F", mode="mixo", swing=0.35, form=FORM_RACE, kit="tight", drums="disco",
+        bpm=128, key="F", mode="mixo", swing=0.35, form=FORM_RACE, kit="tight", drums="disco",
         prog={"intro": ["I", "bVII", "IV", "I"], "A": ["I", "bVII", "IV", "I"], "B": ["vi", "IV", "bVII", "V"],
               "C": ["I", "bVII", "IV", "V"], "brk": ["IV", "bVII", "I", "V"]},
         bass=("bass_slap", "octave"), bass_c="funk", pad="pad_warm", stab=("brass", "charleston"),
@@ -1096,7 +1100,7 @@ SONGS = {
         hook=[("brass", 0, 0.9, 0.0), ("chip", 1, 0.45, 0.25)], hook_rh="call", brk_inst="ep", rt=1.6, duck=1.4),
     # giant forest: woody marimba + flute, laid-back shuffle
     "track_floresta_gigante": dict(
-        bpm=122, key="G", mode="dorian", swing=0.4, form=[("intro", 4), ("A", 8), ("B", 8), ("C", 8), ("brk", 4), ("A2", 8), ("C2", 4)],
+        bpm=122, key="G", mode="dorian", swing=0.4, form=[("intro", 4), ("A", 8), ("B", 8), ("C", 8), ("brk", 4), ("A2", 8)],
         kit="soft", drums="shuffle", perc={"wood": "..x.....x..x....", "shaker": "gogogogogogogogo"},
         prog={"intro": ["i", "IV", "i", "bVII"], "A": ["i", "IV", "i", "bVII"], "B": ["bIII", "IV", "v", "i"],
               "C": ["bVII", "IV", "i", "i"], "brk": ["bVI", "bVII", "i", "IV"]},
@@ -1221,6 +1225,39 @@ def shards(d, count, fmin, fmax, name, spread=0.3):
     return buf
 
 
+# short-term (50 ms) loudness targets in dBFS for one-shots that must cut through the music
+LOUD = {"coin": -6.5, "buy": -7.5, "buy_fail": -8.0, "count": -6.0, "count_go": -6.0, "finish": -6.5, "lap": -7.0,
+        "unlock": -7.5, "perfect": -8.0, "gate": -8.0, "ui_ok": -9.5, "ui_back": -10.5, "ui_move": -12.0, "ui_open": -9.5,
+        "magnet": -9.0, "repair": -8.0, "penguin": -6.5, "grind": -10.0, "throw": -9.0, "shield": -8.5, "shield_break": -9.0,
+        "ice_burst": -8.5, "mine_drop": -8.5, "fog": -9.0, "boost": -7.0, "jump": -9.0}
+
+
+def short_term_db(x, win=0.05):
+    W = ns(win)
+    c = np.cumsum(np.concatenate([[0.0], np.asarray(x) ** 2]))
+    return float(10 * np.log10(((c[W:] - c[:-W]) / W).max() + 1e-20)) if len(x) > W else rms_db(x)
+
+
+def trim_tail(x, floor_db=-48.0):
+    """Cut the inaudible end of a decaying one-shot (short-term level below floor_db re. its loudest 50 ms)."""
+    W = ns(0.02)
+    c = np.cumsum(np.concatenate([[0.0], x ** 2]))
+    st = 10 * np.log10((c[W:] - c[:-W]) / W + 1e-20)
+    alive = np.nonzero(st > st.max() + floor_db)[0]
+    end = min(len(x), alive[-1] + W + ns(0.03)) if len(alive) else len(x)
+    y = x[:end].copy()
+    k = min(ns(0.03), end // 4)
+    y[end - k:] *= np.linspace(1, 0, k)
+    return y
+
+
+def mixl(*xs):
+    out = np.zeros(max(len(x) for x in xs))
+    for x in xs:
+        out[:len(x)] += x
+    return out
+
+
 def fade_edges(x, fin=0.0008, fout=0.006):
     x = x.copy()
     a, b = max(1, ns(fin)), max(1, ns(fout))
@@ -1235,8 +1272,19 @@ def make_sfx():
 
     def S(name, x, pk=CEIL):
         x = np.asarray(x, float)
-        x = x - np.mean(x) * np.hanning(len(x)) / np.mean(np.hanning(len(x)))   # remove DC without a step
-        out[name] = fade_edges(norm(x, pk))
+        x = filt(x, "hp", 20)   # remove DC / sub-sonic rumble
+        x = trim_tail(norm(x))
+        tgt = LOUD.get(name)
+        if tgt is not None:      # raise short-term loudness with a transparent look-ahead limiter (max ~11 dB)
+            g = 1.0
+            for _ in range(12):
+                y, _gr = limiter(x * g, pk)
+                st = short_term_db(y)
+                if st >= tgt - 0.2 or g > 3.5:
+                    break
+                g *= 10 ** (min(tgt - st, 3.0) / 20)
+            x = y
+        out[name] = fade_edges(norm(x, pk) if tgt is None else x)
 
     def LOOP(name, x, pk=CEIL):
         out[name] = norm(x - x.mean(), pk)
@@ -1339,23 +1387,23 @@ def make_sfx():
         x = filt(pulse(f * (1 - 0.03 * t / d), n, 0.4) + 0.5 * saw(f * 1.01, n), "lp", 1400, 1.2) * adsr(n - ns(0.03), 0.004, 0.1, 0.7, 0.03)[:n]
         place(bf, x, t0)
     S("buy_fail", bf, CEIL * 0.85)
-    S("gate", tone_seq([88], "bell", 0, 0.08) + 0.5 * tone_seq([100], "glass", 0, 0.05))
-    S("perfect", tone_seq([84, 88, 91, 96, 100], "bell", 0.055, 0.06, [0.7, 0.75, 0.8, 0.9, 1.0])
-      + np.pad(shards(0.9, 30, 4000, 9000, "perfect", 0.6) * 0.3, (0, 0)))
-    S("lap", tone_seq([79, 83, 86, 91], "pluck", 0.08, 0.07) * 0.8 + tone_seq([79, 83, 86, 91], "bell", 0.08, 0.07) * 0.5)
+    S("gate", mixl(tone_seq([88], "bell", 0, 0.08), 0.5 * tone_seq([100], "glass", 0, 0.05)))
+    S("perfect", mixl(tone_seq([84, 88, 91, 96, 100], "bell", 0.055, 0.06, [0.7, 0.75, 0.8, 0.9, 1.0]),
+                      shards(0.9, 30, 4000, 9000, "perfect", 0.6) * 0.3))
+    S("lap", mixl(tone_seq([79, 83, 86, 91], "pluck", 0.08, 0.07) * 0.8, tone_seq([79, 83, 86, 91], "bell", 0.08, 0.07) * 0.5))
     um = np.zeros(ns(0.07))
     n = ns(0.07)
     t = tarr(n)
     um += sine(1500 * (1 - 0.2 * t / 0.07), n) * np.exp(-t / 0.018)
     um += filt(_noise("ui_move", n), "bp", 4000, 2) * np.exp(-t / 0.003) * 0.5
     S("ui_move", um, CEIL * 0.8)
-    S("ui_ok", tone_seq([88, 93], "marimba", 0.065, 0.06) + 0.35 * tone_seq([100, 105], "bell", 0.065, 0.05))
+    S("ui_ok", mixl(tone_seq([88, 93], "marimba", 0.065, 0.06), 0.35 * tone_seq([100, 105], "bell", 0.065, 0.05)))
     S("ui_back", tone_seq([81, 76], "marimba", 0.065, 0.06), CEIL * 0.85)
     uo = np.zeros(ns(0.55))
     place(uo, whoosh(0.18, 700, 3500, "ui_open", 1.5, 0.4), 0, 0.6)
     place(uo, tone_seq([91], "bell", 0, 0.06), 0.09, 0.8)
     S("ui_open", uo, CEIL * 0.9)
-    S("count", tone_seq([69], "square", 0, 0.22) * 0.8 + tone_seq([81], "bell", 0, 0.1) * 0.35)
+    S("count", mixl(tone_seq([69], "square", 0, 0.22) * 0.8, tone_seq([81], "bell", 0, 0.1) * 0.35))
     n = ns(1.0)
     go = np.zeros(n)
     for m in (81, 85, 88, 93):
@@ -1369,17 +1417,18 @@ def make_sfx():
             place(fin, INSTR["brass"](midi_f(m), ns(d), seeded("fin", m, t0)).mean(1), t0, 0.45)
             place(fin, INSTR["supersaw"](midi_f(m), ns(d), seeded("fins", m, t0)).mean(1), t0, 0.15)
     kit = make_kit("punch", "sfx")
-    place(fin, kit["crash"].mean(1), 0.36, 0.45)
-    place(fin, kit["tom_lo"], 0.36, 0.6)
+    place(fin, kit["crash"].mean(1), 0.36, 0.25)
+    place(fin, kit["tom_lo"], 0.36, 0.35)
     for i, t0 in enumerate((0.0, 0.12, 0.24)):
-        place(fin, kit["snare"], t0, 0.35)
+        place(fin, kit["snare"], t0, 0.18)
     S("finish", fin)
     un = np.zeros(ns(1.5))
     place(un, tone_seq([84, 88, 91, 96], "bell", 0.075, 0.07), 0)
     n = ns(1.2)
     t = tarr(n)
     for m in (84, 88, 91, 96):
-        place(un, INSTR["pad_glass"](midi_f(m), ns(0.7), seeded("un", m)).mean(1) * (1 + 0.3 * np.sin(2 * np.pi * 11 * tarr(ns(0.7) + ns(1.2))))[:ns(0.7) + ns(1.2)], 0.25, 0.4)
+        x = INSTR["pad_glass"](midi_f(m), ns(0.7), seeded("un", m)).mean(1)
+        place(un, x * (1 + 0.3 * np.sin(2 * np.pi * 11 * tarr(len(x)))), 0.25, 0.4)
     place(un, whoosh(0.5, 1000, 8000, "unlock", 1.0, 0.6), 0.0, 0.25)
     place(un, shards(1.2, 25, 4000, 9000, "unlock", 0.8), 0.25, 0.25)
     S("unlock", un)
@@ -1444,7 +1493,7 @@ def make_sfx():
     for i in range(4):
         nn = ns(0.04)
         place(rp, filt(_noise("rp%d" % i, nn), "bp", 3200, 5) * np.exp(-tarr(nn) / 0.006), i * 0.055)
-    place(rp, tone_seq([84, 88, 91], "marimba", 0.07, 0.06) + 0.4 * tone_seq([96, 100, 103], "bell", 0.07, 0.05), 0.24)
+    place(rp, mixl(tone_seq([84, 88, 91], "marimba", 0.07, 0.06), 0.4 * tone_seq([96, 100, 103], "bell", 0.07, 0.05)), 0.24)
     S("repair", rp)
     n = ns(0.65)
     t = tarr(n)

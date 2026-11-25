@@ -22,7 +22,7 @@ músicas, nomes, logotipos ou interface do original).
 | Texturas PBR (albedo + normal) | `assets/textures/*.png` | `tools/gen_textures.py` |
 | Sprites FX, medalhas, mapas, logo, ícone, atlas + JSON | `assets/sprites/{fx,maps,ui}/*` | `tools/gen_sprites.py` |
 | Cadeados de UI | `assets/sprites/ui/lock.png`, `unlock.png` | `tools/gen_ui_icons.py` |
-| 12 músicas (loop), 37 efeitos | `assets/audio/music/*.ogg`, `assets/audio/sfx/*.wav` | `tools/gen_audio.py` (fontes WAV das músicas em `source_art/audio/`) |
+| 12 músicas (loop), 37 efeitos | `assets/audio/music/*.ogg`, `assets/audio/sfx/*.wav` | `tools/gen_audio.py` — síntese própria em numpy (sem samples de terceiros); partitura de cada música (forma, acordes, melodias) em `source_art/audio/*.json` |
 | Tema de UI | `assets/ui/theme.tres` | escrito à mão |
 
 Titularidade: do(a) dono(a) deste repositório. **Nenhuma licença pública foi escolhida para esse conteúdo** — essa decisão é

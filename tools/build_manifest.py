@@ -90,12 +90,12 @@ def collect():
                        f"source_art/blend/track_{t}.blend", [f"track_data:{t}", "props", f"music:{t}", f"map:{t}"]))
         E.append(entry(f"track_data:{t}", f"{A}data/tracks/{t}.json", "track_data", "exported with the course (spline, widths, checkpoints, zones, lift)", f"source_art/blend/track_{t}.blend"))
         E.append(entry(f"map:{t}", f"{A}sprites/maps/{t}.png", "map", "top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py)", f"source_art/blend/track_{t}.blend"))
-        E.append(entry(f"music:{t}", f"{A}audio/music/track_{t}.ogg", "music", "original synthesized loop (tools/gen_audio.py)", f"source_art/audio/track_{t}.wav"))
+        E.append(entry(f"music:{t}", f"{A}audio/music/track_{t}.ogg", "music", "original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py)", f"source_art/audio/track_{t}.json"))
     for m in ["menu", "results", "victory"]:
-        E.append(entry(f"music:{m}", f"{A}audio/music/{m}.ogg", "music", "original synthesized loop (tools/gen_audio.py)", f"source_art/audio/{m}.wav"))
+        E.append(entry(f"music:{m}", f"{A}audio/music/{m}.ogg", "music", "original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py)", f"source_art/audio/{m}.json"))
     for f in sorted(os.listdir(os.path.join(ROOT, A, "audio/sfx"))):
         if f.endswith(".wav"):
-            E.append(entry(f"sfx:{f[:-4]}", f"{A}audio/sfx/{f}", "sfx", "original synthesized sound (tools/gen_audio.py)", "tools/gen_audio.py"))
+            E.append(entry(f"sfx:{f[:-4]}", f"{A}audio/sfx/{f}", "sfx", "original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py)", "tools/gen_audio.py"))
     for f in sorted(os.listdir(os.path.join(ROOT, A, "textures"))):
         if f.endswith(".png"):
             E.append(entry(f"texture:{f[:-4]}", f"{A}textures/{f}", "texture", "procedural PBR texture synthesis (tools/gen_textures.py)", "tools/gen_textures.py"))

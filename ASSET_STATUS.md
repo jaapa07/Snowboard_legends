@@ -88,79 +88,79 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | track_scene:vale_pinheiros | `assets/models/tracks/vale_pinheiros.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 55 meshes |
 | track_data:vale_pinheiros | `assets/data/tracks/vale_pinheiros.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:vale_pinheiros | `assets/sprites/maps/vale_pinheiros.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:vale_pinheiros | `assets/audio/music/track_vale_pinheiros.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
+| music:vale_pinheiros | `assets/audio/music/track_vale_pinheiros.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
 | track_scene:lago_cristal | `assets/models/tracks/lago_cristal.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 52 meshes |
 | track_data:lago_cristal | `assets/data/tracks/lago_cristal.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:lago_cristal | `assets/sprites/maps/lago_cristal.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:lago_cristal | `assets/audio/music/track_lago_cristal.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
+| music:lago_cristal | `assets/audio/music/track_lago_cristal.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
 | track_scene:pico_vulcanico | `assets/models/tracks/pico_vulcanico.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 54 meshes |
 | track_data:pico_vulcanico | `assets/data/tracks/pico_vulcanico.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:pico_vulcanico | `assets/sprites/maps/pico_vulcanico.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:pico_vulcanico | `assets/audio/music/track_pico_vulcanico.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
+| music:pico_vulcanico | `assets/audio/music/track_pico_vulcanico.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
 | track_scene:festival_boreal | `assets/models/tracks/festival_boreal.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 79 meshes |
 | track_data:festival_boreal | `assets/data/tracks/festival_boreal.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:festival_boreal | `assets/sprites/maps/festival_boreal.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:festival_boreal | `assets/audio/music/track_festival_boreal.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
+| music:festival_boreal | `assets/audio/music/track_festival_boreal.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
 | track_scene:floresta_gigante | `assets/models/tracks/floresta_gigante.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 71 meshes |
 | track_data:floresta_gigante | `assets/data/tracks/floresta_gigante.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:floresta_gigante | `assets/sprites/maps/floresta_gigante.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:floresta_gigante | `assets/audio/music/track_floresta_gigante.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
+| music:floresta_gigante | `assets/audio/music/track_floresta_gigante.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
 | track_scene:estacao_abandonada | `assets/models/tracks/estacao_abandonada.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 77 meshes |
 | track_data:estacao_abandonada | `assets/data/tracks/estacao_abandonada.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:estacao_abandonada | `assets/sprites/maps/estacao_abandonada.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:estacao_abandonada | `assets/audio/music/track_estacao_abandonada.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
+| music:estacao_abandonada | `assets/audio/music/track_estacao_abandonada.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
 | track_scene:tempestade_polar | `assets/models/tracks/tempestade_polar.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 53 meshes |
 | track_data:tempestade_polar | `assets/data/tracks/tempestade_polar.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:tempestade_polar | `assets/sprites/maps/tempestade_polar.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:tempestade_polar | `assets/audio/music/track_tempestade_polar.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
+| music:tempestade_polar | `assets/audio/music/track_tempestade_polar.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
 | track_scene:cume_celestial | `assets/models/tracks/cume_celestial.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 114 meshes |
 | track_data:cume_celestial | `assets/data/tracks/cume_celestial.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:cume_celestial | `assets/sprites/maps/cume_celestial.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:cume_celestial | `assets/audio/music/track_cume_celestial.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
+| music:cume_celestial | `assets/audio/music/track_cume_celestial.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
 | track_scene:parque_manobras | `assets/models/tracks/parque_manobras.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 92 meshes |
 | track_data:parque_manobras | `assets/data/tracks/parque_manobras.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:parque_manobras | `assets/sprites/maps/parque_manobras.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
-| music:parque_manobras | `assets/audio/music/track_parque_manobras.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| music:menu | `assets/audio/music/menu.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| music:results | `assets/audio/music/results.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| music:victory | `assets/audio/music/victory.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| sfx:boost | `assets/audio/sfx/boost.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:buy | `assets/audio/sfx/buy.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:buy_fail | `assets/audio/sfx/buy_fail.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:carve_loop | `assets/audio/sfx/carve_loop.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:coin | `assets/audio/sfx/coin.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:count | `assets/audio/sfx/count.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:count_go | `assets/audio/sfx/count_go.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:crash | `assets/audio/sfx/crash.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:finish | `assets/audio/sfx/finish.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:fog | `assets/audio/sfx/fog.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:gate | `assets/audio/sfx/gate.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:grind | `assets/audio/sfx/grind.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:hit | `assets/audio/sfx/hit.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:ice_burst | `assets/audio/sfx/ice_burst.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:ice_loop | `assets/audio/sfx/ice_loop.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:jump | `assets/audio/sfx/jump.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:land | `assets/audio/sfx/land.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:land_hard | `assets/audio/sfx/land_hard.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:lap | `assets/audio/sfx/lap.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:lift | `assets/audio/sfx/lift.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:magnet | `assets/audio/sfx/magnet.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:mine_drop | `assets/audio/sfx/mine_drop.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:penguin | `assets/audio/sfx/penguin.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:perfect | `assets/audio/sfx/perfect.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:repair | `assets/audio/sfx/repair.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:shield | `assets/audio/sfx/shield.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:shield_break | `assets/audio/sfx/shield_break.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:snow_loop | `assets/audio/sfx/snow_loop.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:spring | `assets/audio/sfx/spring.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:throw | `assets/audio/sfx/throw.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:ui_back | `assets/audio/sfx/ui_back.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:ui_move | `assets/audio/sfx/ui_move.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:ui_ok | `assets/audio/sfx/ui_ok.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:ui_open | `assets/audio/sfx/ui_open.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:unlock | `assets/audio/sfx/unlock.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:wave | `assets/audio/sfx/wave.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
-| sfx:wind_loop | `assets/audio/sfx/wind_loop.wav` | integrated | original synthesized sound (tools/gen_audio.py) | project-original |  |
+| music:parque_manobras | `assets/audio/music/track_parque_manobras.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
+| music:menu | `assets/audio/music/menu.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
+| music:results | `assets/audio/music/results.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
+| music:victory | `assets/audio/music/victory.ogg` | verified | original synthesized arrangement, seamless loop, 44.1 kHz stereo Vorbis q5 (tools/gen_audio.py) | project-original |  |
+| sfx:boost | `assets/audio/sfx/boost.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:buy | `assets/audio/sfx/buy.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:buy_fail | `assets/audio/sfx/buy_fail.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:carve_loop | `assets/audio/sfx/carve_loop.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:coin | `assets/audio/sfx/coin.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:count | `assets/audio/sfx/count.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:count_go | `assets/audio/sfx/count_go.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:crash | `assets/audio/sfx/crash.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:finish | `assets/audio/sfx/finish.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:fog | `assets/audio/sfx/fog.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:gate | `assets/audio/sfx/gate.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:grind | `assets/audio/sfx/grind.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:hit | `assets/audio/sfx/hit.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:ice_burst | `assets/audio/sfx/ice_burst.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:ice_loop | `assets/audio/sfx/ice_loop.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:jump | `assets/audio/sfx/jump.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:land | `assets/audio/sfx/land.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:land_hard | `assets/audio/sfx/land_hard.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:lap | `assets/audio/sfx/lap.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:lift | `assets/audio/sfx/lift.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:magnet | `assets/audio/sfx/magnet.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:mine_drop | `assets/audio/sfx/mine_drop.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:penguin | `assets/audio/sfx/penguin.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:perfect | `assets/audio/sfx/perfect.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:repair | `assets/audio/sfx/repair.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:shield | `assets/audio/sfx/shield.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:shield_break | `assets/audio/sfx/shield_break.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:snow_loop | `assets/audio/sfx/snow_loop.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:spring | `assets/audio/sfx/spring.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:throw | `assets/audio/sfx/throw.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:ui_back | `assets/audio/sfx/ui_back.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:ui_move | `assets/audio/sfx/ui_move.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:ui_ok | `assets/audio/sfx/ui_ok.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:ui_open | `assets/audio/sfx/ui_open.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:unlock | `assets/audio/sfx/unlock.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:wave | `assets/audio/sfx/wave.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
+| sfx:wind_loop | `assets/audio/sfx/wind_loop.wav` | integrated | original synthesized sound, layered, 44.1 kHz mono (tools/gen_audio.py) | project-original |  |
 | texture:bark_albedo | `assets/textures/bark_albedo.png` | integrated | procedural PBR texture synthesis (tools/gen_textures.py) | project-original | 512x512 |
 | texture:bark_normal | `assets/textures/bark_normal.png` | integrated | procedural PBR texture synthesis (tools/gen_textures.py) | project-original | 512x512 |
 | texture:ice_albedo | `assets/textures/ice_albedo.png` | integrated | procedural PBR texture synthesis (tools/gen_textures.py) | project-original | 512x512 |
