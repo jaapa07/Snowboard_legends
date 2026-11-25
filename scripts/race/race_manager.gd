@@ -144,10 +144,14 @@ func _build_screens() -> void:
 		c.stretch = true
 		var vp := SubViewport.new()
 		vp.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_4X, Viewport.MSAA_4X][clampi(Game.quality(), 0, 2)]
-		vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA   # cleans alpha-tested foliage edges MSAA misses
+		vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if Game.quality() >= 1 else Viewport.SCREEN_SPACE_AA_DISABLED
 		vp.use_debanding = true
 		vp.anisotropic_filtering_level = Viewport.ANISOTROPY_4X
 		vp.scaling_3d_scale = [0.75, 0.9, 1.0][clampi(Game.quality(), 0, 2)] if n == 1 else [0.7, 0.8, 0.9][clampi(Game.quality(), 0, 2)]
+		if Game.perf_low() and Game.quality() == 0:
+			vp.scaling_3d_scale = 0.6 if n == 1 else 0.5   # phones / web: fewer pixels, steadier frame rate
+			vp.use_debanding = false
+			vp.anisotropic_filtering_level = Viewport.ANISOTROPY_DISABLED
 		vp.audio_listener_enable_3d = i == 0
 		c.add_child(vp)
 		screens.add_child(c)
@@ -156,7 +160,7 @@ func _build_screens() -> void:
 		cam.target = humans[i]
 		cam.shake_enabled = bool(Save.settings().shake)
 		cam.motion_enabled = bool(Save.settings().motion)
-		cam.far = 1400.0
+		cam.far = 1400.0 if not (Game.perf_low() and Game.quality() == 0) else 650.0
 		vp.add_child(cam)
 		if DisplayServer.get_name() != "headless":
 			cam.add_weather(String(track.data.theme), Game.quality())
@@ -299,6 +303,19 @@ func _track_rider(r: RiderController, delta: float) -> void:
 			_reset_rider(r)
 			r.set_meta("anchor_p", r.global_position)
 			return
+	# crawling AI (e.g. scraping along a split divider after a crash): under 15 m of progress in 6 s
+	if movable and not r.is_human and not r.finished:
+		var cs := float(r.get_meta("crawl_s", r.s))
+		var ct := float(r.get_meta("crawl_t", 0.0)) + delta
+		if r.s - cs > 15.0 or r.s < cs - 50.0:
+			cs = r.s; ct = 0.0
+		if ct > 6.0:
+			qa["unstuck"] = int(qa.get("unstuck", 0)) + 1
+			test_log.append("crawl reset rider %d at %.0f" % [r.index, r.s])
+			_reset_rider(r)
+			cs = r.s; ct = 0.0
+		r.set_meta("crawl_s", cs)
+		r.set_meta("crawl_t", ct)
 	# stall tracking: grounded and not moving while the race runs
 	if r.state == RiderController.State.GROUND and r.speed < 1.0:
 		_stall[r.index] = float(_stall.get(r.index, 0.0)) + delta

@@ -12,6 +12,7 @@ TRACKS["vale_pinheiros"] = dict(
     segments=[(40, 0, 5, 22, 0), (110, 0, 9, 18, 0), (70, 40, 11, 16, 8), (70, -55, 11, 16, 8), (60, 15, 12, 20, 0),
               (90, 30, 12, 22, 6), (100, 75, 13, 16, 16), (60, 0, 11, 18, 0), (170, -25, 10, 18, 4), (80, 0, 4, 24, 0)],
     features=[
+        dict(type="zone", s0=512, s1=519, lat0=-4.0, lat1=4.0, kind="pit"),   # jumpable gap after the ramp at s=505 (safe lane kept)
         dict(type="coins", s=60, lat=-4, n=5), dict(type="coins", s=95, lat=4, n=5), dict(type="coins", s=130, lat=0, n=6),
         dict(type="sign", s=165, lat=9, kind="sign_right"), dict(type="sign", s=235, lat=-9, kind="sign_left"),
         dict(type="ramp", s=150, lat=0, w=7, h=1.2, l=6),
@@ -33,6 +34,7 @@ TRACKS["lago_cristal"] = dict(
     segments=[(40, 0, 5, 20, 0), (90, -20, 10, 18, 4), (110, 60, 9, 16, 12), (80, 0, 6, 20, 0), (120, -70, 8, 15, 14),
               (90, 20, 11, 16, 4), (110, 50, 12, 14, 10), (100, -30, 10, 18, 6), (180, 10, 9, 18, 0), (80, 0, 4, 24, 0)],
     features=[
+        dict(type="zone", s0=187, s1=194, lat0=-4.0, lat1=4.0, kind="pit"),   # jumpable gap after the ramp at s=180 (safe lane kept)
         dict(type="zone", s0=240, s1=320, lat0=-10, lat1=10, kind="ice"), dict(type="zone", s0=560, s1=640, lat0=-9, lat1=9, kind="ice"),
         dict(type="tunnel", s0=330, s1=400, kind="cave"),
         dict(type="split", s0=420, s1=520, div=4, kind="ice_pillars"), dict(type="tunnel", s0=430, s1=510, lat=4.5, kind="narrow"),
@@ -69,6 +71,7 @@ TRACKS["festival_boreal"] = dict(
     segments=[(40, 0, 5, 22, 0), (90, 0, 9, 18, 0), (80, -50, 10, 16, 10), (100, 0, 9, 24, 0), (90, 65, 11, 16, 14),
               (80, 0, 9, 18, 0), (110, -40, 11, 16, 10), (100, 20, 10, 20, 0), (180, -10, 9, 18, 0), (80, 0, 4, 24, 0)],
     features=[
+        dict(type="zone", s0=607, s1=614, lat0=-7.0, lat1=-1.0, kind="pit"),   # jumpable gap after the ramp at s=600 (safe lane kept)
         dict(type="split", s0=225, s1=305, div=6, kind="houses"),
         dict(type="platform", s0=235, s1=295, lat=7, w=6, h=2.2, kind="roof"),
         dict(type="coins", s=245, lat=7, n=8),
@@ -87,6 +90,7 @@ TRACKS["floresta_gigante"] = dict(
     segments=[(40, 0, 5, 20, 0), (110, 15, 10, 18, 0), (100, -45, 11, 16, 10), (120, 40, 12, 22, 8), (90, 0, 11, 18, 0),
               (130, -60, 12, 16, 14), (110, 30, 12, 22, 6), (110, 0, 11, 18, 0), (110, 35, 10, 16, 8), (100, -15, 9, 18, 0), (100, 20, 9, 18, 0), (80, 0, 4, 24, 0)],
     features=[
+        dict(type="zone", s0=908, s1=915, lat0=-4.0, lat1=4.0, kind="pit"),   # jumpable gap after the ramp at s=900 (safe lane kept)
         dict(type="split", s0=280, s1=370, div=7, kind="giant_roots"),
         dict(type="platform", s0=285, s1=365, lat=-7, w=5, h=3.0, kind="walkway"),
         dict(type="coins", s=300, lat=-7, n=8),
@@ -106,6 +110,7 @@ TRACKS["estacao_abandonada"] = dict(
     segments=[(40, 0, 5, 22, 0), (100, 0, 10, 18, 0), (110, 50, 11, 16, 12), (100, 0, 12, 20, 0), (90, -55, 11, 16, 12),
               (120, 0, 10, 22, 0), (100, 40, 12, 16, 10), (120, -30, 11, 18, 6), (140, 10, 10, 18, 0), (100, -20, 9, 18, 0), (80, 0, 4, 24, 0)],
     features=[
+        dict(type="zone", s0=768, s1=775, lat0=-4.0, lat1=4.0, kind="pit"),   # jumpable gap after the ramp at s=760 (safe lane kept)
         dict(type="tunnel", s0=250, s1=330, kind="rail_tunnel"),
         dict(type="split", s0=470, s1=560, div=5, kind="train"),
         dict(type="platform", s0=478, s1=552, lat=-7, w=5, h=1.6, kind="metal"),
@@ -125,6 +130,7 @@ TRACKS["tempestade_polar"] = dict(
     segments=[(40, 0, 5, 22, 0), (120, 10, 10, 18, 0), (110, -40, 11, 18, 8), (130, 30, 12, 20, 6), (120, -60, 12, 16, 14),
               (120, 0, 11, 22, 0), (110, 50, 12, 16, 12), (130, -20, 11, 18, 4), (150, 15, 10, 18, 0), (110, -5, 8, 20, 0), (80, 10, 9, 18, 0), (80, 0, 4, 24, 0)],
     features=[
+        dict(type="zone", s0=1058, s1=1065, lat0=-4.0, lat1=4.0, kind="pit"),   # jumpable gap after the ramp at s=1050 (safe lane kept)
         dict(type="zone", s0=150, s1=330, lat0=-11, lat1=11, kind="wind", force=3.5), dict(type="zone", s0=620, s1=860, lat0=-12, lat1=12, kind="wind", force=-4.0),
         dict(type="split", s0=640, s1=760, div=4, kind="ice_wall"), dict(type="zone", s0=640, s1=760, lat0=2, lat1=11, kind="shelter"),
         dict(type="zone", s0=400, s1=480, lat0=-10, lat1=10, kind="ice"), dict(type="zone", s0=900, s1=980, lat0=-9, lat1=9, kind="whiteout"),
@@ -164,6 +170,7 @@ TRACKS["parque_manobras"] = dict(
     sky=("#4a9aff", "#e0f0ff"), fog="#e0eeff", sun=(-55, 20), trees=["tree_pine_a", "tree_birch"], tree_density=0.6,
     segments=[(40, 0, 6, 28, 0), (120, 0, 12, 28, 0), (90, 30, 12, 26, 6), (120, -30, 12, 28, 6), (70, 0, 10, 28, 0), (80, 0, 4, 28, 0)],
     features=[
+        dict(type="zone", s0=269, s1=276, lat0=-5.0, lat1=5.0, kind="pit"),   # jumpable gap after the ramp at s=260 (safe lane kept)
         dict(type="ramp", s=70, lat=-7, w=7, h=1.6, l=6), dict(type="ramp", s=80, lat=7, w=7, h=2.2, l=8),
         dict(type="rail", s=120, lat=0, len=20), dict(type="ramp", s=160, lat=-6, w=8, h=2.6, l=9), dict(type="ramp", s=170, lat=7, w=6, h=1.4, l=5),
         dict(type="rail", s=215, lat=-8, len=16), dict(type="rail", s=220, lat=8, len=16), dict(type="ramp", s=260, lat=0, w=10, h=2.8, l=10),

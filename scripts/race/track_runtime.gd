@@ -242,7 +242,7 @@ func _build_environment() -> void:
 	e.background_mode = Environment.BG_SKY; e.sky = sky
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY; e.ambient_light_energy = 0.75
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC; e.tonemap_exposure = 1.0; e.tonemap_white = 6.0
-	e.fog_enabled = true; e.fog_light_color = Color(String(data.fog)); e.fog_density = 0.0016
+	e.fog_enabled = true; e.fog_light_color = Color(String(data.fog)); e.fog_density = 0.0016 if not (Game.perf_low() and quality == 0) else 0.0035
 	e.fog_aerial_perspective = 0.55; e.fog_sky_affect = 0.35
 	# valley haze: height fog thickens towards the lower slopes for depth
 	e.fog_height = float(pos[pos.size() - 1].y) + 20.0; e.fog_height_density = 0.004
@@ -297,6 +297,8 @@ func _build_clouds(theme: String) -> void:
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.use_colors = true
 	var count: int = [14, 26, 36][clampi(quality, 0, 2)]
+	if Game.perf_low() and quality == 0:
+		count = 6
 	mm.instance_count = count * 4
 	var q := QuadMesh.new(); q.size = Vector2(1, 1)
 	var m := StandardMaterial3D.new()
@@ -424,6 +426,9 @@ func _build_props() -> void:
 				groups[k] = []
 			groups[k].append(pr)
 	var veg_scale: float = [0.55, 0.8, 1.0][clampi(quality, 0, 2)]
+	var light: bool = Game.perf_low() and quality == 0
+	if light:
+		veg_scale = 0.4
 	for k in groups:
 		var mesh := Registry.mesh_of(PROPS_GLB, k)
 		if mesh == null:
@@ -443,12 +448,12 @@ func _build_props() -> void:
 		mmi.name = "MM_" + k
 		mmi.multimesh = mm
 		mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if (quality >= 1 and is_tree) else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		mmi.visibility_range_end = 420.0 if quality >= 1 else 260.0
+		mmi.visibility_range_end = 420.0 if quality >= 1 else (170.0 if light else 260.0)
 		add_child(mmi)
 	if String(data.theme) == "night" or String(data.theme) == "station":
 		var n := 0
 		for pr in data.props:
-			if String(pr.kind).begins_with("lantern") and n < (14 if quality >= 1 else 6):
+			if String(pr.kind).begins_with("lantern") and n < (14 if quality >= 1 else (3 if light else 6)):
 				var l := OmniLight3D.new()
 				l.light_color = Color(1.0, 0.75, 0.45); l.light_energy = 2.2; l.omni_range = 14.0
 				l.position = _v(pr.pos) + Vector3(0, 2.8, 0)

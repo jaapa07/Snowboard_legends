@@ -17,6 +17,9 @@ func setup(track_id: StringName, rider_ids: Array) -> void:
 	cam = Camera3D.new()
 	cam.fov = 62.0
 	cam.far = 1200.0
+	if Game.perf_low() and Game.quality() == 0:
+		cam.far = 600.0
+		get_viewport().scaling_3d_scale = 0.6   # phones / web: the title backdrop is the real course too
 	add_child(cam)
 	cam.current = true
 	var i := 0

@@ -22,6 +22,23 @@ var _buttons: Array[Dictionary] = []      ## {id, center, r, label, col, touch}
 var _safe := Rect2()
 var _font: Font
 
+static func safe_rect(vs: Vector2) -> Rect2:
+	## Usable area in viewport units. Browsers report screen and safe area in different units (CSS vs device
+	## pixels), which pushed the buttons off-screen on iPhone Safari: on the web use the whole canvas with a
+	## notch-sized margin; elsewhere trust the OS safe area only when it is plausible.
+	var full := Rect2(Vector2.ZERO, vs)
+	if OS.has_feature("web"):
+		return full.grow_individual(-vs.x * 0.04, -vs.y * 0.02, -vs.x * 0.04, -vs.y * 0.03)
+	var screen := DisplayServer.screen_get_size()
+	var sa := DisplayServer.get_display_safe_area()
+	if screen.x <= 0 or screen.y <= 0 or sa.size.x <= 0:
+		return full
+	var k := vs / Vector2(screen)
+	var r := Rect2(Vector2(sa.position) * k, Vector2(sa.size) * k)
+	if r.size.x < vs.x * 0.6 or r.size.y < vs.y * 0.6 or not full.grow(2.0).encloses(r):
+		return full
+	return r
+
 static func reset_state() -> void:
 	for k in state:
 		state[k] = 0.0 if k == "steer" else false
@@ -50,12 +67,7 @@ func setup(r: RiderController) -> void:
 
 func _layout() -> void:
 	var vs := get_viewport_rect().size
-	_safe = Rect2(Vector2.ZERO, vs)
-	var screen := DisplayServer.screen_get_size()
-	var sa := DisplayServer.get_display_safe_area()
-	if screen.x > 0 and screen.y > 0 and sa.size.x > 0:
-		var k := vs / Vector2(screen)
-		_safe = Rect2(Vector2(sa.position) * k, Vector2(sa.size) * k)
+	_safe = TouchControls.safe_rect(vs)
 	var m := 28.0
 	var br := Vector2(_safe.end.x - m, _safe.end.y - m)
 	var u := clampf(vs.y / 900.0, 0.6, 1.6) * 1.0

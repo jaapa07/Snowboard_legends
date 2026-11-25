@@ -34,13 +34,7 @@ var _back_btn: Button
 
 func _safe_inset() -> Vector2:
 	## Top/side inset of the display safe area (notch / Dynamic Island) in viewport units.
-	var vs := get_viewport().get_visible_rect().size
-	var screen := DisplayServer.screen_get_size()
-	var sa := DisplayServer.get_display_safe_area()
-	if screen.x <= 0 or sa.size.x <= 0:
-		return Vector2.ZERO
-	var k := vs / Vector2(screen)
-	return Vector2(sa.position) * k
+	return TouchControls.safe_rect(get_viewport().get_visible_rect().size).position
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS

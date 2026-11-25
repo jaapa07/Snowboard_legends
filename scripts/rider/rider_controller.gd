@@ -510,6 +510,10 @@ func _step_fallen(delta: float) -> void:
 		visual.on_recover()
 
 func _step_finished(delta: float) -> void:
+	# past the finish there may be no terrain under a fast rider: keep finishers on the run-out
+	if track and global_position.y < track.point_at(minf(s, track.length - 1.0), 0.0).y - 12.0:
+		global_position = track.point_at(minf(s, track.length - 1.0), clampf(lat, -3.0, 3.0), 0.3)
+		velocity = Vector3.ZERO
 	var hv := Vector3(velocity.x, 0, velocity.z)
 	hv = hv.move_toward(Vector3.ZERO, 8.0 * delta)
 	velocity = Vector3(hv.x, velocity.y - tuning.gravity * delta, hv.z)

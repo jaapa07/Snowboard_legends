@@ -69,8 +69,8 @@ func _layout_course() -> void:
 	_add("flake", track.point_at(s3, -track.half_width(s3) * 0.7, 1.3), "%s:3" % track.def.id)
 	# turbo crystals on the racing line, mystery boxes and giant coins near the edges
 	for f in [0.18, 0.42, 0.66, 0.9]:
-		var s: float = L * float(f)
-		if s < L - 30.0:
+		var s: float = _calm_s(L * float(f))
+		if s > 0.0 and s < L - 30.0:
 			_add("crystal", track.point_at(s, 0.0, 1.0))
 	for f in [0.34, 0.6]:
 		var s: float = L * float(f)
@@ -78,6 +78,30 @@ func _layout_course() -> void:
 	for f in [0.24, 0.5, 0.84]:
 		var s: float = L * float(f)
 		_add("bigcoin", track.point_at(s, -track.half_width(s) * 0.55 * (1.0 if int(f * 100) % 2 == 0 else -1.0), 1.1))
+
+func _calm_s(s: float) -> float:
+	## A boost only where the next 120 m are a gentle straight with no split, hazard or gap (a turbo
+	## crystal before the tree split on Vale dos Pinheiros sent riders off the course).
+	var L := track.finish_s
+	var t := s
+	while t < L - 60.0:
+		var ok := true
+		for x in range(int(t), int(minf(t + 120.0, L)), 4):
+			if absf(track.curv[track.idx_at(float(x))]) > 0.35:
+				ok = false; break
+		for sp in track.splits:
+			if float(sp.s0) > t - 10.0 and float(sp.s0) < t + 130.0:
+				ok = false
+		for z in track.zones:
+			if String(z.kind) == "pit" and float(z.s0) > t and float(z.s0) < t + 130.0:
+				ok = false
+		for hz in track.hazards:
+			if float(hz.s) > t and float(hz.s) < t + 80.0:
+				ok = false
+		if ok:
+			return t
+		t += 20.0
+	return -1.0
 
 func _layout_flake_hunt() -> void:
 	## Minigame: 20 golden flakes in spots that need powers — high ones (spring), far off-line ones (magnet radius 9 m),

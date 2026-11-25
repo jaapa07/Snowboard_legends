@@ -18,7 +18,7 @@ var lift_mode := false
 func add_weather(theme: String, q: int) -> void:
 	## Ambient precipitation travelling with the camera: snowfall, night flakes, volcanic ash or a crosswind blizzard.
 	var p := GPUParticles3D.new()
-	p.amount = int([140, 320, 520][clampi(q, 0, 2)] * (1.8 if theme == "storm" else 1.0))
+	p.amount = int([140, 320, 520][clampi(q, 0, 2)] * (1.8 if theme == "storm" else 1.0) * (0.5 if Game.perf_low() else 1.0))
 	p.lifetime = 3.5
 	p.local_coords = false
 	p.visibility_aabb = AABB(Vector3(-30, -20, -40), Vector3(60, 40, 60))

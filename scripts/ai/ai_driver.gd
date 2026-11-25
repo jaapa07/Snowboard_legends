@@ -73,9 +73,13 @@ func _think(r: RiderController, delta: float) -> InputCommand:
 		var tg: Dictionary = race.next_target(s)
 		if not tg.is_empty() and float(tg.s) - s < 60.0:
 			lat_goal = float(tg.lat)   # line up with the next target
-	lat_goal = _avoid(r, tr, s, lat_goal, hw)
+	# overtaking first, hazard avoidance last: avoidance must have the final word (an overtake used to pull
+	# riders back across a gap edge)
 	lat_goal = _overtake(r, s, lat_goal, hw)
-	_lat_smooth = lerpf(_lat_smooth, lat_goal, clampf(delta * 3.0, 0, 1))
+	var before_avoid := lat_goal
+	lat_goal = _avoid(r, tr, s, lat_goal, hw)
+	var avoiding := absf(lat_goal - before_avoid) > 0.01
+	_lat_smooth = lerpf(_lat_smooth, lat_goal, clampf(delta * (7.0 if avoiding else 3.0), 0, 1))
 	var look := clampf(10.0 + r.speed * 0.9, 10.0, 35.0)
 	if r.fog_t > 0.0:
 		look *= 0.6
@@ -114,7 +118,14 @@ func _think(r: RiderController, delta: float) -> InputCommand:
 	for rp in tr.ramps:
 		var lip: float = float(rp.s) + float(rp.l) * 0.5
 		var dlat := absf(r.lat - float(rp.lat))
-		if dlat < float(rp.w) * 0.5 and s > float(rp.s) - float(rp.l) * 0.5 - 6.0 and s < lip - 0.6:
+		# a ramp in front of a gap needs a fully charged jump (0.65 s): start charging earlier
+		var pre := 6.0
+		for z2 in tr.zones:
+			if String(z2.kind) == "pit" and float(z2.s0) > lip and float(z2.s0) - lip < 15.0:
+				pre = maxf(6.0, r.speed * r.tuning.jump_charge_max)
+		# release early enough that the delayed command still reaches the rider before the lip
+		var lead := 0.6 + r.speed * float(_delay_frames) / 60.0
+		if dlat < float(rp.w) * 0.5 and s > float(rp.s) - float(rp.l) * 0.5 - pre - lead and s < lip - lead:
 			c.jump_held = true
 			fsm = S.JUMP
 	# stuck recovery
@@ -163,6 +174,10 @@ func _racing_line(r: RiderController, tr: TrackRuntime, s: float, hw: float) -> 
 				if choice == left and bad_l:
 					choice = right
 				_lane_choice[key] = choice
+			# already inside the split on the other lane (overtake, crash, reset): stay there instead of
+			# steering through the divider
+			if s > float(sp.s0) - 2.0 and absf(r.lat) > float(sp.div) * 0.5 and signf(r.lat) != signf(float(_lane_choice[key])):
+				_lane_choice[key] = -float(_lane_choice[key])
 			return _lane_choice[key]
 	# item stations: steer through a station when we can afford it and the slot is free
 	if r.race_coins >= ItemSystem.PRICE and race.items.enabled:
@@ -205,14 +220,20 @@ func _avoid(r: RiderController, tr: TrackRuntime, s: float, lat: float, hw: floa
 				var has_ramp := false
 				for rp in tr.ramps:
 					if float(rp.s) < float(z.s0) and float(z.s0) - float(rp.s) < 20.0 and absf(float(rp.lat) - lat) < float(rp.w):
-						has_ramp = true
+						# only commit to the jump when well centred on the ramp (wide-turning riders go round)
+						has_ramp = k != "pit" or absf(float(rp.lat) - r.lat) < float(rp.w) * 0.5 - 1.0
 				# only take the jump over a fissure with enough speed to clear it (e.g. right after a reset)
-				if k == "pit" and r.speed < 17.0:
-					has_ramp = false
+				if k == "pit" and (r.speed < 19.0 or difficulty == 0):
+					has_ramp = false   # rookies, and anyone too slow, take the safe lane around the gap
 				if not has_ramp or k == "slush" and difficulty == 0:
 					fsm = S.AVOID
-					var mid := (float(z.lat0) + float(z.lat1)) * 0.5
-					return clampf(mid + (-1.0 if mid > 0 else 1.0) * (absf(float(z.lat1) - float(z.lat0)) * 0.5 + 2.5), -hw + 1.0, hw - 1.0)
+					# go round on the nearer side that has room
+					var left := float(z.lat0) - 2.2
+					var right := float(z.lat1) + 2.2
+					var left_ok := left > -hw + 1.0
+					var right_ok := right < hw - 1.0
+					var go_left := left_ok and (not right_ok or absf(lat - left) <= absf(lat - right))
+					return clampf(left if go_left else right, -hw + 1.0, hw - 1.0)
 	for m in race.items.mines:
 		var p: Vector3 = m.node.global_position if m.node else m.p
 		var pr := tr.project(p, r.proj_idx)

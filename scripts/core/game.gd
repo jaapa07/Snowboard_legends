@@ -57,7 +57,13 @@ func is_mobile() -> bool:
 	## native mobile, or the web build opened on a phone/tablet browser (e.g. Safari on iPhone)
 	return OS.has_feature("mobile") or OS.has_feature("web_ios") or OS.has_feature("web_android")
 
+func perf_low() -> bool:
+	## Phones, tablets and the web build share a lighter profile.
+	return is_mobile() or OS.has_feature("web")
+
 func _apply_mobile_profile() -> void:
+	if perf_low():
+		Engine.max_physics_steps_per_frame = 3   # no "spiral of death" stutter when a frame runs long
 	## First launch on a phone/tablet: low quality preset (Mobile renderer, 0.75 render scale, no heavy effects).
 	if (is_mobile() or OS.has_feature("web")) and not bool(Save.settings().get("mobile_profile_applied", false)):
 		Save.settings().quality = 0
