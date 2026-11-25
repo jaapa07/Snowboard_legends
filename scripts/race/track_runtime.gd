@@ -177,10 +177,11 @@ func material(key: String) -> StandardMaterial3D:
 	match key:
 		"track_groomed":
 			m.albedo_texture = _tex(snow + "_albedo"); m.normal_enabled = true; m.normal_texture = _tex(snow + "_normal")
-			m.normal_scale = 0.6; m.roughness = 0.55; m.uv1_scale = Vector3(1, 1, 1)
+			m.normal_scale = 0.8; m.roughness = 0.7; m.uv1_scale = Vector3(1, 1, 1)
+			m.albedo_color = Color(0.8, 0.84, 0.9)   # keeps highlight headroom so slope shading/grooves stay visible
 		"track_berm":
 			m.albedo_texture = _tex("snow_soft_albedo"); m.normal_enabled = true; m.normal_texture = _tex("snow_soft_normal")
-			m.roughness = 0.75; m.albedo_color = Color(0.97, 0.98, 1.0)
+			m.roughness = 0.8; m.albedo_color = Color(0.86, 0.9, 0.97)
 			if snow == "snow_night":
 				m.albedo_color = Color(0.62, 0.68, 0.92)
 			elif snow == "snow_ash":
@@ -194,7 +195,8 @@ func material(key: String) -> StandardMaterial3D:
 			m.albedo_color = Color(1.0, 0.82, 0.2); m.emission_enabled = true; m.emission = Color(1.0, 0.7, 0.1); m.emission_energy_multiplier = 0.8
 		"terrain_snow":
 			m.albedo_texture = _tex(snow + "_albedo"); m.normal_enabled = true; m.normal_texture = _tex("snow_soft_normal")
-			m.uv1_triplanar = true; m.uv1_scale = Vector3(0.08, 0.08, 0.08); m.vertex_color_use_as_albedo = true; m.roughness = 0.8
+			m.uv1_triplanar = true; m.uv1_scale = Vector3(0.08, 0.08, 0.08); m.vertex_color_use_as_albedo = true; m.roughness = 0.85
+			m.albedo_color = Color(0.84, 0.88, 0.95)
 		_:
 			return null
 	m.resource_name = key
@@ -231,7 +233,7 @@ func _build_environment() -> void:
 	sm.sun_angle_max = 20.0
 	sky.sky_material = sm
 	e.background_mode = Environment.BG_SKY; e.sky = sky
-	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY; e.ambient_light_energy = 1.0
+	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY; e.ambient_light_energy = 0.75
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC; e.tonemap_exposure = 1.0
 	e.fog_enabled = true; e.fog_light_color = Color(String(data.fog)); e.fog_density = 0.0016
 	e.fog_aerial_perspective = 0.4; e.fog_sky_affect = 0.3
@@ -241,7 +243,7 @@ func _build_environment() -> void:
 	var theme := String(data.theme)
 	sun = DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(float(data.sun[0]), float(data.sun[1]), 0)
-	sun.light_energy = 1.15
+	sun.light_energy = 1.0
 	sun.light_color = Color(1.0, 0.97, 0.92)
 	sun.shadow_enabled = quality >= 1
 	sun.directional_shadow_max_distance = 140.0 if quality >= 2 else 90.0
@@ -470,6 +472,7 @@ func _build_coins(with_visuals: bool) -> void:
 	mm.instance_count = coins.size()
 	coin_mm.multimesh = mm
 	coin_mm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	coin_mm.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF  # spun in _process
 	add_child(coin_mm)
 
 func _update_coins(delta: float) -> void:

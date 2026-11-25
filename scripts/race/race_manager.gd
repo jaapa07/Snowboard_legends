@@ -406,7 +406,10 @@ func _end_race() -> void:
 		var summary := {"track": String(Game.track_id), "laps": laps, "time": snappedf(race_time, 0.01), "resets": test_log.size(), "results": Game.last_results,
 			"ai": ais.map(func(a): return a.stats)}
 		print("RACE_RESULT " + JSON.stringify(summary))
-		get_tree().quit(0)
+		if Game.has_meta("show_results"):
+			get_tree().create_timer(1.5).timeout.connect(Game.goto_results)
+		else:
+			get_tree().quit(0)
 	else:
 		get_tree().create_timer(3.5).timeout.connect(Game.goto_results)
 

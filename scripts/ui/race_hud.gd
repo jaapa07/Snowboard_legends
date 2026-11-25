@@ -178,7 +178,7 @@ func _refresh() -> void:
 		lap_txt = "%s %d/%d" % [Game.t("lap"), mini(rider.lap + 1, L), L]
 		lbl_timer.text = _fmt(race.race_time)
 		if race.mode == Game.Mode.SKILL_SLALOM:
-			lbl_timer.text += "   %s %d  ✕%d" % [Game.t("gates"), race.gates_passed, race.gates_missed]
+			lbl_timer.text += "   %s %d  ×%d" % [Game.t("gates"), race.gates_passed, race.gates_missed]
 	lbl_lap.text = lap_txt
 	var p := rider.place
 	lbl_pos.text = "%d%s" % [p, ["º", "º", "º", "º"][clampi(p - 1, 0, 3)]]

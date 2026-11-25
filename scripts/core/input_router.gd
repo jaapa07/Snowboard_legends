@@ -45,9 +45,44 @@ func apply_remaps(remaps: Dictionary) -> void:
 			if ev is InputEventKey:
 				InputMap.action_erase_event(a, ev)
 				break
+		if int(remaps[a]) <= 0:
+			continue  # explicitly unbound (its key was taken by another action)
 		var nk := InputEventKey.new()
 		nk.physical_keycode = int(remaps[a])
 		InputMap.action_add_event(a, nk)
+
+func current_key_map() -> Dictionary:
+	## Primary keyboard key per action (0 = unbound); persisted as settings.remaps.
+	var out := {}
+	for a in ACTIONS:
+		var k := 0
+		for ev in InputMap.action_get_events(a):
+			if ev is InputEventKey:
+				k = (ev as InputEventKey).physical_keycode
+				break
+		out[a] = k
+	return out
+
+func reset_keyboard_defaults() -> void:
+	## Restores the default keyboard bindings (gamepad bindings are untouched).
+	for a in ACTIONS:
+		for ev in InputMap.action_get_events(a):
+			if ev is InputEventKey:
+				InputMap.action_erase_event(a, ev)
+		for k in ACTIONS[a]:
+			var ev := InputEventKey.new()
+			ev.physical_keycode = k
+			InputMap.action_add_event(a, ev)
+
+func remap(action: String, keycode: int) -> void:
+	## Rebinds the primary key of an action and drops that key from other actions to avoid conflicts.
+	for a in ACTIONS:
+		if a == action:
+			continue
+		for ev in InputMap.action_get_events(a):
+			if ev is InputEventKey and (ev as InputEventKey).physical_keycode == keycode:
+				InputMap.action_erase_event(a, ev)
+	apply_remaps({action: keycode})
 
 func key_name(action: String) -> String:
 	for ev in InputMap.action_get_events(action):
