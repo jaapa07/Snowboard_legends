@@ -3,25 +3,27 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dpnbfeg0cqxry"
-path="res://.godot/imported/rock_cliff_normal.jpg-b41bd75b45ed65f0b9d64863bf951508.ctex"
+path.s3tc="res://.godot/imported/rock_cliff_normal.jpg-b41bd75b45ed65f0b9d64863bf951508.s3tc.ctex"
+path.etc2="res://.godot/imported/rock_cliff_normal.jpg-b41bd75b45ed65f0b9d64863bf951508.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/cc0/rock_cliff_normal.jpg"
-dest_files=["res://.godot/imported/rock_cliff_normal.jpg-b41bd75b45ed65f0b9d64863bf951508.ctex"]
+dest_files=["res://.godot/imported/rock_cliff_normal.jpg-b41bd75b45ed65f0b9d64863bf951508.s3tc.ctex", "res://.godot/imported/rock_cliff_normal.jpg-b41bd75b45ed65f0b9d64863bf951508.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -30,5 +32,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
-detect_3d/compress_to=1
+process/size_limit=512
+detect_3d/compress_to=0
