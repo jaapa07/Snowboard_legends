@@ -2,7 +2,7 @@
 
 Legenda: ✅ feito e verificado (evidência citada) · 🟡 implementado, verificação parcial · ❌ não feito / bloqueado
 
-Relatórios: `docs/test_reports/suite_unit_integration_e2e.json` (329 verificações, 0 falhas),
+Relatórios: `docs/test_reports/suite_unit_integration_e2e.json` (367 verificações, 0 falhas),
 `docs/test_reports/ai_<pista>.json` (100 corridas × 9 pistas), `docs/test_reports/benchmark_*.json`.
 Capturas reais: `docs/screenshots/`.
 
@@ -11,14 +11,15 @@ Capturas reais: `docs/screenshots/`.
 - ✅ Captura sem GPU: Forward+ via Mesa lavapipe + Xvfb (`CLAUDE.md`). Compatibility no llvmpipe estoura a neve — não usado como evidência.
 - ✅ Bloqueio encontrado na verificação inicial e corrigido: `boot.gd` tinha `_capture` duplicado (erro de parse; o jogo não iniciava).
 
-## Assets (`ASSET_STATUS.md`, `assets.manifest.json` — 174 entradas, 0 missing/in_progress; `--check` bloqueia release)
+## Assets (`ASSET_STATUS.md`, `assets.manifest.json` — 221 entradas, 0 missing/in_progress; `--check` bloqueia release)
 - ✅ 9 pilotos rigados (8 + Kaito, original e secreto), 24 clips cada (validados no GLB pelo manifesto). ⚠ 5,7–7,4k tri, abaixo do orçamento indicativo 8–18k.
 - ✅ 12 pranchas, props/vegetação/teleférico, 12 itens (10 + cometa caçador + redemoinho), moeda, 2 estações, alvo de desafio.
 - ✅ 9 pistas GLB + dados; checkpoints a cada 60 m (teste de conteúdo); descidas por pista (3–9).
 - ✅ Retratos (9) e ícones de itens (12 + moeda + alvo) renderizados em Cycles (`tools/blender/render_rider.py`, `render_objects.py`).
 - ✅ Mapas ilustrados a partir do render ortográfico real de cada pista + sobreposição de rota (`tools/blender/render_maps.py`, `tools/gen_maps.py`).
 - ✅ Texturas PBR, sprites FX/UI, atlas+JSON, cadeados (`tools/gen_ui_icons.py`), fonte Inter (OFL-1.1).
-- ✅ 37 SFX + 12 músicas sintetizadas. ⚠ qualidade de síntese, sem vozes.
+- ✅ 37 SFX em camadas + 12 músicas arranjadas (intro/refrão/pausa; bateria, baixo, acordes, melodia; OGG estéreo, 42–90 s) — `tools/gen_audio.py --verify` (sem clipping, volume uniforme). Loops de vento/atrito importados sem compressão (antes repetiam só 0,4 s). ⚠ síntese procedural, sem vozes.
+- ✅ Texturas fotográficas e céus HDRI CC0 (Poly Haven, ambientCG) — `tools/fetch_cc0.py`, origem e MD5 em `source_art/cc0/sources.json`, linhas em `ASSET_LICENSES.md`.
 - ✅ `ASSET_LICENSES.md` (conteúdo original: licença pública ainda não escolhida pelo titular; terceiros: Inter OFL-1.1, Godot MIT).
 
 ## Gameplay (testes em `tests/run_all.gd`)
@@ -37,6 +38,8 @@ Capturas reais: `docs/screenshots/`.
 - ✅ Assistência de IA ≤5 %, sob o teto físico, desligável — unit (antes era uma opção sem efeito).
 - ✅ HUD (posição, descida x/N, tempo, velocidade, moedas, 2 slots, barra vertical de retratos a 10 Hz, minimapa, avisos) — capturas `docs/screenshots/tracks/`.
 - ✅ Pausa (Esc/Start), retomar, reiniciar — e2e.
+- ✅ Queda em buraco: reaparece 8 m após a fenda já rolando (≥10 m/s, 0,8 s), com flash e dica — integração `_i_pit_respawn`; IA 6×2 descidas nas 7 pistas com fenda: 168/168 concluíram, 0 checkpoints pulados.
+- ✅ Poderes legíveis: projéteis maiores com halo aditivo (`scripts/fx/glow_halo.gd`), auras no piloto (ímã/turbo/acerto), faixas "Novo poder", "Atingido por X", "O escudo bloqueou" (`race_hud.gd`).
 
 ## Modos e progressão
 - ✅ Grand Prix: 4 copas × 2 pistas, pontos 10/7/4/2, créditos 100/70/40/25 + bônus ≤50, medalhas, desbloqueios — unit + integração + e2e (corrida 1 → próxima → final da copa → ouro → desbloqueios → menu).
@@ -54,6 +57,10 @@ Capturas reais: `docs/screenshots/`.
 
 ## Visual
 - ✅ MSAA 4x + FXAA, filtro anisotrópico, SSAO (média+), SSIL (alta), sombras suaves 4096, neblina de vale, precipitação por clima, animação polida (crossfades, inclinação, squash no pouso), noite mais legível — capturas.
+
+## Web / celular
+- ✅ Export Web (GitHub Pages, branch `gh-pages`, PWA), texturas ETC2, PCK ~67 MB; modo `perf_low` (escala de viewport, vegetação reduzida).
+- ✅ Controles de toque em PT-BR com legendas, fundo escuro, anel dourado + nome do poder pronto, dicas nas 3 primeiras corridas — verificado em emulação iPhone 13 paisagem (Playwright). 🟡 Sem teste em aparelho físico.
 
 ## Entrega
 - ✅ `tests/run_all.tscn` (unit/integration/e2e/ai), sai com código 1 em falha.

@@ -4,13 +4,13 @@
 		"--suite",
 		"unit,integration,e2e",
 		"--report",
-		"docs/test_reports/suite_unit_integration_e2e.json"
+		"res://docs/test_reports/suite_unit_integration_e2e.json"
 	],
 	"engine": "4.4.1-stable (official)",
 	"failed": 0,
 	"failures": [],
-	"passed": 363,
-	"seconds": 55.4,
+	"passed": 367,
+	"seconds": 62.9,
 	"sections": {
 		"e2e: garage purchase + equip": {
 			"fail": 0,
@@ -47,6 +47,10 @@
 		"integration: off-track reset": {
 			"fail": 0,
 			"pass": 3
+		},
+		"integration: pit fall respawns past the gap, rolling": {
+			"fail": 0,
+			"pass": 4
 		},
 		"integration: power minigames": {
 			"fail": 0,
