@@ -268,7 +268,9 @@ func _build_environment() -> void:
 	sun.directional_shadow_blend_splits = quality >= 2
 	match theme:
 		"night":
-			sun.light_energy = 0.35; sun.light_color = Color(0.6, 0.7, 1.0); e.ambient_light_energy = 0.8
+			# moonlit: brighter cool ambient so riders read against the snow; lanterns carry the warm accents
+			sun.light_energy = 0.55; sun.light_color = Color(0.62, 0.72, 1.0); e.ambient_light_energy = 1.15
+			e.tonemap_exposure = 1.15
 			e.fog_density = 0.004; e.glow_intensity = 0.8; e.glow_hdr_threshold = 0.9
 		"volcano":
 			sun.light_color = Color(1.0, 0.8, 0.65); e.fog_density = 0.0028

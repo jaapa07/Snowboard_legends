@@ -1,0 +1,52 @@
+{
+	"ai": [
+		{
+			"best": 95.8666666666625,
+			"completed": 100,
+			"cp_skips": 0,
+			"fails": [],
+			"laps": 2,
+			"max_stall": 3.88333333333332,
+			"median": 104.199999999995,
+			"nan": 0,
+			"races": 100,
+			"resets": 0,
+			"riders_finished": 400,
+			"riders_total": 400,
+			"track": "floresta_gigante",
+			"wins": {
+				"boro": 21,
+				"luna": 14,
+				"mika": 4,
+				"niko": 7,
+				"pippa": 5,
+				"taro": 25,
+				"yuki": 2,
+				"zed": 22
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"floresta_gigante",
+		"--report",
+		"docs/test_reports/ai_floresta_gigante.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 4,
+	"seconds": 1268.7,
+	"sections": {
+		"ai: automated races": {
+			"fail": 0,
+			"pass": 4
+		}
+	}
+}

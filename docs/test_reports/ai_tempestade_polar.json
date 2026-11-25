@@ -1,0 +1,51 @@
+{
+	"ai": [
+		{
+			"best": 97.6333333333291,
+			"completed": 100,
+			"cp_skips": 0,
+			"fails": [],
+			"laps": 2,
+			"max_stall": 0.2,
+			"median": 106.349999999995,
+			"nan": 0,
+			"races": 100,
+			"resets": 0,
+			"riders_finished": 400,
+			"riders_total": 400,
+			"track": "tempestade_polar",
+			"wins": {
+				"boro": 23,
+				"luna": 16,
+				"mika": 6,
+				"niko": 4,
+				"pippa": 6,
+				"taro": 23,
+				"zed": 22
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"tempestade_polar",
+		"--report",
+		"docs/test_reports/ai_tempestade_polar.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 4,
+	"seconds": 5026.1,
+	"sections": {
+		"ai: automated races": {
+			"fail": 0,
+			"pass": 4
+		}
+	}
+}

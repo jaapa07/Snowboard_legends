@@ -199,6 +199,9 @@ func _avoid(r: RiderController, tr: TrackRuntime, s: float, lat: float, hw: floa
 				for rp in tr.ramps:
 					if float(rp.s) < float(z.s0) and float(z.s0) - float(rp.s) < 20.0 and absf(float(rp.lat) - lat) < float(rp.w):
 						has_ramp = true
+				# only take the jump over a fissure with enough speed to clear it (e.g. right after a reset)
+				if k == "pit" and r.speed < 17.0:
+					has_ramp = false
 				if not has_ramp or k == "slush" and difficulty == 0:
 					fsm = S.AVOID
 					var mid := (float(z.lat0) + float(z.lat1)) * 0.5

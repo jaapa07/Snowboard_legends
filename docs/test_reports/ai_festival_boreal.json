@@ -1,0 +1,52 @@
+{
+	"ai": [
+		{
+			"best": 76.5333333333303,
+			"completed": 100,
+			"cp_skips": 0,
+			"fails": [],
+			"laps": 2,
+			"max_stall": 0.183333333333333,
+			"median": 82.9833333333299,
+			"nan": 0,
+			"races": 100,
+			"resets": 0,
+			"riders_finished": 400,
+			"riders_total": 400,
+			"track": "festival_boreal",
+			"wins": {
+				"boro": 19,
+				"luna": 15,
+				"mika": 4,
+				"niko": 8,
+				"pippa": 5,
+				"taro": 15,
+				"yuki": 6,
+				"zed": 28
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"festival_boreal",
+		"--report",
+		"docs/test_reports/ai_festival_boreal.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 4,
+	"seconds": 4667.0,
+	"sections": {
+		"ai: automated races": {
+			"fail": 0,
+			"pass": 4
+		}
+	}
+}

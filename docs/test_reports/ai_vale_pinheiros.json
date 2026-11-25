@@ -1,0 +1,52 @@
+{
+	"ai": [
+		{
+			"best": 69.316666666664,
+			"completed": 100,
+			"cp_skips": 0,
+			"fails": [],
+			"laps": 2,
+			"max_stall": 1.51666666666667,
+			"median": 74.749999999997,
+			"nan": 0,
+			"races": 100,
+			"resets": 0,
+			"riders_finished": 400,
+			"riders_total": 400,
+			"track": "vale_pinheiros",
+			"wins": {
+				"boro": 13,
+				"luna": 22,
+				"mika": 2,
+				"niko": 8,
+				"pippa": 8,
+				"taro": 24,
+				"yuki": 1,
+				"zed": 22
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"vale_pinheiros",
+		"--report",
+		"docs/test_reports/ai_vale_pinheiros.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 4,
+	"seconds": 4574.0,
+	"sections": {
+		"ai: automated races": {
+			"fail": 0,
+			"pass": 4
+		}
+	}
+}

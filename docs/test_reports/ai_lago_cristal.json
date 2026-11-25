@@ -1,0 +1,52 @@
+{
+	"ai": [
+		{
+			"best": 82.7999999999966,
+			"completed": 100,
+			"cp_skips": 0,
+			"fails": [],
+			"laps": 2,
+			"max_stall": 0.233333333333333,
+			"median": 90.7333333333295,
+			"nan": 0,
+			"races": 100,
+			"resets": 0,
+			"riders_finished": 400,
+			"riders_total": 400,
+			"track": "lago_cristal",
+			"wins": {
+				"boro": 19,
+				"luna": 16,
+				"mika": 3,
+				"niko": 9,
+				"pippa": 8,
+				"taro": 20,
+				"yuki": 4,
+				"zed": 21
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"lago_cristal",
+		"--report",
+		"docs/test_reports/ai_lago_cristal.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 4,
+	"seconds": 1110.0,
+	"sections": {
+		"ai: automated races": {
+			"fail": 0,
+			"pass": 4
+		}
+	}
+}

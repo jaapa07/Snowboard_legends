@@ -1,0 +1,444 @@
+{
+	"ai": [
+		{
+			"best": 90.0166666666628,
+			"completed": 59,
+			"cp_skips": 0,
+			"fails": [
+				{
+					"seed": 1074,
+					"unfinished": [
+						[
+							"zed",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1185,
+					"unfinished": [
+						[
+							"boro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1222,
+					"unfinished": [
+						[
+							"pippa",
+							0
+						]
+					]
+				},
+				{
+					"seed": 1296,
+					"unfinished": [
+						[
+							"yuki",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1370,
+					"unfinished": [
+						[
+							"niko",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1407,
+					"unfinished": [
+						[
+							"boro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1518,
+					"unfinished": [
+						[
+							"boro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1555,
+					"unfinished": [
+						[
+							"luna",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1592,
+					"unfinished": [
+						[
+							"taro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1666,
+					"unfinished": [
+						[
+							"pippa",
+							1
+						],
+						[
+							"boro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1740,
+					"unfinished": [
+						[
+							"mika",
+							1
+						],
+						[
+							"niko",
+							0
+						]
+					]
+				},
+				{
+					"seed": 1814,
+					"unfinished": [
+						[
+							"taro",
+							0
+						]
+					]
+				},
+				{
+					"seed": 1888,
+					"unfinished": [
+						[
+							"boro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1925,
+					"unfinished": [
+						[
+							"taro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 1999,
+					"unfinished": [
+						[
+							"zed",
+							1
+						]
+					]
+				},
+				{
+					"seed": 2184,
+					"unfinished": [
+						[
+							"luna",
+							1
+						]
+					]
+				},
+				{
+					"seed": 2295,
+					"unfinished": [
+						[
+							"mika",
+							1
+						]
+					]
+				},
+				{
+					"seed": 2480,
+					"unfinished": [
+						[
+							"zed",
+							1
+						]
+					]
+				},
+				{
+					"seed": 2554,
+					"unfinished": [
+						[
+							"mika",
+							0
+						]
+					]
+				},
+				{
+					"seed": 2591,
+					"unfinished": [
+						[
+							"boro",
+							0
+						]
+					]
+				},
+				{
+					"seed": 2628,
+					"unfinished": [
+						[
+							"taro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 2739,
+					"unfinished": [
+						[
+							"yuki",
+							1
+						]
+					]
+				},
+				{
+					"seed": 2924,
+					"unfinished": [
+						[
+							"luna",
+							1
+						]
+					]
+				},
+				{
+					"seed": 2998,
+					"unfinished": [
+						[
+							"boro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3035,
+					"unfinished": [
+						[
+							"zed",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3072,
+					"unfinished": [
+						[
+							"luna",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3109,
+					"unfinished": [
+						[
+							"zed",
+							0
+						]
+					]
+				},
+				{
+					"seed": 3183,
+					"unfinished": [
+						[
+							"taro",
+							1
+						],
+						[
+							"boro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3405,
+					"unfinished": [
+						[
+							"taro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3442,
+					"unfinished": [
+						[
+							"pippa",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3664,
+					"unfinished": [
+						[
+							"taro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3738,
+					"unfinished": [
+						[
+							"zed",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3812,
+					"unfinished": [
+						[
+							"taro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3849,
+					"unfinished": [
+						[
+							"niko",
+							1
+						]
+					]
+				},
+				{
+					"seed": 3923,
+					"unfinished": [
+						[
+							"taro",
+							0
+						]
+					]
+				},
+				{
+					"seed": 3960,
+					"unfinished": [
+						[
+							"luna",
+							1
+						]
+					]
+				},
+				{
+					"seed": 4108,
+					"unfinished": [
+						[
+							"luna",
+							1
+						]
+					]
+				},
+				{
+					"seed": 4182,
+					"unfinished": [
+						[
+							"boro",
+							1
+						],
+						[
+							"luna",
+							1
+						]
+					]
+				},
+				{
+					"seed": 4256,
+					"unfinished": [
+						[
+							"luna",
+							1
+						]
+					]
+				},
+				{
+					"seed": 4293,
+					"unfinished": [
+						[
+							"taro",
+							1
+						]
+					]
+				},
+				{
+					"seed": 4330,
+					"unfinished": [
+						[
+							"boro",
+							1
+						],
+						[
+							"niko",
+							1
+						]
+					]
+				}
+			],
+			"laps": 2,
+			"max_stall": 0.533333333333333,
+			"median": 97.7166666666624,
+			"nan": 0,
+			"races": 100,
+			"resets": 472,
+			"riders_finished": 354,
+			"riders_total": 400,
+			"track": "pico_vulcanico",
+			"wins": {
+				"boro": 17,
+				"luna": 10,
+				"mika": 5,
+				"niko": 13,
+				"pippa": 3,
+				"taro": 25,
+				"yuki": 4,
+				"zed": 23
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"pico_vulcanico",
+		"--report",
+		"docs/test_reports/ai_pico_vulcanico.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 1,
+	"failures": [
+		"[ai: automated races] pico_vulcanico: every AI finishes (100 races x 2 runs) [{ \"seed\": 1074, \"unfinished\": [[\"zed\", 1]] }, { \"seed\": 1185, \"unfinished\": [[\"boro\", 1]] }, { \"seed\": 1222, \"unfinished\": [[\"pippa\", 0]] }, { \"seed\": 1296, \"unfinished\": [[\"yuki\", 1]] }, { \"seed\": 1370, \"unfinished\": [[\"niko\", 1]] }, { \"seed\": 1407, \"unfinished\": [[\"boro\", 1]] }, { \"seed\": 1518, \"unfinished\": [[\"boro\", 1]] }, { \"seed\": 1555, \"unfinished\": [[\"luna\", 1]] }, { \"seed\": 1592, \"unfinished\": [[\"taro\", 1]] }, { \"seed\": 1666, \"unfinished\": [[\"pippa\", 1], [\"boro\", 1]] }, { \"seed\": 1740, \"unfinished\": [[\"mika\", 1], [\"niko\", 0]] }, { \"seed\": 1814, \"unfinished\": [[\"taro\", 0]] }, { \"seed\": 1888, \"unfinished\": [[\"boro\", 1]] }, { \"seed\": 1925, \"unfinished\": [[\"taro\", 1]] }, { \"seed\": 1999, \"unfinished\": [[\"zed\", 1]] }, { \"seed\": 2184, \"unfinished\": [[\"luna\", 1]] }, { \"seed\": 2295, \"unfinished\": [[\"mika\", 1]] }, { \"seed\": 2480, \"unfinished\": [[\"zed\", 1]] }, { \"seed\": 2554, \"unfinished\": [[\"mika\", 0]] }, { \"seed\": 2591, \"unfinished\": [[\"boro\", 0]] }, { \"seed\": 2628, \"unfinished\": [[\"taro\", 1]] }, { \"seed\": 2739, \"unfinished\": [[\"yuki\", 1]] }, { \"seed\": 2924, \"unfinished\": [[\"luna\", 1]] }, { \"seed\": 2998, \"unfinished\": [[\"boro\", 1]] }, { \"seed\": 3035, \"unfinished\": [[\"zed\", 1]] }, { \"seed\": 3072, \"unfinished\": [[\"luna\", 1]] }, { \"seed\": 3109, \"unfinished\": [[\"zed\", 0]] }, { \"seed\": 3183, \"unfinished\": [[\"taro\", 1], [\"boro\", 1]] }, { \"seed\": 3405, \"unfinished\": [[\"taro\", 1]] }, { \"seed\": 3442, \"unfinished\": [[\"pippa\", 1]] }, { \"seed\": 3664, \"unfinished\": [[\"taro\", 1]] }, { \"seed\": 3738, \"unfinished\": [[\"zed\", 1]] }, { \"seed\": 3812, \"unfinished\": [[\"taro\", 1]] }, { \"seed\": 3849, \"unfinished\": [[\"niko\", 1]] }, { \"seed\": 3923, \"unfinished\": [[\"taro\", 0]] }, { \"seed\": 3960, \"unfinished\": [[\"luna\", 1]] }, { \"seed\": 4108, \"unfinished\": [[\"luna\", 1]] }, { \"seed\": 4182, \"unfinished\": [[\"boro\", 1], [\"luna\", 1]] }, { \"seed\": 4256, \"unfinished\": [[\"luna\", 1]] }, { \"seed\": 4293, \"unfinished\": [[\"taro\", 1]] }, { \"seed\": 4330, \"unfinished\": [[\"boro\", 1], [\"niko\", 1]] }]"
+	],
+	"passed": 3,
+	"seconds": 1280.1,
+	"sections": {
+		"ai: automated races": {
+			"fail": 1,
+			"pass": 3
+		}
+	}
+}

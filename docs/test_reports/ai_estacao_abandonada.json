@@ -1,0 +1,52 @@
+{
+	"ai": [
+		{
+			"best": 85.0999999999965,
+			"completed": 100,
+			"cp_skips": 0,
+			"fails": [],
+			"laps": 2,
+			"max_stall": 3.53333333333333,
+			"median": 93.199999999996,
+			"nan": 0,
+			"races": 100,
+			"resets": 0,
+			"riders_finished": 400,
+			"riders_total": 400,
+			"track": "estacao_abandonada",
+			"wins": {
+				"boro": 22,
+				"luna": 14,
+				"mika": 1,
+				"niko": 8,
+				"pippa": 8,
+				"taro": 24,
+				"yuki": 4,
+				"zed": 19
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"estacao_abandonada",
+		"--report",
+		"docs/test_reports/ai_estacao_abandonada.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 4,
+	"seconds": 1130.4,
+	"sections": {
+		"ai: automated races": {
+			"fail": 0,
+			"pass": 4
+		}
+	}
+}

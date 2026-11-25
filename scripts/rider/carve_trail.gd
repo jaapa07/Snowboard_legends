@@ -18,8 +18,8 @@ func _ready() -> void:
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var m := StandardMaterial3D.new()
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	m.vertex_color_use_as_albedo = true
+	m.vertex_color_use_as_albedo = true   # lit like the snow: no glowing white lines at night
+	m.roughness = 0.9
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_override = m
 

@@ -1,0 +1,52 @@
+{
+	"ai": [
+		{
+			"best": 106.866666666662,
+			"completed": 100,
+			"cp_skips": 0,
+			"fails": [],
+			"laps": 2,
+			"max_stall": 2.48333333333333,
+			"median": 116.599999999995,
+			"nan": 0,
+			"races": 100,
+			"resets": 0,
+			"riders_finished": 400,
+			"riders_total": 400,
+			"track": "cume_celestial",
+			"wins": {
+				"boro": 15,
+				"luna": 12,
+				"mika": 4,
+				"niko": 12,
+				"pippa": 1,
+				"taro": 30,
+				"yuki": 3,
+				"zed": 23
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"cume_celestial",
+		"--report",
+		"docs/test_reports/ai_cume_celestial.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 4,
+	"seconds": 1519.3,
+	"sections": {
+		"ai: automated races": {
+			"fail": 0,
+			"pass": 4
+		}
+	}
+}

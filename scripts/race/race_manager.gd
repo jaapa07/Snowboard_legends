@@ -294,11 +294,30 @@ func _track_rider(r: RiderController, delta: float) -> void:
 	elif not final_run and r.s >= track.lift_s and r.next_cp >= cps.size() - 1:
 		_enter_lift(r)
 
+func _safe_reset_s(s: float) -> float:
+	## Back off to an earlier checkpoint when a fissure starts within 70 m, so the rider gets a run-up
+	## (resetting 20 m before a pit with no speed made riders fall in again, in a loop).
+	var cps := track.checkpoints
+	for _i in 4:
+		var pit_ahead := false
+		for z in track.zones:
+			if String(z.kind) == "pit" and float(z.s0) > s and float(z.s0) - s < 70.0:
+				pit_ahead = true
+		if not pit_ahead:
+			break
+		var prev := 0.0
+		for c in cps:
+			if c < s - 1.0:
+				prev = c
+		s = prev
+	return s
+
 func _reset_rider(r: RiderController) -> void:
-	var s := r.last_safe_s
+	var s := _safe_reset_s(r.last_safe_s)
 	var p := track.point_at(s, 0.0, 0.5)
 	r.reset_to(p, track.fwd[track.idx_at(s)], r.tuning.reset_penalty)
 	r.proj_idx = track.idx_at(s)
+	r.last_safe_s = s
 	r.offtrack_t = 0.0
 	qa.resets += 1
 	test_log.append("reset rider %d at %.0f" % [r.index, s])

@@ -1,0 +1,52 @@
+{
+	"ai": [
+		{
+			"best": 45.0333333333321,
+			"completed": 100,
+			"cp_skips": 0,
+			"fails": [],
+			"laps": 2,
+			"max_stall": 0.133333333333333,
+			"median": 47.8666666666652,
+			"nan": 0,
+			"races": 100,
+			"resets": 0,
+			"riders_finished": 400,
+			"riders_total": 400,
+			"track": "parque_manobras",
+			"wins": {
+				"boro": 20,
+				"luna": 14,
+				"mika": 2,
+				"niko": 12,
+				"pippa": 5,
+				"taro": 21,
+				"yuki": 1,
+				"zed": 25
+			}
+		}
+	],
+	"args": [
+		"--suite",
+		"ai",
+		"--ai-races",
+		"100",
+		"--ai-laps",
+		"2",
+		"--tracks",
+		"parque_manobras",
+		"--report",
+		"docs/test_reports/ai_parque_manobras.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 4,
+	"seconds": 547.2,
+	"sections": {
+		"ai: automated races": {
+			"fail": 0,
+			"pass": 4
+		}
+	}
+}
