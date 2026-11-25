@@ -549,6 +549,7 @@ func _integration() -> void:
 	await _i_full_race()
 	await _i_items_and_stations()
 	await _i_recovery_and_reset()
+	await _i_pit_respawn()
 	await _i_routes()
 	await _i_progression_persist()
 	await _i_modes()
@@ -739,6 +740,43 @@ func _i_recovery_and_reset() -> void:
 	check(r.state == RiderController.State.FROZEN or r.state == RiderController.State.GROUND, "reset to the last safe checkpoint with penalty")
 	var pr := rm.track.project(r.global_position, r.proj_idx)
 	check(absf(float(pr.lat)) < 3.0 and float(pr.s) >= safe - 1.0, "placed back on the course", "s=%.0f safe=%.0f lat=%.1f" % [float(pr.s), safe, float(pr.lat)])
+	await _end_race(race)
+
+func _i_pit_respawn() -> void:
+	begin("integration: pit fall respawns past the gap, rolling")
+	var race := _new_race(&"vale_pinheiros", 5, Game.Mode.QUICK_RACE, 7)
+	var rm := _rm(race)
+	await _wait_racing(rm)
+	await _frames(120)
+	var pit: Dictionary = {}
+	for z in rm.track.zones:
+		if String(z.kind) == "pit":
+			pit = z
+	check(not pit.is_empty(), "Vale dos Pinheiros has a jumpable gap")
+	if pit.is_empty():
+		await _end_race(race)
+		return
+	var r: RiderController = rm.riders[1]
+	var events: Array = []
+	r.respawned.connect(func(_r, why): events.append(why))
+	var sm := (float(pit.s0) + float(pit.s1)) * 0.5
+	var lm := (float(pit.lat0) + float(pit.lat1)) * 0.5
+	r.last_safe_s = sm - 30.0
+	r.next_cp = 0
+	while r.next_cp < rm.track.checkpoints.size() and rm.track.checkpoints[r.next_cp] < sm:
+		r.next_cp += 1
+	r.place_at(rm.track.point_at(sm, lm, 0.3), rm.track.fwd[rm.track.idx_at(sm)])
+	r.proj_idx = rm.track.idx_at(sm)
+	r.state = RiderController.State.GROUND
+	for _f in 90:
+		await _frames(1)
+		if events.has("pit"):
+			break
+	check(events.has("pit"), "touching the pit floor triggers a pit respawn", str(events))
+	var pr := rm.track.project(r.global_position, r.proj_idx)
+	check(float(pr.s) > float(pit.s1), "placed past the gap (not sent back up the slope)", "s=%.0f pit=%.0f..%.0f" % [float(pr.s), float(pit.s0), float(pit.s1)])
+	await _frames(60)
+	check(r.state == RiderController.State.GROUND and r.speed > 6.0, "rolling again within ~1 s", "state=%d v=%.1f" % [r.state, r.speed])
 	await _end_race(race)
 
 func _i_routes() -> void:

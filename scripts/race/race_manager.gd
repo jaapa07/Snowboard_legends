@@ -212,11 +212,32 @@ func _physics_process(delta: float) -> void:
 				for r in riders:
 					r.state = RiderController.State.GROUND
 					r.frozen_t = 0.0
+				_debug_start_at()
 		Phase.RACE:
 			race_time += delta
 			_race_tick(delta)
 		Phase.DONE:
 			pass
+
+func _debug_start_at() -> void:
+	## Evidence/debug only: `--start-at <m>` drops the field at that distance, rolling at 18 m/s
+	## (software-rendered captures cannot afford to draw the whole descent).
+	var args := OS.get_cmdline_user_args()
+	var i := args.find("--start-at")
+	if i < 0 or i + 1 >= args.size():
+		return
+	var s0 := float(args[i + 1])
+	for r in riders:
+		var s := s0 - 6.0 * float(r.index / 2)
+		var lat := 2.5 * (1.0 if r.index % 2 == 0 else -1.0)
+		r.place_at(track.point_at(s, lat, 0.4), track.fwd[track.idx_at(s)])
+		r.proj_idx = track.idx_at(s)
+		r._vf = 18.0
+		while r.next_cp < track.checkpoints.size() and track.checkpoints[r.next_cp] < s:
+			r.last_safe_s = track.checkpoints[r.next_cp]
+			r.next_cp += 1
+	for c in cameras:
+		c.snap()
 
 func _race_tick(delta: float) -> void:
 	for r in riders:
@@ -338,11 +359,12 @@ func _track_rider(r: RiderController, delta: float) -> void:
 			_reset_rider(r)
 	else:
 		r.offtrack_t = 0.0
-	# fissures: touching the floor inside a pit sends you back to the last safe point
-	if r.state == RiderController.State.GROUND:
+	# fissures: falling into a pit costs ~1 s and puts you back just past the hole, already rolling
+	# (sending riders back up to the previous checkpoint felt like the game had frozen)
+	if r.state == RiderController.State.GROUND or (r.state == RiderController.State.AIR and r.velocity.y < 0.0):
 		var z := track.zone_at(r.s, r.lat)
-		if not z.is_empty() and String(z.kind) == "pit":
-			_reset_rider(r)
+		if not z.is_empty() and String(z.kind) == "pit" and (r.state == RiderController.State.GROUND or float(pr.height) < -1.5):
+			_pit_respawn(r, z)
 			return
 	items.try_station(r)
 	# end of a descent
@@ -389,6 +411,16 @@ func _safe_reset_lat(s: float) -> float:
 		if not blocked:
 			return float(lat)
 	return 0.0
+
+func _pit_respawn(r: RiderController, z: Dictionary) -> void:
+	var s := minf(float(z.s1) + 8.0, track.finish_s - 5.0)
+	var p := track.point_at(s, _safe_reset_lat(s), 0.5)
+	var roll := clampf(r.speed * 0.6, 10.0, 16.0)
+	r.reset_to(p, track.fwd[track.idx_at(s)], 0.8, roll, "pit")
+	r.proj_idx = track.idx_at(s)
+	r.offtrack_t = 0.0
+	qa.resets += 1
+	test_log.append("pit respawn rider %d at %.0f" % [r.index, s])
 
 func _reset_rider(r: RiderController) -> void:
 	var s := _safe_reset_s(r.last_safe_s)

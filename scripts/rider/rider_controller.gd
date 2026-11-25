@@ -9,6 +9,7 @@ signal coins_changed(rider: RiderController, coins: int)
 signal items_changed(rider: RiderController)
 signal got_hit(rider: RiderController, kind: String, blocked: bool)
 signal message(rider: RiderController, key: String)
+signal respawned(rider: RiderController, reason: String)
 
 enum State { GROUND, AIR, GRIND, FALLEN, LIFT, FINISHED, FROZEN }
 
@@ -51,6 +52,7 @@ var grind_len: float = 0.0
 var did_grind: bool = false
 var fallen_t: float = 0.0
 var frozen_t: float = 0.0
+var resume_speed: float = 0.0   ## speed given back when a reset freeze ends (pit respawns roll on)
 var last_trick_key: String = ""
 # signature trick (scripts/tricks/signature_tricks.gd)
 var sig_active: bool = false
@@ -183,7 +185,8 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector3.ZERO
 			if frozen_t <= 0.0:
 				state = State.GROUND
-				_vf = 0.0; _vl = 0.0
+				_vf = resume_speed; _vl = 0.0
+				resume_speed = 0.0
 		State.FINISHED:
 			_step_finished(delta)
 	if is_controllable():
@@ -696,12 +699,14 @@ func exit_lift(p: Vector3, fwd_dir: Vector3) -> void:
 	_vf = 6.0
 	visual.on_lift(false)
 
-func reset_to(p: Vector3, fwd_dir: Vector3, penalty: float) -> void:
+func reset_to(p: Vector3, fwd_dir: Vector3, penalty: float, roll_speed: float = 0.0, reason: String = "reset") -> void:
 	place_at(p, fwd_dir)
 	state = State.FROZEN
 	frozen_t = penalty
+	resume_speed = roll_speed
 	invuln_t = penalty + 1.0
 	visual.on_recover()
+	respawned.emit(self, reason)
 
 func finish_race(t: float) -> void:
 	finished = true

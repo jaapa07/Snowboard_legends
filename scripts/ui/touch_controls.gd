@@ -62,6 +62,11 @@ func setup(r: RiderController) -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_font = load("res://assets/fonts/Inter-Black.otf")
 	reset_state()
+	var seen := int(Save.settings().get("touch_tips_seen", 0))
+	_tips_on = seen < 3
+	if _tips_on:
+		Save.settings().touch_tips_seen = seen + 1
+		Save.write()
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 
@@ -80,8 +85,12 @@ func _layout() -> void:
 		{"id": "util", "c": br + Vector2(-210, -470) * u, "r": 58.0 * u, "label": "APOIO" if Game.lang() != "en" else "SUPPORT", "col": Color(0.3, 0.6, 1.0)},
 		{"id": "pause", "c": Vector2(_safe.position.x + _safe.size.x * 0.5, _safe.position.y + 46 * u), "r": 36.0 * u, "label": "II", "col": Color(1, 1, 1)},
 	]
+	var pt := Game.lang() != "en"
+	var subs := {"jump": "segure e solte" if pt else "hold & release", "grab": "no ar" if pt else "in the air",
+		"spin_l": "no ar" if pt else "in the air", "spin_r": "no ar" if pt else "in the air"}
 	for b in _buttons:
 		b["touch"] = -1
+		b["sub"] = subs.get(String(b.id), "")
 	queue_redraw()
 
 func _button_at(p: Vector2) -> int:
@@ -149,7 +158,40 @@ func _press(id: String, on: bool) -> void:
 	if on and id != "pause" and bool(Save.settings().get("vibration", true)):
 		Input.vibrate_handheld(12)
 
+## First races on a phone: short tips at the top of the screen, one after the other.
+var _tip_t: float = 0.0
+var _tips_on: bool = false
+const TIPS_PT := ["Arraste o dedo à esquerda/direita para virar", "Segure SALTO e solte na ponta da rampa",
+	"No ar: GIRO e AGARRAR dão pontos e moedas — solte antes de pousar", "Com 20 moedas, passe pelas estações de itens para ganhar poderes",
+	"Poder pronto = anel dourado: toque em ATAQUE ou APOIO"]
+const TIPS_EN := ["Drag left/right to steer", "Hold JUMP and release at the lip of the ramp",
+	"In the air: SPIN and GRAB score points and coins — let go before landing", "With 20 coins, ride through an item station to get a power",
+	"Power ready = gold ring: tap ATTACK or SUPPORT"]
+
+func _tips_tick(delta: float) -> void:
+	if not _tips_on:
+		return
+	_tip_t += delta
+
+func _draw_tips() -> void:
+	if not _tips_on:
+		return
+	var tips: Array = TIPS_PT if Game.lang() != "en" else TIPS_EN
+	var i := int((_tip_t - 4.0) / 6.0)   # after the countdown, one tip every 6 s
+	if _tip_t < 4.0 or i >= tips.size():
+		return
+	var a := clampf(minf(fmod(_tip_t - 4.0, 6.0), 6.0 - fmod(_tip_t - 4.0, 6.0)) * 2.0, 0.0, 1.0)
+	var vs := get_viewport_rect().size
+	var u := clampf(vs.y / 900.0, 0.6, 1.6)
+	var fs := int(30 * u)
+	var txt := String(tips[i])
+	var w := _font.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x + 60 * u
+	var c := Vector2(vs.x * 0.5, _safe.position.y + 130 * u)
+	draw_rect(Rect2(c - Vector2(w * 0.5, 34 * u), Vector2(w, 60 * u)), Color(0.04, 0.07, 0.2, 0.8 * a))
+	draw_string(_font, c + Vector2(-w * 0.5, 10 * u), txt, HORIZONTAL_ALIGNMENT_CENTER, w, fs, Color(1, 0.95, 0.6, a))
+
 func _process(_delta: float) -> void:
+	_tips_tick(_delta)
 	if tilt_steering:
 		var a := Input.get_accelerometer()   # landscape: lateral tilt reads on Y
 		var x := clampf(a.y / 4.0, -1.0, 1.0)
@@ -157,6 +199,7 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	_draw_tips()
 	var u := clampf(get_viewport_rect().size.y / 900.0, 0.6, 1.6)
 	# thumb-stick
 	if _stick_touch >= 0:
@@ -166,26 +209,57 @@ func _draw() -> void:
 		draw_circle(_stick_origin + k, 46 * u, Color(1, 1, 1, 0.45))
 	else:
 		var hint := Vector2(_safe.position.x + 200 * u, _safe.end.y - 180 * u)
-		draw_arc(hint, STICK_R, 0, TAU, 48, Color(1, 1, 1, 0.18), 3.0)
+		draw_circle(hint, STICK_R, Color(0.04, 0.07, 0.18, 0.22))
+		draw_arc(hint, STICK_R, 0, TAU, 48, Color(1, 1, 1, 0.45), 3.0)
 		draw_string(_font, hint + Vector2(-70, 8) * u, "◀  ▶" if not tilt_steering else "▲ / ▼", HORIZONTAL_ALIGNMENT_CENTER, 140 * u, int(28 * u), Color(1, 1, 1, 0.35))
 		var cap := ("DIREÇÃO" if not tilt_steering else "↑ AGACHAR  ↓ FREAR") if Game.lang() != "en" else ("STEER" if not tilt_steering else "↑ TUCK  ↓ BRAKE")
-		draw_string(_font, hint + Vector2(-140, STICK_R + 34) * u, cap, HORIZONTAL_ALIGNMENT_CENTER, 280 * u, int(22 * u), Color(1, 1, 1, 0.45))
+		draw_string_outline(_font, hint + Vector2(-140, STICK_R + 34) * u, cap, HORIZONTAL_ALIGNMENT_CENTER, 280 * u, int(22 * u), 6, Color(0.05, 0.08, 0.2, 0.7))
+		draw_string(_font, hint + Vector2(-140, STICK_R + 34) * u, cap, HORIZONTAL_ALIGNMENT_CENTER, 280 * u, int(22 * u), Color(1, 1, 1, 0.85))
+	var t_ms := Time.get_ticks_msec() * 0.001
+	var pt := Game.lang() != "en"
 	for b in _buttons:
 		var pressed := int(b.touch) >= 0
 		var col: Color = b.col
-		draw_circle(b.c, b.r, Color(col.r, col.g, col.b, 0.55 if pressed else 0.28))
-		draw_arc(b.c, b.r, 0, TAU, 40, Color(1, 1, 1, 0.85 if pressed else 0.55), 4.0)
 		var tex: Texture2D = null
-		if rider and String(b.id) == "off" and rider.offense_item != &"":
-			tex = Registry.item_texture(rider.offense_item)
-		elif rider and String(b.id) == "util" and rider.utility_item != &"":
-			tex = Registry.item_texture(rider.utility_item)
+		var held_id: StringName = &""
+		if rider and String(b.id) == "off":
+			held_id = rider.offense_item
+		elif rider and String(b.id) == "util":
+			held_id = rider.utility_item
+		if held_id != &"":
+			tex = Registry.item_texture(held_id)
+		var is_item := String(b.id) == "off" or String(b.id) == "util"
+		var empty := is_item and held_id == &""
+		# dark backing so the buttons read on bright snow; empty power slots are dimmed
+		draw_circle(b.c, b.r, Color(0.04, 0.07, 0.18, 0.25 if empty else 0.45))
+		draw_circle(b.c, b.r, Color(col.r, col.g, col.b, 0.7 if pressed else (0.15 if empty else 0.42)))
+		draw_arc(b.c, b.r, 0, TAU, 40, Color(1, 1, 1, 0.9 if pressed else (0.3 if empty else 0.75)), 4.0)
+		if is_item and not empty:
+			# a power is ready: pulsing gold ring + its name under the button
+			var pr := float(b.r) + 6.0 + sin(t_ms * 6.0) * 4.0
+			draw_arc(b.c, pr, 0, TAU, 48, Color(1, 0.85, 0.25, 0.95), 5.0)
+			var d := Registry.item(held_id)
+			if d:
+				var nm := (d.display_name if pt else d.display_name_en).to_upper()
+				var fsn := int(float(b.r) * 0.3)
+				draw_string_outline(_font, b.c + Vector2(-b.r * 1.6, float(b.r) + fsn * 1.6), nm, HORIZONTAL_ALIGNMENT_CENTER, b.r * 3.2, fsn, 6, Color(0.05, 0.08, 0.2, 0.9))
+				draw_string(_font, b.c + Vector2(-b.r * 1.6, float(b.r) + fsn * 1.6), nm, HORIZONTAL_ALIGNMENT_CENTER, b.r * 3.2, fsn, Color(1, 0.92, 0.5))
+		elif String(b.get("sub", "")) != "":
+			var fss := int(float(b.r) * 0.27)
+			var sub := String(b.sub)
+			draw_string_outline(_font, b.c + Vector2(-b.r * 1.5, float(b.r) + fss * 1.5), sub, HORIZONTAL_ALIGNMENT_CENTER, b.r * 3.0, fss, 5, Color(0.05, 0.08, 0.2, 0.8))
+			draw_string(_font, b.c + Vector2(-b.r * 1.5, float(b.r) + fss * 1.5), sub, HORIZONTAL_ALIGNMENT_CENTER, b.r * 3.0, fss, Color(1, 1, 1, 0.85))
 		if tex:
 			var s := float(b.r) * 1.3
 			draw_texture_rect(tex, Rect2(b.c - Vector2(s, s) * 0.5, Vector2(s, s)), false)
 		elif String(b.label) != "":
 			var ln := String(b.label).length()
 			var fs := int(float(b.r) * (0.8 if ln <= 2 else 0.42 if ln <= 5 else 0.3))
-			draw_string(_font, b.c + Vector2(-b.r, fs * 0.36), String(b.label), HORIZONTAL_ALIGNMENT_CENTER, b.r * 2.0, fs, Color(1, 1, 1, 0.95))
+			var lab := String(b.label)
+			var la := 0.95
+			if (String(b.id) == "off" or String(b.id) == "util"):
+				la = 0.45   # empty power slot
+			draw_string_outline(_font, b.c + Vector2(-b.r, fs * 0.36), lab, HORIZONTAL_ALIGNMENT_CENTER, b.r * 2.0, fs, 6, Color(0.05, 0.08, 0.2, 0.7 * la))
+			draw_string(_font, b.c + Vector2(-b.r, fs * 0.36), lab, HORIZONTAL_ALIGNMENT_CENTER, b.r * 2.0, fs, Color(1, 1, 1, la))
 		if String(b.id) == "jump" and rider and rider.jump_charge > 0.0:
 			draw_arc(b.c, float(b.r) + 8, -PI / 2, -PI / 2 + TAU * clampf(rider.jump_charge / rider.tuning.jump_charge_max, 0, 1), 40, Color(1, 0.9, 0.3), 7.0)

@@ -19,6 +19,7 @@ var stars: GPUParticles3D
 var puff: GPUParticles3D
 var sparkle: GPUParticles3D
 var shield_mesh: MeshInstance3D
+var aura: GlowHalo        ## power state around the rider: gold = magnet, cyan = turbo, red flash = hit
 var trail: CarveTrail
 var _oneshot: String = ""
 var _oneshot_t: float = 0.0
@@ -121,7 +122,7 @@ func _build_fx() -> void:
 	pm.color = Color(0.92, 0.96, 1.0, 0.75)
 	spray.position = Vector3(0, 0.1, 0.6)
 	spray.emitting = false
-	boost_fx = _particles("sparkle", 40, 0.4, 0.5, true)
+	boost_fx = _particles("sparkle", 80, 0.5, 0.7, true)
 	var bm := boost_fx.process_material as ParticleProcessMaterial
 	bm.direction = Vector3(0, 0.2, 1); bm.spread = 10; bm.initial_velocity_min = 4; bm.initial_velocity_max = 8; bm.gravity = Vector3.ZERO
 	bm.color = Color(0.5, 1.0, 0.9)
@@ -160,6 +161,10 @@ func _build_fx() -> void:
 	shield_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	shield_mesh.visible = false
 	add_child(shield_mesh)
+	aura = GlowHalo.make(Color(1, 1, 1, 0.0), 4.2, 0.15)
+	aura.position = Vector3(0, 0.9, 0)
+	aura.visible = false
+	add_child(aura)
 
 func play(name_: String, blend: float = 0.24) -> void:
 	if anim == null or name_ == _cur or not anim.has_animation(name_):
@@ -221,10 +226,21 @@ func tick(delta: float) -> void:
 	spray.amount_ratio = clampf(sp / 30.0 + absf(cmd.steer) * 0.5 + (0.5 if cmd.brake else 0.0), 0.1, 1.0)
 	spray.global_position = r.global_position - f * 0.7 + Vector3.UP * 0.1
 	boost_fx.emitting = r.boost_t > 0.0
+	boost_fx.amount_ratio = 1.0
+	var ac := Color(0, 0, 0, 0)
+	if r.magnet_t > 0.0:
+		ac = Color(1.0, 0.8, 0.2, 0.55)
+	elif r.boost_t > 0.0:
+		ac = Color(0.3, 1.0, 0.9, 0.5)
+	if aura._flash_t > 0.0 and ac.a == 0.0:
+		ac = Color(1.0, 0.25, 0.2, 0.7)
+	aura.visible = ac.a > 0.0
+	if aura.visible:
+		aura.set_color(ac)
 	shield_mesh.visible = r.shield_t > 0.0
 	if shield_mesh.visible:
 		shield_mesh.rotate_y(delta * 2.0)
-		var a := 0.25 if r.shield_t > 1.5 else (0.25 if int(r.shield_t * 8.0) % 2 == 0 else 0.05)
+		var a := 0.4 if r.shield_t > 1.5 else (0.4 if int(r.shield_t * 8.0) % 2 == 0 else 0.08)
 		(shield_mesh.material_override as StandardMaterial3D).albedo_color.a = a
 	visible = r.state != RiderController.State.LIFT or true
 	if _wind_player and _wind_player.stream:
@@ -303,6 +319,7 @@ func on_recover() -> void:
 func on_hit() -> void:
 	oneshot("hit", 0.7)
 	stars.restart(); stars.emitting = true
+	aura.flash(0.6)
 	Audio.play_3d("hit", rider, 0.0)
 	if rider.is_human:
 		Inputs.rumble(rider.device, 0.7, 0.3)

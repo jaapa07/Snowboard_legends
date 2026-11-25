@@ -52,7 +52,7 @@ func setup(r: RaceManager, rd: RiderController, screens: int) -> void:
 	lbl_msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	warn = _label(40, Color(1, 0.3, 0.25), Vector2(0, -170), Control.PRESET_CENTER_BOTTOM)
 	warn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	warn.text = "⚠  !!!  ⚠"
+	warn.text = "⚠  CUIDADO! PODER VINDO  ⚠" if Game.lang() != "en" else "⚠  INCOMING!  ⚠"
 	warn.visible = false
 	# item slots (offense red frame, utility blue frame) with icon + key hint
 	slots = HBoxContainer.new()
@@ -113,7 +113,90 @@ func setup(r: RaceManager, rd: RiderController, screens: int) -> void:
 	rider.message.connect(_on_msg)
 	rider.got_hit.connect(_on_hit)
 	rider.items_changed.connect(func(_r): _refresh_slots())
+	rider.respawned.connect(_on_respawn)
+	race.items.item_event.connect(_on_item_event)
 	_refresh_slots()
+	# full-screen flash for pit falls (white fade = "you fell in, back on the slope")
+	flash_rect = ColorRect.new()
+	flash_rect.color = Color(1, 1, 1, 0)
+	flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(flash_rect)
+	move_child(flash_rect, 1)
+	# power banner: big, high-contrast panel under the lap counter with the item icon and its name
+	banner = PanelContainer.new()
+	var bsb := StyleBoxFlat.new()
+	bsb.bg_color = Color(0.05, 0.08, 0.2, 0.82)
+	bsb.set_corner_radius_all(int(18 * scale_f))
+	bsb.set_border_width_all(int(4 * scale_f))
+	bsb.content_margin_left = 16 * scale_f; bsb.content_margin_right = 22 * scale_f
+	bsb.content_margin_top = 8 * scale_f; bsb.content_margin_bottom = 8 * scale_f
+	banner.add_theme_stylebox_override("panel", bsb)
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", int(14 * scale_f))
+	banner.add_child(hb)
+	banner_icon = TextureRect.new()
+	banner_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	banner_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	banner_icon.custom_minimum_size = Vector2(64, 64) * scale_f
+	hb.add_child(banner_icon)
+	banner_lbl = Label.new()
+	banner_lbl.add_theme_font_size_override("font_size", int(30 * scale_f))
+	banner_lbl.add_theme_color_override("font_outline_color", Color(0.05, 0.08, 0.2))
+	banner_lbl.add_theme_constant_override("outline_size", int(8 * scale_f))
+	banner_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hb.add_child(banner_lbl)
+	banner.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	banner.position = Vector2(-260, 200) * scale_f
+	banner.modulate.a = 0.0
+	add_child(banner)
+
+var flash_rect: ColorRect
+var banner: PanelContainer
+var banner_icon: TextureRect
+var banner_lbl: Label
+var _banner_t: float = 0.0
+
+func _item_name(id: StringName) -> String:
+	var d := Registry.item(id)
+	if d == null:
+		return String(id)
+	return d.display_name if Game.lang() != "en" else d.display_name_en
+
+func _show_banner(id: StringName, txt: String, col: Color, dur: float = 2.4) -> void:
+	banner_icon.texture = Registry.item_texture(id) if id != &"" else null
+	banner_icon.visible = banner_icon.texture != null
+	banner_lbl.text = txt
+	banner_lbl.add_theme_color_override("font_color", col)
+	(banner.get_theme_stylebox("panel") as StyleBoxFlat).border_color = col
+	banner.reset_size()
+	banner.position.x = -banner.size.x * 0.5
+	_banner_t = dur
+
+func _button_name(slot: String) -> String:
+	var touch := rider.device == "touch"
+	if Game.lang() == "en":
+		return ("tap ATTACK" if touch else "F / Y") if slot == "offense" else ("tap SUPPORT" if touch else "R / B")
+	return ("toque em ATAQUE" if touch else "F / Y") if slot == "offense" else ("toque em APOIO" if touch else "R / B")
+
+func _on_item_event(r: RiderController, kind: String, id: StringName) -> void:
+	var d := Registry.item(id)
+	if d == null:
+		return
+	var en := Game.lang() == "en"
+	if r == rider and kind == "bought":
+		var hint := _button_name(d.slot)
+		_show_banner(id, ("New power: %s  ·  %s" if en else "Novo poder: %s  ·  %s") % [_item_name(id).to_upper(), hint], Color(0.6, 1.0, 0.6))
+	elif r == rider and kind == "used":
+		_show_banner(id, ("%s!" % _item_name(id).to_upper()), Color(1.0, 0.85, 0.3), 1.4)
+	elif r != rider and kind == "used" and d.slot == "offense" and r.global_position.distance_to(rider.global_position) < 70.0:
+		_show_banner(id, ("%s used %s" if en else "%s usou %s") % [r.def.display_name, _item_name(id)], Color(1.0, 0.6, 0.45), 1.6)
+
+func _on_respawn(_r: RiderController, reason: String) -> void:
+	if reason == "pit":
+		flash_rect.color = Color(1, 1, 1, 0.85)
+		_show_msg("Caiu no buraco!  Pule na rampa para atravessar" if Game.lang() != "en" else "Fell in the gap!  Jump off the ramp to clear it", Color(0.6, 0.85, 1.0))
 
 func _touch_layout() -> void:
 	## Phone layout: the on-screen buttons own the bottom-right and the thumb-stick the bottom-left, so the HUD moves
@@ -189,6 +272,11 @@ func _process(delta: float) -> void:
 		_msg_t -= delta
 		lbl_msg.modulate.a = clampf(_msg_t * 2.0, 0, 1)
 	warn.visible = race.items.incoming_for(rider) and int(Time.get_ticks_msec() / 150) % 2 == 0
+	if _banner_t > 0.0:
+		_banner_t -= delta
+		banner.modulate.a = clampf(_banner_t * 3.0, 0, 1)
+	if flash_rect and flash_rect.color.a > 0.0:
+		flash_rect.color.a = maxf(0.0, flash_rect.color.a - delta * 1.6)
 	fog_overlay.color.a = lerpf(fog_overlay.color.a, 0.72 if rider.fog_t > 0.0 else 0.0, clampf(delta * 5.0, 0, 1))
 
 func _refresh() -> void:
@@ -274,7 +362,13 @@ func _on_msg(_r: RiderController, key: String) -> void:
 	_show_msg(txt, Color(1, 0.55, 0.4))
 
 func _on_hit(_r: RiderController, kind: String, blocked: bool) -> void:
-	_show_msg(("Escudo!" if Game.lang() != "en" else "Shielded!") if blocked else "!", Color(0.5, 0.9, 1) if blocked else Color(1, 0.4, 0.3))
+	var en := Game.lang() == "en"
+	var id := StringName(kind)
+	var nm := _item_name(id) if Registry.item(id) != null else ("collision" if en else "batida")
+	if blocked:
+		_show_banner(&"shield", ("Shield blocked the %s!" if en else "O escudo bloqueou: %s!") % nm, Color(0.5, 0.9, 1.0), 1.8)
+	elif kind != "collision":
+		_show_banner(id, ("Hit by %s!" if en else "Atingido por %s!") % nm.to_upper(), Color(1.0, 0.4, 0.3), 1.8)
 	if not blocked and race.cameras.size() > 0:
 		for c in race.cameras:
 			if c.target == rider:

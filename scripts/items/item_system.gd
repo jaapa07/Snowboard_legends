@@ -33,7 +33,24 @@ func _node(kind: String) -> Node3D:
 		return n
 	var n2 := Registry.prop_mesh(ITEMS_GLB, kind)
 	add_child(n2)
+	# readability: projectiles are drawn bigger and wrapped in a coloured glow (white-on-snow was invisible)
+	if HALO.has(kind) and DisplayServer.get_name() != "headless":
+		var spec: Array = HALO[kind]
+		n2.scale = Vector3.ONE * float(spec[2])
+		var h := GlowHalo.make(spec[0], float(spec[1]))
+		h.position = Vector3(0, 0.3, 0)
+		n2.add_child(h)
 	return n2
+
+## item model -> [glow colour, glow size (m), model scale]
+const HALO := {
+	"item_snowball": [Color(0.35, 0.75, 1.0, 0.9), 2.6, 1.6],
+	"item_penguin": [Color(0.2, 0.9, 1.0, 0.8), 3.0, 1.5],
+	"item_icemine": [Color(0.4, 0.85, 1.0, 0.9), 3.2, 1.5],
+	"item_comet": [Color(1.0, 0.55, 0.15, 1.0), 4.0, 1.6],
+	"item_whirl": [Color(0.75, 0.4, 1.0, 0.9), 4.0, 1.4],
+	"item_wave": [Color(0.3, 0.95, 0.9, 0.7), 6.0, 1.0],
+}
 
 func _release(kind: String, n: Node3D) -> void:
 	n.visible = false
