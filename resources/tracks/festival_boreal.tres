@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+default_laps = 5
 id = &"festival_boreal"
 display_name = "Festival Boreal"
 display_name_en = "Boreal Festival"

@@ -5,7 +5,7 @@ const RIDER_IDS: Array[StringName] = [&"niko", &"mika", &"taro", &"luna", &"boro
 const BOARD_IDS: Array[StringName] = [&"starter", &"carver", &"float", &"rocket", &"grip", &"twin", &"powder", &"rail", &"alpine", &"aurora", &"comet", &"legend"]
 const TRACK_IDS: Array[StringName] = [&"vale_pinheiros", &"lago_cristal", &"pico_vulcanico", &"festival_boreal", &"floresta_gigante", &"estacao_abandonada", &"tempestade_polar", &"cume_celestial"]
 const EXTRA_TRACK_IDS: Array[StringName] = [&"parque_manobras"]
-const ITEM_IDS: Array[StringName] = [&"snowball", &"icemine", &"penguin", &"fog", &"wave", &"gust", &"shield", &"spring", &"magnet", &"repair"]
+const ITEM_IDS: Array[StringName] = [&"snowball", &"icemine", &"penguin", &"fog", &"wave", &"gust", &"shield", &"spring", &"magnet", &"repair", &"comet", &"whirl"]
 const CUPS := [
 	{"id": "cup1", "name": "Copa Floco", "name_en": "Flake Cup", "tracks": [&"vale_pinheiros", &"lago_cristal"]},
 	{"id": "cup2", "name": "Copa Brasa", "name_en": "Ember Cup", "tracks": [&"pico_vulcanico", &"festival_boreal"]},

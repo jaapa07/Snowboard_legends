@@ -302,6 +302,40 @@ func _u_landing_and_combos() -> void:
 	r.velocity = Vector3(0, -2, 0)
 	r._land()
 	check(r.state == RiderController.State.GROUND and got.size() == n_before + 1 and String(got.back()[3]) == "perfect", "clean 360 landing validated (perfect)", str(got.back()))
+	# signature trick: Q, E, Shift in sequence starts it; landing before it ends crashes, after it scores
+	var sgd := SignatureTricks.of("niko")
+	r.state = RiderController.State.AIR
+	r._enter_air(true)
+	var seq := [[true, false, false], [false, false, false], [false, true, false], [false, false, false], [false, false, true]]
+	for st in seq:
+		var c := InputCommand.new()
+		c.spin_left = st[0]; c.spin_right = st[1]; c.grab = st[2]
+		r._signature_input(c, 1.0 / 60.0)
+	check(r.sig_active, "Q, E, Shift in sequence starts the signature trick")
+	r.velocity = Vector3(0, -2, 0)
+	r._land()
+	check(r.state == RiderController.State.FALLEN, "landing mid-signature is a crash")
+	r.set_physics_process(true)
+	await _frames(int(r.fallen_t * 60.0) + 10)
+	r.set_physics_process(false)
+	r.state = RiderController.State.AIR
+	r._enter_air(true)
+	r.start_signature()
+	for i in int(float(sgd.dur) * 60.0) + 2:
+		r._signature_step(1.0 / 60.0)
+	check(r.sig_done and not r.sig_active, "signature completes after its duration")
+	n_before = got.size()
+	r.velocity = Vector3(0, -2, 0)
+	r.air_time = 1.5
+	r._land()
+	check(r.state == RiderController.State.GROUND and got.size() == n_before + 1 and String(got.back()[0]) == SignatureTricks.label("niko", Game.lang()) and int(got.back()[1]) >= int(sgd.points),
+		"completed signature scores its points", str(got.back()))
+	var c2 := InputCommand.new()
+	c2.spin_left = true
+	r._enter_air(true)
+	r._signature_input(c2, 1.0 / 60.0)
+	r._signature_input(InputCommand.new(), 1.0)
+	check(r._sig_step == 0, "sequence expires after 0.8 s")
 	await _free(sb)
 
 func _u_coins_and_cooldown() -> void:
@@ -429,7 +463,7 @@ func _u_progression() -> void:
 	check(Game.race_credits(1, 0) == 100 and Game.race_credits(2, 0) == 70 and Game.race_credits(3, 0) == 40 and Game.race_credits(4, 0) == 25, "credits 100/70/40/25")
 	check(Game.trick_bonus(100000) == 50 and Game.race_credits(1, 100000) == 150, "trick bonus capped at 50")
 	check(Game.cup_medal_for_place(1) == 3 and Game.cup_medal_for_place(3) == 1 and Game.cup_medal_for_place(4) == 0, "cup medal by final standing")
-	check(Game.skill_medal("trick", 3200) == 2 and Game.skill_medal("slalom_missed", 0) == 3 and Game.skill_medal("slalom_missed", 5) == 0, "skill medal thresholds")
+	check(Game.skill_medal("trick", 3200) == 2 and Game.skill_medal("slalom_missed", 0) == 3 and Game.skill_medal("slalom_missed", 5) == 0 and Game.skill_medal("targets", 8) == 2, "skill medal thresholds")
 	_fresh_save()
 	var u1 := Save.award_medal("cup1", 1)
 	check("cup:2" in u1 and "board:grip" in u1 and "board:rocket" in u1 and Save.medal("cup1") == 1, "bronze opens next cup + boards", str(u1))
@@ -442,7 +476,45 @@ func _u_progression() -> void:
 
 func _u_content() -> void:
 	begin("unit: content / i18n")
-	check(Registry.TRACK_IDS.size() == 8 and Registry.RIDER_IDS.size() >= 8 and Registry.BOARD_IDS.size() == 12 and Registry.ITEM_IDS.size() == 10, "8 courses, 8+ riders, 12 boards, 10 items")
+	check(Registry.TRACK_IDS.size() == 8 and Registry.RIDER_IDS.size() >= 8 and Registry.BOARD_IDS.size() == 12 and Registry.ITEM_IDS.size() == 12, "8 courses, 8+ riders, 12 boards, 12 items (10 + seeker comet + whirlwind)")
+	for tid in Registry.TRACK_IDS + Registry.EXTRA_TRACK_IDS:
+		var dl := Registry.track(tid).default_laps
+		check(dl >= 3 and dl <= 9, "course %s has its own number of descents (%d)" % [tid, dl])
+	for rid in Registry.RIDER_IDS:
+		var sg := SignatureTricks.of(String(rid))
+		check(SignatureTricks.DATA.has(String(rid)) and int(sg.points) >= 400 and fposmod(absf(float(sg.spin)), 180.0) < 0.1 and fposmod(absf(float(sg.flip)), 360.0) < 0.1,
+			"rider %s signature lands aligned (%s)" % [rid, sg.pt])
+	var names := SignatureTricks.DATA.values().map(func(x): return x.pt)
+	check(names.size() == 9 and names.size() == Array(names).reduce(func(acc, n): return acc if acc.has(n) else acc + [n], []).size(), "signature names are unique")
+	begin("unit: board upgrades")
+	for bid in Registry.BOARD_IDS:
+		var b := Registry.board(bid)
+		var ok := true
+		var better := false
+		for lv in range(0, BoardDefinition.MAX_LEVEL + 1):
+			var m := b.mods(lv)
+			for k in m:
+				if absf(float(m[k])) > 0.12 + 1e-6:
+					ok = false
+		var m0 := b.mods(0); var m3 := b.mods(3)
+		for k in m0:
+			if float(m3[k]) > float(m0[k]) + 1e-6:
+				better = true
+		check(ok, "board %s stays within ±12%% at every level" % bid)
+		check(better or b.category == "speed" and float(m0.speed) >= 0.12 - 1e-6, "board %s improves with upgrades (or is already capped)" % bid)
+	_fresh_save()
+	Save.data.profile.credits = 1000
+	check(Save.try_upgrade_board("rocket") == "not_owned", "cannot upgrade a board you do not own")
+	var u1 := Save.try_upgrade_board("starter")
+	var u2 := Save.try_upgrade_board("starter")
+	var u3 := Save.try_upgrade_board("starter")
+	var u4 := Save.try_upgrade_board("starter")
+	check(u1 == "ok" and u2 == "ok" and u3 == "ok" and u4 == "max" and Save.board_level("starter") == 3 and Save.credits() == 1000 - 150 - 300 - 450, "levels 1-3 cost 150/300/450, max at 3", "%s %s %s %s %d" % [u1, u2, u3, u4, Save.credits()])
+	Save.data.profile.credits = 100
+	check(Save.try_upgrade_board("carver") == "credits" and Save.board_level("carver") == 0 and Save.credits() == 100, "insufficient credits: no charge, no level")
+	Save.load_or_create()
+	check(Save.board_level("starter") == 3, "upgrade level persisted")
+	_fresh_save()
 	var bad_keys := []
 	for k in I18n.S:
 		if (I18n.S[k] as Array).size() != 2 or String(I18n.S[k][0]) == "" or String(I18n.S[k][1]) == "":
@@ -600,6 +672,26 @@ func _i_items_and_stations() -> void:
 	await _frames(1)
 	rm.items.use_item(a, &"wave")
 	check(hits.any(func(h): return h[0] == "wave"), "snow wave hits riders within 12 m")
+	# seeker comet: flies to the leader along the course
+	hits.clear()
+	place.call(a, 600.0, 0.0); place.call(b, 700.0, 0.0)
+	a.s = 600.0; b.s = 700.0; a.progress = 600.0; b.progress = 700.0; a.lap = 0; b.lap = 0
+	for r in rm.riders:
+		r.place = 4
+	b.place = 1; a.place = 2
+	check(rm.items.use_item(a, &"comet"), "seeker comet launched at the leader")
+	await _frames(200)
+	check(hits.any(func(h): return h[0] == "comet") and b.slow_t > 0.0, "comet reaches and slows the leader", str(hits))
+	b.place = 2; a.place = 1
+	check(not rm.items.use_item(a, &"comet"), "the leader cannot use the seeker comet")
+	# whirlwind: target loses its inventory
+	hits.clear()
+	place.call(a, 640.0, 0.0); place.call(b, 655.0, 0.0)
+	b.offense_item = &"snowball"; b.utility_item = &"shield"
+	await _frames(1)
+	check(rm.items.use_item(a, &"whirl"), "whirlwind thrown")
+	await _frames(60)
+	check(hits.any(func(h): return h[0] == "whirl") and b.offense_item == &"" and b.utility_item == &"", "whirlwind strips both item slots", "%s %s %s" % [str(hits), b.offense_item, b.utility_item])
 	# gust / shield / magnet / spring / repair
 	place.call(a, 500.0, 0.0)
 	rm.items.use_item(a, &"gust")
@@ -730,6 +822,23 @@ func _i_modes() -> void:
 		await get_tree().physics_frame
 	check(near(float(done[0].time), 120.0, 0.5), "ends at 2:00", str(done[0].time))
 	check(int(done[0].results[0].tricks) > 0, "tricks scored", str(done[0].results[0].tricks))
+	await _end_race(race)
+
+	begin("integration: target shooting")
+	Game.laps = 0
+	race = _new_race(&"vale_pinheiros", 1, Game.Mode.SKILL_TARGETS, 12, [{"type": "human", "device": "kb", "rider": "taro", "board": "rocket"}])
+	rm = _rm(race)
+	done = [{}]
+	rm.race_done.connect(func(s): done[0] = s)
+	while done[0].is_empty():
+		await get_tree().physics_frame
+	var trow: Dictionary = done[0].results[0]
+	check(rm.targets.size() >= 9, "targets placed along the course", str(rm.targets.size()))
+	check(int(trow.targets) > 0 and int(trow.targets) <= rm.targets.size(), "snowballs knock targets down", "%d/%d" % [trow.targets, rm.targets.size()])
+	Game.last_results = done[0].results
+	Game.results_processed = false
+	var tsum := Game.process_results()
+	check(String(tsum.skill_kind) == "targets" and int(tsum.medal) == Game.skill_medal("targets", float(trow.targets)), "graded with target thresholds", "%d -> %d" % [trow.targets, tsum.medal])
 	await _end_race(race)
 
 	begin("integration: skill games")

@@ -51,6 +51,13 @@ var did_grind: bool = false
 var fallen_t: float = 0.0
 var frozen_t: float = 0.0
 var last_trick_key: String = ""
+# signature trick (scripts/tricks/signature_tricks.gd)
+var sig_active: bool = false
+var sig_done: bool = false
+var sig_t: float = 0.0
+var _sig_step: int = 0
+var _sig_seq_t: float = 0.0
+var _sig_prev := [false, false, false]
 var repeat_count: int = 0
 
 # race state (owned by RaceManager)
@@ -95,15 +102,16 @@ var m_spin := 1.0
 var assist_mult := 1.0               ## AI catch-up multiplier on the speed cap (set by RaceManager, 1.0..1.05)
 const ASSIST_MAX := 0.05
 
-func setup(i: int, rider_def: RiderDefinition, board_def: BoardDefinition, trk: TrackRuntime, prov: Object, human: bool, dev: String) -> void:
+func setup(i: int, rider_def: RiderDefinition, board_def: BoardDefinition, trk: TrackRuntime, prov: Object, human: bool, dev: String, board_level: int = 0) -> void:
 	index = i; def = rider_def; board = board_def; track = trk; provider = prov; is_human = human; device = dev
 	name = "Rider%d_%s" % [i, def.id]
-	m_speed = def.stat_mod(def.speed) * (1.0 + board.speed_mod)
-	m_control = def.stat_mod(def.control) * (1.0 + board.control_mod)
-	m_jump = def.stat_mod(def.jump) * (1.0 + board.jump_mod)
-	m_accel = def.stat_mod(def.accel) * (1.0 + board.accel_mod)
+	var bm := board.mods(board_level)   # garage upgrades included, capped at ±12 %
+	m_speed = def.stat_mod(def.speed) * (1.0 + float(bm.speed))
+	m_control = def.stat_mod(def.control) * (1.0 + float(bm.control))
+	m_jump = def.stat_mod(def.jump) * (1.0 + float(bm.jump))
+	m_accel = def.stat_mod(def.accel) * (1.0 + float(bm.accel))
 	m_resist = def.stat_mod(def.resist)
-	m_spin = 1.0 + board.spin_mod + (def.jump - 3) * 0.03
+	m_spin = 1.0 + float(bm.spin) + (def.jump - 3) * 0.03
 	collision_layer = 2
 	collision_mask = 1
 	floor_max_angle = deg_to_rad(58.0)
@@ -318,6 +326,7 @@ func _enter_air(from_jump: bool) -> void:
 	air_time = 0.0
 	spin_angle = 0.0; flip_angle = 0.0; grab_time = 0.0
 	did_grind = false
+	sig_active = false; sig_done = false; sig_t = 0.0; _sig_step = 0
 	floor_snap_length = 0.0
 	if not from_jump:
 		pass
@@ -334,17 +343,22 @@ func _step_air(cmd: InputCommand, delta: float) -> void:
 	if hs > 0.5:
 		var nd := hv.normalized().slerp(forward_dir(), clampf(delta * 1.2, 0, 1)).normalized()
 		velocity.x = nd.x * hs; velocity.z = nd.z * hs
+	_signature_input(cmd, delta)
 	var sr := deg_to_rad(tuning.spin_rate_deg) * m_spin
-	if cmd.spin_left:
+	if sig_active:
+		_signature_step(delta)
+	elif cmd.spin_left:
 		spin_angle += sr * delta
 	elif cmd.spin_right:
 		spin_angle -= sr * delta
 	var fr := deg_to_rad(tuning.flip_rate_deg) * m_spin
-	if cmd.flip_front:
+	if sig_active or sig_done:
+		pass
+	elif cmd.flip_front:
 		flip_angle += fr * delta
 	elif cmd.flip_back:
 		flip_angle -= fr * delta
-	if cmd.grab:
+	if cmd.grab and not sig_active and not sig_done:
 		grab_time += delta
 	# release buffer: a jump pressed just before touching down fires on landing
 	if cmd.jump_held and not _jump_was_held:
@@ -363,8 +377,10 @@ func _land() -> void:
 	var r1 := fposmod(spin_deg, 180.0); var dev1 := minf(r1, 180.0 - r1)
 	var r2 := fposmod(flip_deg, 360.0); var dev2 := minf(r2, 360.0 - r2)
 	var dev := maxf(dev1, dev2)
-	if last_cmd.grab and grab_time > 0.0:
+	if last_cmd.grab and grab_time > 0.0 and not sig_done:
 		dev += 35.0
+	if sig_active:
+		dev = 999.0   # touched down before the signature trick finished
 	# landing slope check: steep impact with high vertical speed is harder
 	var impact := -velocity.y
 	if impact > 16.0:
@@ -391,9 +407,52 @@ func _land() -> void:
 		_buffer_t = 0.0
 		_do_jump(0.0, false)
 
+func start_signature() -> bool:
+	## Starts this rider's signature trick (also used by the AI). Only once per jump, only in the air.
+	if state != State.AIR or sig_active or sig_done:
+		return false
+	sig_active = true
+	sig_t = 0.0
+	spin_angle = 0.0; flip_angle = 0.0; grab_time = 0.0
+	return true
+
+func _signature_input(cmd: InputCommand, delta: float) -> void:
+	var now := [cmd.spin_left, cmd.spin_right, cmd.grab]
+	if _sig_step > 0:
+		_sig_seq_t += delta
+		if _sig_seq_t > SignatureTricks.INPUT_WINDOW:
+			_sig_step = 0
+	# edges in order: spin-left, spin-right, grab
+	if now[_sig_step] and not _sig_prev[_sig_step]:
+		if _sig_step == 0:
+			_sig_seq_t = 0.0
+		_sig_step += 1
+		if _sig_step >= 3:
+			_sig_step = 0
+			start_signature()
+	_sig_prev = now
+
+func _signature_step(delta: float) -> void:
+	var d := SignatureTricks.of(String(def.id))
+	sig_t += delta
+	var p := clampf(sig_t / float(d.dur), 0.0, 1.0)
+	var e := p * p * (3.0 - 2.0 * p)
+	spin_angle = deg_to_rad(float(d.spin)) * e
+	flip_angle = deg_to_rad(float(d.flip)) * e
+	if d.grab:
+		grab_time = 0.0   # the grab is part of the signature, not scored separately
+	if p >= 1.0:
+		sig_active = false
+		sig_done = true
+
 func _score_tricks(spin_deg: float, flip_deg: float, quality: String) -> void:
 	var parts: Array[String] = []
 	var pts := 0
+	if sig_done:
+		var d := SignatureTricks.of(String(def.id))
+		parts.append(SignatureTricks.label(String(def.id), Game.lang()))
+		pts = int(d.points)
+		spin_deg = 0.0; flip_deg = 0.0
 	var spins := int(round(spin_deg / 180.0))
 	if spins >= 1:
 		var key: String = ["180", "360", "540", "720"][mini(spins, 4) - 1]
@@ -558,6 +617,14 @@ func apply_hit(kind: String) -> bool:
 				fallen_t = minf(fallen_t, 1.0)
 		"wave":
 			slow_t = 0.6 * res
+			visual.on_hit()
+		"comet":
+			slow_t = 1.5 * res
+			_scale_speed(0.5)
+			visual.on_hit()
+		"whirl":
+			spinout_t = 0.6 * res
+			_scale_speed(0.75)
 			visual.on_hit()
 		"collision":
 			slow_t = 0.4

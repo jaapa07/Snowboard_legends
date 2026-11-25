@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+default_laps = 4
 id = &"floresta_gigante"
 display_name = "Floresta Gigante"
 display_name_en = "Giant Forest"

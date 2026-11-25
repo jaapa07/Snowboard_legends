@@ -62,6 +62,10 @@ func _think(r: RiderController, delta: float) -> InputCommand:
 	var s := r.s
 	var hw := tr.half_width(s)
 	var lat_goal := _racing_line(r, tr, s, hw)
+	if race.mode == Game.Mode.SKILL_TARGETS:
+		var tg: Dictionary = race.next_target(s)
+		if not tg.is_empty() and float(tg.s) - s < 60.0:
+			lat_goal = float(tg.lat)   # line up with the next target
 	lat_goal = _avoid(r, tr, s, lat_goal, hw)
 	lat_goal = _overtake(r, s, lat_goal, hw)
 	_lat_smooth = lerpf(_lat_smooth, lat_goal, clampf(delta * 3.0, 0, 1))
@@ -239,6 +243,18 @@ func _air(r: RiderController, c: InputCommand) -> InputCommand:
 	var g := r.tuning.gravity
 	var vy := r.velocity.y
 	var t_left := (vy + sqrt(maxf(0.0, vy * vy + 2.0 * g * h))) / g
+	# signature trick: only when the jump is clearly long enough (normal/expert, ambition-weighted)
+	if r.sig_active:
+		c.grab = bool(SignatureTricks.of(String(r.def.id)).grab)
+		return _air_steer(r, c)
+	if not r.sig_done and difficulty >= 1 and r.air_time < 0.15 and _trick_goal > 0.0:
+		var sig_dur := float(SignatureTricks.of(String(r.def.id)).dur)
+		if t_left > sig_dur + 0.35 and rng.randf() < TRICK_AMBITION[difficulty] * 0.5:
+			if r.start_signature():
+				_trick_goal = 0.0; _flip_goal = 0.0; _grab_goal = 0.0
+				return _air_steer(r, c)
+	if r.sig_done:
+		return _air_steer(r, c)
 	var spin_rate := deg_to_rad(r.tuning.spin_rate_deg) * r.m_spin
 	var flip_rate := deg_to_rad(r.tuning.flip_rate_deg) * r.m_spin
 	var need_spin := absf(_trick_goal) - absf(r.spin_angle)
@@ -267,6 +283,9 @@ func _air(r: RiderController, c: InputCommand) -> InputCommand:
 	# difficulty-based imprecision: rookies sometimes over-rotate
 	if difficulty == 0 and rng.randf() < 0.004:
 		c.spin_left = true
+	return _air_steer(r, c)
+
+func _air_steer(r: RiderController, c: InputCommand) -> InputCommand:
 	var tgt := r.track.point_at(minf(r.s + 20.0, r.track.length - 1.0), _lat_smooth)
 	var to := tgt - r.global_position
 	c.steer = clampf(-wrapf(atan2(-to.x, -to.z) - r.yaw, -PI, PI) * 1.5, -1, 1)
@@ -288,6 +307,10 @@ func _items(r: RiderController, c: InputCommand, tr: TrackRuntime, kmax: float, 
 			best_a = d; ahead = o
 		elif d < 0.0 and -d < best_b:
 			best_b = -d; behind = o
+	if race.mode == Game.Mode.SKILL_TARGETS and r.offense_item == &"snowball":
+		var tg: Dictionary = race.next_target(r.s)
+		if not tg.is_empty() and float(tg.s) - r.s < 32.0 and float(tg.s) - r.s > 6.0 and absf(r.lat - float(tg.lat)) < 0.9:
+			c.use_offense = true
 	match r.offense_item:
 		&"snowball", &"penguin":
 			if ahead and best_a < 30.0 and best_a > 4.0:
@@ -300,6 +323,12 @@ func _items(r: RiderController, c: InputCommand, tr: TrackRuntime, kmax: float, 
 				c.use_offense = true
 		&"fog":
 			if ahead and best_a < 40.0:
+				c.use_offense = true
+		&"comet":
+			if r.place > 1:
+				c.use_offense = true
+		&"whirl":
+			if ahead and best_a < 26.0 and best_a > 3.0:
 				c.use_offense = true
 	match r.utility_item:
 		&"gust":

@@ -28,7 +28,7 @@ var flow_mode: int = Game.Mode.QUICK_RACE
 var slots: Array[Dictionary] = []      ## {type: "human"/"ai"/"empty", device}
 var pick_index: int = 0                ## which human is choosing
 var picks: Array[Dictionary] = []      ## per human {rider, board}
-var quick := {"laps": 5, "difficulty": 1, "items": true}
+var quick := {"laps": 0, "difficulty": 1, "items": true}   ## laps 0 = the course's own number of descents
 var garage_filter: int = 0
 
 func _ready() -> void:
@@ -391,7 +391,8 @@ func _screen_rider() -> Control:
 			Audio.play("ui_move", -6.0)
 			stage.show_rider(d, Registry.board(StringName(picks[pick_index].board if picks[pick_index].board != "" else "starter")), secret)
 			name_l.text = "???" if secret else d.display_name
-			tag_l.text = (t("secret") + " — " + _unlock_text(d.unlock)) if secret else ((d.tagline_pt if Game.lang() != "en" else d.tagline_en) + ("" if owned else "\n%s — %s" % [t("locked"), _unlock_text(d.unlock)]))
+			tag_l.text = (t("secret") + " — " + _unlock_text(d.unlock)) if secret else ((d.tagline_pt if Game.lang() != "en" else d.tagline_en)
+				+ "\n%s: %s (%d)  ·  %s" % [t("signature"), SignatureTricks.label(String(d.id), Game.lang()), int(SignatureTricks.of(String(d.id)).points), t("signature_hint")] + ("" if owned else "\n%s — %s" % [t("locked"), _unlock_text(d.unlock)]))
 			for c in stats.get_children():
 				c.queue_free()
 			for st in [["speed", d.speed], ["control", d.control], ["jump", d.jump], ["accel", d.accel], ["resist", d.resist]]:
@@ -466,22 +467,26 @@ func _screen_board() -> Control:
 			stage.show_board(bd)
 			info.text = bd.display_name
 			desc.text = bd.description_pt if Game.lang() != "en" else bd.description_en
-			_fill_board_stats(stats, bd, null))
+			_fill_board_stats(stats, bd, null, Save.board_level(String(bd.id))))
 		left.add_child(b)
 		if String(bid) == picks[pick_index].board or focus == null:
 			focus = b
 	return focus
 
-func _fill_board_stats(box: VBoxContainer, bd: BoardDefinition, cmp: BoardDefinition) -> void:
+func _fill_board_stats(box: VBoxContainer, bd: BoardDefinition, cmp: BoardDefinition, level: int = 0) -> void:
 	for c in box.get_children():
 		c.queue_free()
-	for st in [["speed", "speed_mod"], ["control", "control_mod"], ["jump", "jump_mod"], ["accel", "accel_mod"], ["spin", "spin_mod"]]:
-		var v := float(bd.get(st[1]))
+	var bm := bd.mods(level)
+	var cm := cmp.mods(Save.board_level(String(cmp.id))) if cmp else {}
+	if level > 0:
+		box.add_child(UiKit.label("%s %d/%d" % [t("upgrade_level"), level, BoardDefinition.MAX_LEVEL], 22, UiKit.GOLD))
+	for st in [["speed", "speed"], ["control", "control"], ["jump", "jump"], ["accel", "accel"], ["spin", "spin"]]:
+		var v := float(bm[st[1]])
 		var row := UiKit.stat_bar(t(st[0]), (v + 0.12) * 100.0, 24.0, Color(0.45, 1, 0.6) if v > 0.001 else (Color(1, 0.5, 0.4) if v < -0.001 else UiKit.ICE), 260)
 		var pct := UiKit.label("%+d%%" % roundi(v * 100.0), 20)
 		row.add_child(pct)
 		if cmp:
-			var dv := v - float(cmp.get(st[1]))
+			var dv := v - float(cm[st[1]])
 			var dl := UiKit.label(("▲ %+d" % roundi(dv * 100)) if dv > 0.001 else (("▼ %+d" % roundi(dv * 100)) if dv < -0.001 else "="), 20,
 				Color(0.45, 1, 0.6) if dv > 0.001 else (Color(1, 0.5, 0.4) if dv < -0.001 else Color(0.8, 0.85, 0.9)))
 			row.add_child(dl)
@@ -524,8 +529,11 @@ func _screen_track() -> Control:
 	var desc := _desc_panel(right)
 	var focus: Control
 	if flow_mode == Game.Mode.QUICK_RACE:
-		var lc := Cycler.new().setup(t("laps"), PackedStringArray(["1", "2", "3", "4", "5"]), int(quick.laps) - 1, 540)
-		lc.changed.connect(func(k): quick.laps = k + 1)
+		var lap_opts := PackedStringArray([t("course_default")])
+		for n in range(1, 10):
+			lap_opts.append(str(n))
+		var lc := Cycler.new().setup(t("laps"), lap_opts, int(quick.laps), 540)
+		lc.changed.connect(func(k): quick.laps = k)
 		left.add_child(lc)
 		var dc := Cycler.new().setup(t("difficulty"), PackedStringArray([t("easy"), t("normal"), t("expert")]), int(quick.difficulty), 540)
 		dc.changed.connect(func(k): quick.difficulty = k)
@@ -553,7 +561,7 @@ func _screen_track() -> Control:
 			if flow_mode == Game.Mode.TIME_TRIAL:
 				var board: String = picks[0].board if picks.size() > 0 else "starter"
 				rec = "\n%s (%s): %s" % [t("best"), Registry.board(StringName(board)).display_name, UiKit.fmt_time(Save.record(String(td.id), board))]
-			desc.text = "%s\n%s: %d m%s%s" % [td.description_pt if Game.lang() != "en" else td.description_en, t("length"), int(td.length_m), rec,
+			desc.text = "%s\n%s: %d m  ·  %s: %d%s%s" % [td.description_pt if Game.lang() != "en" else td.description_en, t("length"), int(td.length_m), t("laps"), td.default_laps, rec,
 				"" if ok else "\n%s — %s" % [t("locked"), t("cup_locked")]])
 		left.add_child(b)
 		if focus == null and ok:
@@ -603,7 +611,8 @@ func _screen_challenges() -> Control:
 	var desc := _desc_panel(cols[1])
 	var first: Control
 	for e in [["slalom", "slalom_desc", Game.Mode.SKILL_SLALOM, "slalom_missed"], ["landing", "landing_desc", Game.Mode.SKILL_LANDING, "landing"],
-			["coin_rush", "coins_desc", Game.Mode.SKILL_COINS, "coins"], ["trick_attack", "trick_desc", Game.Mode.TRICK_ATTACK, "trick"]]:
+			["coin_rush", "coins_desc", Game.Mode.SKILL_COINS, "coins"], ["targets", "targets_desc", Game.Mode.SKILL_TARGETS, "targets"],
+			["trick_attack", "trick_desc", Game.Mode.TRICK_ATTACK, "trick"]]:
 		var m: int = e[2]
 		var b := UiKit.button(t(e[0]), func(): _begin(m), 480)
 		var dk: String = e[1]
@@ -624,13 +633,13 @@ func _launch_cup(i: int) -> void:
 	Game.cup_race = 0
 	Game.cup_points.clear()
 	Game.cup_credits_earned = 0
-	Game.laps = 5
 	Game.track_id = Registry.CUPS[i].tracks[0]
+	Game.laps = Registry.track(Game.track_id).default_laps
 	_load_then(Game.goto_race)
 
 func _launch() -> void:
 	Game.mode = flow_mode
-	Game.laps = int(quick.laps) if flow_mode == Game.Mode.QUICK_RACE else 5
+	Game.laps = int(quick.laps) if flow_mode == Game.Mode.QUICK_RACE and int(quick.laps) > 0 else Registry.track(Game.track_id).default_laps
 	Game.difficulty = int(quick.difficulty)
 	Game.items_enabled = bool(quick.items)
 	Game.seed_value = int(Time.get_ticks_usec() % 100000)
@@ -642,7 +651,8 @@ func _set_participants() -> void:
 	var hi := 0
 	for s in slots:
 		if s.type == "human":
-			humans.append({"type": "human", "device": String(s.device), "rider": picks[hi].rider, "board": picks[hi].board})
+			humans.append({"type": "human", "device": String(s.device), "rider": picks[hi].rider, "board": picks[hi].board,
+				"board_level": Save.board_level(picks[hi].board)})
 			hi += 1
 	var cpu := slots.filter(func(s): return s.type == "ai").size()
 	Game.participants.clear()
@@ -820,8 +830,24 @@ func _screen_garage() -> Control:
 			continue
 		var state := _board_state(bd)
 		var lbl := "%s   %s" % [bd.display_name, {"equipped": "★ " + t("equipped"), "owned": "✓ " + t("owned"), "buy": "● %d" % bd.price, "locked": ""}[state]]
-		var b := UiKit.button(lbl, func(): _garage_press(bd), 560)
+		var row := UiKit.hbox(8)
+		var lvl := Save.board_level(String(bd.id))
+		if state in ["owned", "equipped"]:
+			lbl += "   ▲%d" % lvl
+		var b := UiKit.button(lbl, func(): _garage_press(bd), 400 if state in ["owned", "equipped"] else 560)
 		_lock(b, state == "locked")
+		row.add_child(b)
+		if state in ["owned", "equipped"]:
+			var up_txt := ("%s ● %d" % [t("upgrade"), BoardDefinition.upgrade_cost(lvl)]) if lvl < BoardDefinition.MAX_LEVEL else t("max_level")
+			var ub := UiKit.button(up_txt, func(): _confirm_upgrade(bd), 152)
+			ub.add_theme_font_size_override("font_size", 18)
+			ub.disabled = lvl >= BoardDefinition.MAX_LEVEL
+			ub.focus_entered.connect(func():
+				stage.show_board(bd)
+				nm.text = "%s — %s %d/%d" % [bd.display_name, t("upgrade_level"), lvl, BoardDefinition.MAX_LEVEL]
+				st.text = t("upgrade_desc_" + bd.category)
+				_fill_board_stats(stats, bd, null, mini(lvl + 1, BoardDefinition.MAX_LEVEL)))
+			row.add_child(ub)
 		b.focus_entered.connect(func():
 			stage.show_board(bd)
 			nm.text = "%s — %s" % [bd.display_name, t(bd.category)]
@@ -831,10 +857,43 @@ func _screen_garage() -> Control:
 			elif state == "buy":
 				s2 += "\n%s: %d" % [t("price"), bd.price]
 			st.text = s2
-			_fill_board_stats(stats, bd, equipped))
-		left.add_child(b)
+			_fill_board_stats(stats, bd, equipped, Save.board_level(String(bd.id))))
+		left.add_child(row)
 	left.add_child.call_deferred(Control.new())
 	return fc
+
+func _confirm_upgrade(bd: BoardDefinition) -> void:
+	var lvl := Save.board_level(String(bd.id))
+	if lvl >= BoardDefinition.MAX_LEVEL:
+		return
+	var cost := BoardDefinition.upgrade_cost(lvl)
+	var dlg := PanelContainer.new()
+	dlg.set_anchors_preset(Control.PRESET_CENTER)
+	dlg.offset_left = -360; dlg.offset_right = 360; dlg.offset_top = -150; dlg.offset_bottom = 150
+	root.add_child(dlg)
+	var v := UiKit.vbox(18)
+	dlg.add_child(v)
+	v.add_child(UiKit.label(t("confirm_upgrade"), 34, UiKit.GOLD, true))
+	v.add_child(UiKit.label("%s ▲%d → ▲%d — %d %s  (%s: %d)" % [bd.display_name, lvl, lvl + 1, cost, t("credits"), t("your_credits"), Save.credits()], 22))
+	var h := UiKit.hbox(20)
+	v.add_child(h)
+	var done := [false]
+	var yes := UiKit.button(t("yes"), func():
+		if done[0]:
+			return   # repeated confirm never charges twice
+		done[0] = true
+		var r := Save.try_upgrade_board(String(bd.id))
+		dlg.queue_free()
+		if r == "ok":
+			Audio.play("buy")
+			show_toast("%s ▲%d" % [bd.display_name, Save.board_level(String(bd.id))])
+		else:
+			Audio.play("buy_fail")
+			show_toast(t("not_enough") if r == "credits" else t("max_level"), Color(1, 0.6, 0.5))
+		_build(), 280)
+	var no := UiKit.button(t("no"), func(): dlg.queue_free(); _build(), 280)
+	h.add_child(yes); h.add_child(no)
+	no.grab_focus.call_deferred()
 
 func _board_state(bd: BoardDefinition) -> String:
 	if String(Save.profile().equipped.board) == String(bd.id):

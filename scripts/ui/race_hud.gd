@@ -177,6 +177,8 @@ func _refresh() -> void:
 	else:
 		lap_txt = "%s %d/%d" % [Game.t("lap"), mini(rider.lap + 1, L), L]
 		lbl_timer.text = _fmt(race.race_time)
+		if race.mode == Game.Mode.SKILL_TARGETS:
+			lbl_timer.text += "   %s %d/%d" % [Game.t("targets_hit"), race.targets_hit, race.targets.size()]
 		if race.mode == Game.Mode.SKILL_SLALOM:
 			lbl_timer.text += "   %s %d  ×%d" % [Game.t("gates"), race.gates_passed, race.gates_missed]
 	lbl_lap.text = lap_txt

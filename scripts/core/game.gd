@@ -1,7 +1,7 @@
 extends Node
 ## Session state and scene flow. Holds the race configuration chosen in menus.
 
-enum Mode { GRAND_PRIX, QUICK_RACE, TIME_TRIAL, TRICK_ATTACK, SKILL_SLALOM, SKILL_LANDING, SKILL_COINS, MENU_BACKGROUND }
+enum Mode { GRAND_PRIX, QUICK_RACE, TIME_TRIAL, TRICK_ATTACK, SKILL_SLALOM, SKILL_LANDING, SKILL_COINS, MENU_BACKGROUND, SKILL_TARGETS }
 
 var mode: int = Mode.QUICK_RACE
 var track_id: StringName = &"vale_pinheiros"
@@ -33,6 +33,7 @@ const SKILL_THRESHOLDS := {
 	"landing": [5, 9, 14],
 	"coins": [40, 70, 100],
 	"slalom_missed": [4, 2, 0],
+	"targets": [4, 7, 10],
 }
 
 func lang() -> String:
@@ -99,8 +100,8 @@ func start_grand_prix(cup: int) -> void:
 	cup_race = 0
 	cup_points.clear()
 	cup_credits_earned = 0
-	laps = 5
 	track_id = Registry.CUPS[cup].tracks[0]
+	laps = Registry.track(track_id).default_laps
 	goto_race()
 
 func _test_intercept(scene: String) -> bool:
@@ -134,6 +135,7 @@ func goto_results() -> void:
 func next_cup_race() -> void:
 	cup_race += 1
 	track_id = Registry.CUPS[cup_index].tracks[cup_race]
+	laps = Registry.track(track_id).default_laps
 	goto_race()
 
 func is_cup_last_race() -> bool:
@@ -223,6 +225,8 @@ func process_results() -> Dictionary:
 			s.skill_kind = "coins"; s.skill_value = float(me.coins)
 		Mode.SKILL_SLALOM:
 			s.skill_kind = "slalom_missed"; s.skill_value = float(me.missed)
+		Mode.SKILL_TARGETS:
+			s.skill_kind = "targets"; s.skill_value = float(me.get("targets", 0))
 	if s.skill_kind != "":
 		var finished_ok: bool = mode != Mode.SKILL_SLALOM or float(me.time) > 0.0
 		s.medal = skill_medal(s.skill_kind, s.skill_value) if finished_ok else 0

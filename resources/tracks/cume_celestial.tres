@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+default_laps = 3
 id = &"cume_celestial"
 display_name = "Cume Celestial"
 display_name_en = "Celestial Summit"

@@ -20,7 +20,7 @@ func default_data() -> Dictionary:
 		"schema": SCHEMA,
 		"profile": {"name": "Rider", "credits": 0, "riders": ["niko", "mika", "taro", "luna"], "boards_unlocked": ["starter", "carver", "float"],
 			"boards_owned": ["starter", "carver", "float"], "equipped": {"rider": "niko", "board": "starter"},
-			"medals": {}, "cups_unlocked": 1, "trick_best": {}, "skill_medals": {}},
+			"medals": {}, "cups_unlocked": 1, "trick_best": {}, "skill_medals": {}, "board_levels": {}},
 		"records": {},   ## track_id -> {board_id: best_time_seconds}
 		"ghosts": {},    ## track_id -> {"time": t, "rider": id, "board": id, "frames": [[x,y,z,yaw], ...]}
 		"settings": {"lang": "pt", "music": 0.8, "sfx": 0.9, "voice": 0.8, "quality": 1, "shake": true, "motion": true,
@@ -147,6 +147,27 @@ func try_buy_board(id: String, price: int) -> String:
 		return "credits"
 	data.profile.credits = credits() - price
 	data.profile.boards_owned.append(id)
+	write()
+	return "ok"
+
+func board_level(id: String) -> int:
+	return int(data.profile.get("board_levels", {}).get(id, 0))
+
+func try_upgrade_board(id: String) -> String:
+	## Returns "ok", "not_owned", "max" or "credits". The level is checked before charging, so a repeated
+	## confirmation can never charge twice for the same level.
+	if not has_board(id):
+		return "not_owned"
+	var lv := board_level(id)
+	if lv >= BoardDefinition.MAX_LEVEL:
+		return "max"
+	var cost := BoardDefinition.upgrade_cost(lv)
+	if credits() < cost:
+		return "credits"
+	data.profile.credits = credits() - cost
+	if not data.profile.has("board_levels"):
+		data.profile["board_levels"] = {}
+	data.profile.board_levels[id] = lv + 1
 	write()
 	return "ok"
 

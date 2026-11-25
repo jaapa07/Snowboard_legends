@@ -258,7 +258,9 @@ func _build_ui() -> void:
 			if String(summary.skill_kind) != "":
 				var th: Array = Game.SKILL_THRESHOLDS[summary.skill_kind]
 				var val := "%d" % int(summary.skill_value)
-				var lab: String = {"trick": t("score"), "landing": t("landing"), "coins": t("coins"), "slalom_missed": t("gates")}[summary.skill_kind]
+				var lab: String = {"trick": t("score"), "landing": t("landing"), "coins": t("coins"), "slalom_missed": t("gates"), "targets": t("targets_hit")}[summary.skill_kind]
+				if summary.skill_kind == "targets":
+					val = "%d/%d" % [int(summary.rows[0].get("targets", 0)), int(summary.rows[0].get("targets_total", 0))]
 				if summary.skill_kind == "slalom_missed":
 					var me2: Dictionary = summary.rows[0]
 					val = "%d/%d  (%s)" % [int(me2.gates), int(me2.gates) + int(me2.missed), UiKit.fmt_time(float(me2.time) + int(me2.missed) * 2.0)]

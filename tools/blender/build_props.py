@@ -1,4 +1,5 @@
-"""Builds props.glb (vegetation, structures, lift parts) and items.glb (10 power-ups, coin, stations).
+"""Builds props.glb (vegetation, structures, lift parts) and items.glb (12 power-ups, coin, stations, skill target).
+Items only: python tools/blender/build_props.py items
 Run: python tools/blender/build_props.py  (inside the bpy venv)"""
 import sys, os, math, random
 sys.path.insert(0, os.path.dirname(__file__))
@@ -264,17 +265,40 @@ def build_items():
            box("rp_cz", (0.14, 0.62, 0.42), (0, 0, 0.35), material=C("#3ad27a", 0.4)),
            cyl("rp_h", 0.18, 0.08, (0, 0, 0.68), rot=(P / 2, 0, 0), material=C("#555a66", 0.4, 0.8), verts=10)]
     objs.append(join(rep, "item_repair"))
+    # leader-seeking comet: glowing star core with a tapered flame tail (points -Y = travel direction)
+    comet = [sphere("cm_core", 0.42, material=C("#ffe46a", 0.3, 0, "#ffb020", 2.2), seg=16, rings=10),
+             cyl("cm_tail", 0.38, 1.6, (0, 0.95, 0), rot=(P / 2, 0, 0), material=C("#ff7a2a", 0.5, 0, "#ff5a10", 1.6), verts=12, r2=0.02),
+             cyl("cm_tail2", 0.22, 1.1, (0, 0.75, 0.18), rot=(P / 2, 0, 0), material=C("#fff0a0", 0.4, 0, "#ffe080", 1.4), verts=10, r2=0.02)]
+    for k in range(5):
+        a_ = k * 2 * P / 5
+        comet.append(cyl(f"cm_sp{k}", 0.1, 0.45, (math.cos(a_) * 0.45, 0, math.sin(a_) * 0.45), rot=(0, -a_ + P / 2, 0), material=C("#fff6c0", 0.3, 0, "#ffd040", 1.8), verts=5, r2=0.0))
+    objs.append(join(comet, "item_comet"))
+    # whirlwind: stacked spinning rings widening upward around a dark core funnel
+    whirl = [cyl("wh_core", 0.08, 1.6, (0, 0, 0.8), material=C("#8090b0", 0.6), verts=8, r2=0.35)]
+    for k in range(6):
+        whirl.append(torus(f"wh_r{k}", 0.18 + k * 0.11, 0.045, (0.04 * math.sin(k * 1.7), 0.04 * math.cos(k * 1.7), 0.12 + k * 0.27),
+                           material=C("#d8e4ff" if k % 2 else "#9fb6ff", 0.5, 0, "#b0c8ff", 0.5), seg=18, cseg=5))
+    objs.append(join(whirl, "item_whirl"))
+    # skill-game target: wooden post with a red/white ringed board facing -Y (towards the riders)
+    tgt = [cyl("tg_post", 0.09, 2.2, (0, 0.12, 1.1), material=C("#8a5a32", 0.8), verts=8),
+           cyl("tg_r0", 0.75, 0.08, (0, 0, 2.2), rot=(P / 2, 0, 0), material=C("#f4f4f4", 0.6), verts=24),
+           cyl("tg_r1", 0.56, 0.1, (0, 0, 2.2), rot=(P / 2, 0, 0), material=C("#e02a2a", 0.5), verts=24),
+           cyl("tg_r2", 0.37, 0.12, (0, 0, 2.2), rot=(P / 2, 0, 0), material=C("#f4f4f4", 0.6), verts=20),
+           cyl("tg_r3", 0.18, 0.14, (0, 0, 2.2), rot=(P / 2, 0, 0), material=C("#e02a2a", 0.4, 0, "#ff4040", 0.6), verts=16)]
+    objs.append(join(tgt, "target_board"))
     for o in objs:
         smooth(o, 35)
     return objs
 
 
 if __name__ == "__main__":
-    reset()
-    po = build_props()
-    print("props tris", tri_count(po))
-    save_blend(os.path.join(ROOT, "source_art", "blend", "props.blend"))
-    export_glb(os.path.join(ROOT, "assets", "models", "props", "props.glb"))
+    only_items = len(sys.argv) > 1 and sys.argv[-1] == "items"
+    if not only_items:
+        reset()
+        po = build_props()
+        print("props tris", tri_count(po))
+        save_blend(os.path.join(ROOT, "source_art", "blend", "props.blend"))
+        export_glb(os.path.join(ROOT, "assets", "models", "props", "props.glb"))
     reset()
     io = build_items()
     print("items tris", tri_count(io))

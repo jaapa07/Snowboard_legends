@@ -14,3 +14,4 @@ extends Resource
 @export var description_pt: String = ""
 @export var description_en: String = ""
 @export var campaign: bool = true
+@export_range(1, 9) var default_laps: int = 5   ## descents per race on this course (tuned for ~3-4 min races)

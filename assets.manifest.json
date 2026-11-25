@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "generated_by": "tools/build_manifest.py",
- "count": 171,
+ "count": 174,
  "assets": [
   {
    "id": "rider_model:niko",
@@ -652,10 +652,10 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 138076,
-   "sha1": "e0ac2e6dd8b7",
-   "meshes": 13,
-   "materials": 22,
+   "bytes": 199500,
+   "sha1": "0800067024e8",
+   "meshes": 16,
+   "materials": 30,
    "status": "integrated"
   },
   {
@@ -877,6 +877,71 @@
    ],
    "status": "verified",
    "verified_by": "tests/run_all content check"
+  },
+  {
+   "id": "item_icon:comet",
+   "path": "res://assets/sprites/items/comet.png",
+   "file": "assets/sprites/items/comet.png",
+   "type": "item_icon",
+   "license": "project-original",
+   "method": "Cycles render of the item model (tools/blender/render_objects.py item)",
+   "source": "source_art/blend/items.blend",
+   "dependencies": [
+    "items"
+   ],
+   "required": true,
+   "fallback": null,
+   "bytes": 32966,
+   "sha1": "c7fdec92cbc9",
+   "size_px": [
+    256,
+    256
+   ],
+   "status": "verified",
+   "verified_by": "tests/run_all content check"
+  },
+  {
+   "id": "item_icon:whirl",
+   "path": "res://assets/sprites/items/whirl.png",
+   "file": "assets/sprites/items/whirl.png",
+   "type": "item_icon",
+   "license": "project-original",
+   "method": "Cycles render of the item model (tools/blender/render_objects.py item)",
+   "source": "source_art/blend/items.blend",
+   "dependencies": [
+    "items"
+   ],
+   "required": true,
+   "fallback": null,
+   "bytes": 42372,
+   "sha1": "18ff9f6c2b8f",
+   "size_px": [
+    256,
+    256
+   ],
+   "status": "verified",
+   "verified_by": "tests/run_all content check"
+  },
+  {
+   "id": "ui:target",
+   "path": "res://assets/sprites/items/target.png",
+   "file": "assets/sprites/items/target.png",
+   "type": "ui_sprite",
+   "license": "project-original",
+   "method": "Cycles render of the target model (tools/blender/render_objects.py item)",
+   "source": "source_art/blend/items.blend",
+   "dependencies": [
+    "items"
+   ],
+   "required": true,
+   "fallback": null,
+   "bytes": 33116,
+   "sha1": "b9ee2d0746f6",
+   "size_px": [
+    256,
+    256
+   ],
+   "status": "integrated"
   },
   {
    "id": "item_icon:coin",

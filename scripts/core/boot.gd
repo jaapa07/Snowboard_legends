@@ -11,12 +11,12 @@ func _ready() -> void:
 	var i := args.find("--race")
 	if i >= 0:
 		Game.track_id = StringName(args[i + 1]) if args.size() > i + 1 else &"vale_pinheiros"
-		Game.laps = _int(args, "--laps", 5)
+		Game.laps = _int(args, "--laps", Registry.track(Game.track_id).default_laps)
 		Game.seed_value = _int(args, "--seed", 1234)
 		Game.difficulty = _int(args, "--difficulty", 1)
 		Game.headless_autoplay = "--autoplay" in args
 		var m := _str(args, "--mode", "quick")
-		Game.mode = {"quick": Game.Mode.QUICK_RACE, "tt": Game.Mode.TIME_TRIAL, "trick": Game.Mode.TRICK_ATTACK, "slalom": Game.Mode.SKILL_SLALOM, "gp": Game.Mode.GRAND_PRIX}.get(m, Game.Mode.QUICK_RACE)
+		Game.mode = {"quick": Game.Mode.QUICK_RACE, "tt": Game.Mode.TIME_TRIAL, "trick": Game.Mode.TRICK_ATTACK, "slalom": Game.Mode.SKILL_SLALOM, "targets": Game.Mode.SKILL_TARGETS, "coins": Game.Mode.SKILL_COINS, "landing": Game.Mode.SKILL_LANDING, "gp": Game.Mode.GRAND_PRIX}.get(m, Game.Mode.QUICK_RACE)
 		var humans: Array = []
 		for k in range(1, _int(args, "--humans", 1)):
 			humans.append({"type": "human", "device": ["kb_right", "joy0", "joy1"][k - 1], "rider": ["mika", "taro", "luna"][k - 1], "board": "carver"})

@@ -61,6 +61,15 @@ const S := {
 	"thresholds": ["Metas (bronze/prata/ouro)", "Targets (bronze/silver/gold)"], "race_credits": ["Créditos da corrida", "Race credits"],
 	"cup_total_credits": ["Créditos na copa", "Credits this cup"], "dnf": ["não terminou", "did not finish"], "wait": ["Aguarde...", "Please wait..."],
 	"board_req": ["Desbloqueio", "Unlock"], "quit_q": ["Sair do jogo?", "Quit the game?"], "multiplayer_hint": ["Até 4 jogadores locais em tela dividida", "Up to 4 local players in split screen"],
+	"course_default": ["Padrão da pista", "Course default"], "upgrade": ["Melhorar", "Upgrade"], "upgrade_level": ["Nível", "Level"],
+	"max_level": ["Nível máximo", "Max level"], "confirm_upgrade": ["Confirmar melhoria?", "Confirm upgrade?"],
+	"upgrade_desc_speed": ["Cada nível: +2% velocidade e +1% aceleração (teto 12%).", "Each level: +2% speed, +1% acceleration (12% cap)."],
+	"upgrade_desc_carving": ["Cada nível: +2% controle e +1% aceleração (teto 12%).", "Each level: +2% control, +1% acceleration (12% cap)."],
+	"upgrade_desc_freestyle": ["Cada nível: +1,5% salto e giro (teto 12%).", "Each level: +1.5% jump and spin (12% cap)."],
+	"upgrade_desc_balanced": ["Cada nível: +1% em todos os atributos (teto 12%).", "Each level: +1% on every attribute (12% cap)."],
+	"targets": ["Tiro ao alvo", "Target shooting"], "targets_desc": ["Uma descida com bolas de neve à vontade (F / Y): acerte os alvos ao longo da pista.", "One run with unlimited snowballs (F / Y): hit the targets along the course."],
+	"targets_hit": ["Alvos", "Targets"], "signature": ["Manobra-assinatura", "Signature trick"],
+	"signature_hint": ["No ar: Q, E, Shift (LB, RB, X) em sequência.", "In the air: Q, E, Shift (LB, RB, X) in sequence."],
 	"credits_screen": ["Créditos do jogo", "Game credits"], "press_start": ["Pressione ENTER / START", "Press ENTER / START"],
 }
 

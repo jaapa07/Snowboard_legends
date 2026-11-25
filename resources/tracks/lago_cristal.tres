@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+default_laps = 4
 id = &"lago_cristal"
 display_name = "Lago Cristal"
 display_name_en = "Crystal Lake"

@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+default_laps = 4
 id = &"estacao_abandonada"
 display_name = "Estação Abandonada"
 display_name_en = "Abandoned Station"

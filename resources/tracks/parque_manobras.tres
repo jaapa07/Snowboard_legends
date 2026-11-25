@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+default_laps = 9
 id = &"parque_manobras"
 display_name = "Parque de Manobras"
 display_name_en = "Trick Park"

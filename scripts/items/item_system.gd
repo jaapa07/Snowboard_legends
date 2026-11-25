@@ -125,6 +125,24 @@ func use_item(r: RiderController, id: StringName) -> bool:
 					if o.apply_hit("wave"):
 						o.push(away.normalized() * 7.0)
 			Audio.play_3d("wave", r)
+		&"comet":
+			# seeker: flies along the course to the current leader (never used by the leader itself)
+			var leader: RiderController = null
+			for o in race.riders:
+				if o != r and o.place == 1 and not o.finished and o.state != RiderController.State.LIFT:
+					leader = o
+			if leader == null or leader.progress <= r.progress:
+				return false
+			var n := _node("item_comet")
+			projectiles.append({"kind": "comet", "node": n, "owner": r, "t": 0.0, "target": leader, "s": r.s + 2.0, "lat": r.lat,
+				"lap": r.lap, "p": r.global_position, "spd": maxf(leader.speed * 1.6, 42.0)})
+			Audio.play_3d("boost", r)
+		&"whirl":
+			var n := _node("item_whirl")
+			var p := r.global_position + fwd * 1.8
+			n.global_position = p
+			projectiles.append({"kind": "whirl", "node": n, "p": p, "v": fwd * (r.speed + 18.0), "owner": r, "t": 0.0})
+			Audio.play_3d("wave", r)
 		&"gust":
 			r.boost_t = 2.0
 			Audio.play_3d("boost", r)
@@ -185,7 +203,12 @@ func _physics_process(delta: float) -> void:
 				pj.p = nxt
 				(pj.node as Node3D).global_position = nxt
 				(pj.node as Node3D).rotate_x(delta * 12.0)
+				if not done and race.has_method("hit_target") and race.hit_target(nxt):
+					_burst(nxt)
+					done = true
 				for o in race.riders:
+					if done:
+						break
 					if o != pj.owner and o.global_position.distance_to(nxt - Vector3.UP * 0.6) < 1.3:
 						o.apply_hit("snowball")
 						_burst(nxt)
@@ -208,6 +231,50 @@ func _physics_process(delta: float) -> void:
 					if o != pj.owner and o.global_position.distance_to(np) < 1.4:
 						o.apply_hit("penguin")
 						_burst(np)
+						done = true
+						break
+			"comet":
+				var tgt: RiderController = pj.target
+				var tr: TrackRuntime = race.track
+				if tgt == null or not is_instance_valid(tgt) or tgt.finished or tgt.state == RiderController.State.LIFT:
+					done = true   # the lift is a safe zone
+				else:
+					# chase along the spline; once on the leader's descent, close in directly
+					if pj.get("homing", false) or tgt.lap > int(pj.lap) or pj.s >= tgt.s - 12.0:
+						pj.homing = true   # final approach: stays locked on (switching back made it hover beside the target)
+						var to: Vector3 = tgt.global_position + Vector3.UP * 0.9 - (pj.p as Vector3)
+						pj.p = (pj.p as Vector3) + to.normalized() * minf(to.length(), float(pj.spd) * delta)
+					else:
+						pj.s = minf(float(pj.s) + float(pj.spd) * delta, tr.length - 1.0)
+						pj.lat = lerpf(float(pj.lat), tgt.lat, clampf(delta * 2.0, 0, 1))
+						pj.p = tr.point_at(float(pj.s), float(pj.lat), 2.2)
+					(pj.node as Node3D).global_position = pj.p
+					(pj.node as Node3D).look_at((pj.p as Vector3) + (tgt.global_position - (pj.p as Vector3)).normalized() + Vector3(0.001, 0, 0), Vector3.UP)
+					if tgt.global_position.distance_to(pj.p) < 1.8:
+						tgt.apply_hit("comet")
+						_burst(pj.p)
+						done = true
+			"whirl":
+				var nxt: Vector3 = pj.p + pj.v * delta
+				var q2 := PhysicsRayQueryParameters3D.create(pj.p, nxt, 1)
+				var hit2 := space.intersect_ray(q2)
+				if not hit2.is_empty() and absf((hit2.normal as Vector3).y) < 0.6:
+					done = true
+					_burst(pj.p)
+				var down2 := PhysicsRayQueryParameters3D.create(nxt + Vector3.UP * 3.0, nxt + Vector3.DOWN * 6.0, 1)
+				var g2 := space.intersect_ray(down2)
+				if not g2.is_empty():
+					nxt.y = lerpf(nxt.y, (g2.position as Vector3).y + 0.1, 0.5)
+				pj.p = nxt
+				(pj.node as Node3D).global_position = nxt
+				(pj.node as Node3D).rotate_y(delta * 14.0)
+				for o in race.riders:
+					if o != pj.owner and o.global_position.distance_to(nxt) < 2.2:
+						if o.apply_hit("whirl"):
+							o.offense_item = &""
+							o.utility_item = &""
+							o.items_changed.emit(o)
+						_burst(nxt)
 						done = true
 						break
 			"wave":
@@ -245,14 +312,16 @@ func _physics_process(delta: float) -> void:
 			clouds.remove_at(i)
 
 func _model_of(kind: String) -> String:
-	return {"snowball": "item_snowball", "penguin": "item_penguin", "wave": "item_wave"}[kind]
+	return {"snowball": "item_snowball", "penguin": "item_penguin", "wave": "item_wave", "comet": "item_comet", "whirl": "item_whirl"}[kind]
 
 func incoming_for(r: RiderController) -> bool:
 	## HUD telegraph: a projectile is heading at this rider.
 	for pj in projectiles:
 		if pj.owner == r:
 			continue
-		if String(pj.kind) == "penguin" and pj.target == r:
+		if (String(pj.kind) == "penguin" or String(pj.kind) == "comet") and pj.target == r:
+			return true
+		if String(pj.kind) == "whirl" and (pj.p as Vector3).distance_to(r.global_position) < 25.0:
 			return true
 		if String(pj.kind) == "snowball" and (pj.p as Vector3).distance_to(r.global_position) < 25.0:
 			return true

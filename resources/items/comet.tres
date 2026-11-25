@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"comet"
+display_name = "Cometa caçador"
+display_name_en = "Seeker comet"
+slot = "offense"
+icon_path = "res://assets/sprites/items/comet.png"
+model_node = "item_comet"
+duration = 1.5
+weights = PackedFloat32Array(0.0, 0.5, 1.0, 1.4)
+description_pt = "Voa sozinho até o líder e o desacelera."
+counterplay_pt = "Escudo, ou passar o teleférico."

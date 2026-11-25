@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"whirl"
+display_name = "Redemoinho"
+display_name_en = "Whirlwind"
+slot = "offense"
+icon_path = "res://assets/sprites/items/whirl.png"
+model_node = "item_whirl"
+duration = 0.0
+weights = PackedFloat32Array(0.5, 0.9, 0.9, 0.7)
+description_pt = "Arrasta o rival à frente e faz ele perder os itens."
+counterplay_pt = "Escudo ou distância (alcance 30 m)."

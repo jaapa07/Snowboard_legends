@@ -20,7 +20,7 @@ REQUIRED_CLIPS = ["idle", "push", "glide", "tuck", "carveLeft", "carveRight", "b
 RIDERS = ["niko", "mika", "taro", "luna", "boro", "yuki", "zed", "pippa", "kaito"]
 TRACKS = ["vale_pinheiros", "lago_cristal", "pico_vulcanico", "festival_boreal", "floresta_gigante", "estacao_abandonada",
           "tempestade_polar", "cume_celestial", "parque_manobras"]
-ITEMS = ["snowball", "icemine", "penguin", "fog", "wave", "gust", "shield", "spring", "magnet", "repair"]
+ITEMS = ["snowball", "icemine", "penguin", "fog", "wave", "gust", "shield", "spring", "magnet", "repair", "comet", "whirl"]
 BOARDS = ["starter", "carver", "float", "rocket", "grip", "twin", "powder", "rail", "alpine", "aurora", "comet", "legend"]
 
 # Assets loaded by automated tests (tests/run_all) or visible in evidence captures (docs/screenshots) -> "verified".
@@ -80,6 +80,7 @@ def collect():
     E.append(entry("items", f"{A}models/items/items.glb", "item_library", "scripted modelling in Blender (tools/blender/build_props.py)", "source_art/blend/items.blend"))
     for i in ITEMS:
         E.append(entry(f"item_icon:{i}", f"{A}sprites/items/{i}.png", "item_icon", "Cycles render of the item model (tools/blender/render_objects.py item)", "source_art/blend/items.blend", ["items"]))
+    E.append(entry("ui:target", f"{A}sprites/items/target.png", "ui_sprite", "Cycles render of the target model (tools/blender/render_objects.py item)", "source_art/blend/items.blend", ["items"]))
     E.append(entry("item_icon:coin", f"{A}sprites/items/coin.png", "item_icon", "Cycles render (tools/blender/render_objects.py item)", "source_art/blend/items.blend", ["items"]))
     E.append(entry("props", f"{A}models/props/props.glb", "prop_library", "scripted modelling in Blender (tools/blender/build_props.py)", "source_art/blend/props.blend"))
     for t in TRACKS:

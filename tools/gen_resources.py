@@ -52,7 +52,13 @@ ITEMS = [
     ("spring", "Mola", "Spring", "utility", "item_spring", 0.0, (1.0, 1.0, 1.0, 1.0), "Salto extra a partir do solo.", "Risco no pouso."),
     ("magnet", "Ímã", "Magnet", "utility", "item_magnet", 5.0, (1.0, 1.0, 1.0, 0.8), "Atrai moedas próximas por 5 s.", "Alcance limitado."),
     ("repair", "Reparador", "Repair kit", "utility", "item_repair", 0.0, (0.6, 0.8, 1.2, 1.6), "Recupera rapidamente de uma queda.", "Uso único."),
+    ("comet", "Cometa caçador", "Seeker comet", "offense", "item_comet", 1.5, (0.0, 0.5, 1.0, 1.4), "Voa sozinho até o líder e o desacelera.", "Escudo, ou passar o teleférico."),
+    ("whirl", "Redemoinho", "Whirlwind", "offense", "item_whirl", 0.0, (0.5, 0.9, 0.9, 0.7), "Arrasta o rival à frente e faz ele perder os itens.", "Escudo ou distância (alcance 30 m)."),
 ]
+
+# descents per course: tuned from measured AI winning times so a race lasts roughly 3-4 minutes
+# (short courses get more runs, long ones fewer)
+TRACK_LAPS = {'vale_pinheiros': 5, 'lago_cristal': 4, 'pico_vulcanico': 4, 'festival_boreal': 5, 'floresta_gigante': 4, 'estacao_abandonada': 4, 'tempestade_polar': 4, 'cume_celestial': 3, 'parque_manobras': 9}
 
 
 def tres(cls, script, fields):
@@ -88,7 +94,7 @@ def main():
                  price=price, unlock=unl, node_name="board_" + bid, thumbnail_path=f"res://assets/sprites/boards/board_{bid}.png", description_pt=dp, description_en=de)
         open(os.path.join(ROOT, "resources", "boards", bid + ".tres"), "w").write(tres("BoardDefinition", "res://scripts/core/board_definition.gd", f))
     for k, (tid, nm, ne, cup, L, dp, de) in enumerate(TRACKS):
-        f = dict(id=("sn", tid), display_name=nm, display_name_en=ne, scene_path=f"res://assets/models/tracks/{tid}.glb",
+        f = dict(default_laps=TRACK_LAPS[tid], id=("sn", tid), display_name=nm, display_name_en=ne, scene_path=f"res://assets/models/tracks/{tid}.glb",
                  data_path=f"res://assets/data/tracks/{tid}.json", music_path=f"res://assets/audio/music/track_{tid}.ogg",
                  map_path=f"res://assets/sprites/maps/{tid}.png", cup=cup, length_m=float(L), description_pt=dp, description_en=de, campaign=cup > 0)
         open(os.path.join(ROOT, "resources", "tracks", tid + ".tres"), "w").write(tres("TrackDefinition", "res://scripts/core/track_definition.gd", f))

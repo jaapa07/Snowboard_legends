@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+default_laps = 4
 id = &"pico_vulcanico"
 display_name = "Pico Vulcânico"
 display_name_en = "Volcanic Peak"
