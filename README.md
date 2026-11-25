@@ -108,9 +108,9 @@ godot --headless --path . --script res://tests/dump_licenses.gd -- builds/window
 
 Gerados em `builds/` (não versionados: o executável Windows tem 137 MB, acima do limite de 100 MB do GitHub):
 
-- `SnowboardLegends3D-1.0.0-windows-x64.zip` (71,6 MB): `SnowboardLegends3D.exe` (PE32+ x86-64, PCK embutido), `LEIA-ME.txt`,
+- `SnowboardLegends3D-1.0.0-windows-x64.zip` (97,3 MB): `SnowboardLegends3D.exe` (PE32+ x86-64, PCK embutido), `LEIA-ME.txt`,
   `ASSET_LICENSES.md`, `OFL-Inter.txt`, `GODOT_LICENSE.txt`, `GODOT_THIRDPARTY.txt`.
-- `SnowboardLegends3D-1.0.0-linux-x64.zip` (64,2 MB): mesmo conteúdo com `SnowboardLegends3D.x86_64`.
+- `SnowboardLegends3D-1.0.0-linux-x64.zip` (90,0 MB): mesmo conteúdo com `SnowboardLegends3D.x86_64`.
 
 Teste em pasta limpa (sem editor, sem projeto, `HOME` isolado): o binário Linux descompactado completou uma corrida de
 3 descidas no Cume Celestial sem erros de script. O PCK embutido no `.exe` foi carregado pelo motor 4.4.1 (`--main-pack`)
