@@ -716,7 +716,7 @@ func _screen_options() -> Control:
 		Save.write()
 		_build())
 	left.add_child(first)
-	for vk in ["music", "sfx", "voice"]:
+	for vk in ["music", "sfx"]:   # no voice clips ship, so no (inert) voice slider
 		var row := UiKit.hbox(14)
 		var l := UiKit.label(t(vk), 26)
 		l.custom_minimum_size = Vector2(200, 0)

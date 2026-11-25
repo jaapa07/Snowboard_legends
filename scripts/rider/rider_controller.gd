@@ -92,6 +92,8 @@ var m_jump := 1.0
 var m_accel := 1.0
 var m_resist := 1.0
 var m_spin := 1.0
+var assist_mult := 1.0               ## AI catch-up multiplier on the speed cap (set by RaceManager, 1.0..1.05)
+const ASSIST_MAX := 0.05
 
 func setup(i: int, rider_def: RiderDefinition, board_def: BoardDefinition, trk: TrackRuntime, prov: Object, human: bool, dev: String) -> void:
 	index = i; def = rider_def; board = board_def; track = trk; provider = prov; is_human = human; device = dev
@@ -143,7 +145,8 @@ func vmax() -> float:
 		v = tuning.boost_speed
 	if slow_t > 0.0:
 		v *= 0.55
-	return v
+	# optional AI catch-up assist (spec §10): at most +5 %, never above the physical ceiling (boost speed)
+	return minf(v * assist_mult, maxf(v, tuning.boost_speed)) if assist_mult > 1.0 else v
 
 # ------------------------------------------------------------------ main loop
 func _physics_process(delta: float) -> void:

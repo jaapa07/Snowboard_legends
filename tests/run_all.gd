@@ -208,6 +208,13 @@ func _u_physics() -> void:
 		check(vmax_seen <= cap + 1.5, "ground speed respects %s cap" % ("tuck" if tuck else "base"), "max=%.2f cap=%.2f" % [vmax_seen, cap])
 		check(vmax_seen > cap * 0.75, "reaches near the %s cap on a long descent" % ("tuck" if tuck else "base"), "max=%.2f cap=%.2f" % [vmax_seen, cap])
 		await _free(sb)
+	var ar := RiderController.new()
+	ar.def = Registry.rider(&"niko"); ar.board = Registry.board(&"starter")
+	ar.assist_mult = 1.0 + RiderController.ASSIST_MAX
+	var capped := ar.vmax()
+	ar.assist_mult = 1.0
+	check(near(capped, ar.vmax() * 1.05, 0.01) and capped <= ar.tuning.boost_speed + 0.001, "AI assist at most +5 % and under the physical ceiling", "%.2f vs %.2f" % [capped, ar.vmax()])
+	ar.free()
 	check(near(RiderTuning.new().max_speed, 24.0, 0.01) and near(RiderTuning.new().tuck_speed, 29.0, 0.01) and near(RiderTuning.new().boost_speed, 35.0, 0.01), "spec speeds 24/29/35 m/s")
 
 func _u_jump() -> void:

@@ -111,8 +111,6 @@ func _spawn() -> void:
 		r.place_at(sp, track.fwd[track.idx_at(20.0)])
 		r.state = RiderController.State.FROZEN
 		r.frozen_t = 999.0
-		if not r.is_human and Save.settings().assist:
-			pass
 		r.trick_landed.connect(_on_trick)
 		r.crashed.connect(func(_r): pass)
 		riders.append(r)
@@ -380,6 +378,7 @@ func _rank() -> void:
 		if absf(ka - kb) < 0.5:
 			return a.place < b.place   # hysteresis: keep previous order on near-ties
 		return ka > kb)
+	_update_assist()
 	var changed := false
 	for i in order.size():
 		var r: RiderController = order[i]
@@ -390,6 +389,21 @@ func _rank() -> void:
 		r.place = i + 1
 	if changed:
 		ranking_changed.emit()
+
+func _update_assist() -> void:
+	## AI catch-up: an AI more than 40 m behind the best human gets up to +5 % on its speed cap (ramps over 400 m).
+	## Off when the option is disabled, without humans, or in solo modes.
+	var best_h := -INF
+	for r in riders:
+		if r.is_human and not Game.headless_autoplay:
+			best_h = maxf(best_h, r.progress)
+	var on: bool = bool(Save.settings().get("assist", true)) and best_h > -INF and mode in [Game.Mode.GRAND_PRIX, Game.Mode.QUICK_RACE]
+	for r in riders:
+		if r.is_human or not on:
+			r.assist_mult = 1.0
+			continue
+		var gap := best_h - r.progress
+		r.assist_mult = 1.0 + clampf((gap - 40.0) / 400.0, 0.0, 1.0) * RiderController.ASSIST_MAX
 
 func _finish(r: RiderController) -> void:
 	if r.finished:
