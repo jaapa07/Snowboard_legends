@@ -11,3 +11,5 @@ __pycache__/
 # blender autosaves
 *.blend1
 *.blend@
+source_art/cc0/*
+!source_art/cc0/sources.json

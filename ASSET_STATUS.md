@@ -19,7 +19,9 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | map | 9 | 0 | 0 | 0 | 9 | tests/run_all content check; menu captures |
 | music | 12 | 0 | 0 | 0 | 12 | tests/run_all content check (course music) |
 | sfx | 37 | 0 | 0 | 37 | 0 | validação de arquivo/formato |
-| texture | 28 | 0 | 0 | 28 | 0 | validação de arquivo/formato |
+| texture | 49 | 0 | 0 | 49 | 0 | validação de arquivo/formato |
+| sky_panorama | 8 | 0 | 0 | 8 | 0 | validação de arquivo/formato |
+| sky_metadata | 1 | 0 | 0 | 1 | 0 | validação de arquivo/formato |
 | fx_sprite | 6 | 0 | 0 | 6 | 0 | validação de arquivo/formato |
 | atlas_metadata | 1 | 0 | 0 | 1 | 0 | validação de arquivo/formato |
 | app_icon | 12 | 0 | 0 | 12 | 0 | validação de arquivo/formato |
@@ -83,11 +85,11 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | ui:snowman | `assets/sprites/items/snowman.png` | integrated | Cycles render of the model (tools/blender/render_objects.py item) | project-original | 256x256 |
 | item_icon:coin | `assets/sprites/items/coin.png` | verified | Cycles render (tools/blender/render_objects.py item) | project-original | 256x256 |
 | props | `assets/models/props/props.glb` | integrated | scripted modelling in Blender (tools/blender/build_props.py) | project-original | 64 meshes |
-| track_scene:vale_pinheiros | `assets/models/tracks/vale_pinheiros.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 54 meshes |
+| track_scene:vale_pinheiros | `assets/models/tracks/vale_pinheiros.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 55 meshes |
 | track_data:vale_pinheiros | `assets/data/tracks/vale_pinheiros.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:vale_pinheiros | `assets/sprites/maps/vale_pinheiros.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:vale_pinheiros | `assets/audio/music/track_vale_pinheiros.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| track_scene:lago_cristal | `assets/models/tracks/lago_cristal.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 51 meshes |
+| track_scene:lago_cristal | `assets/models/tracks/lago_cristal.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 52 meshes |
 | track_data:lago_cristal | `assets/data/tracks/lago_cristal.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:lago_cristal | `assets/sprites/maps/lago_cristal.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:lago_cristal | `assets/audio/music/track_lago_cristal.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
@@ -95,19 +97,19 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | track_data:pico_vulcanico | `assets/data/tracks/pico_vulcanico.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:pico_vulcanico | `assets/sprites/maps/pico_vulcanico.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:pico_vulcanico | `assets/audio/music/track_pico_vulcanico.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| track_scene:festival_boreal | `assets/models/tracks/festival_boreal.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 78 meshes |
+| track_scene:festival_boreal | `assets/models/tracks/festival_boreal.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 79 meshes |
 | track_data:festival_boreal | `assets/data/tracks/festival_boreal.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:festival_boreal | `assets/sprites/maps/festival_boreal.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:festival_boreal | `assets/audio/music/track_festival_boreal.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| track_scene:floresta_gigante | `assets/models/tracks/floresta_gigante.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 70 meshes |
+| track_scene:floresta_gigante | `assets/models/tracks/floresta_gigante.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 71 meshes |
 | track_data:floresta_gigante | `assets/data/tracks/floresta_gigante.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:floresta_gigante | `assets/sprites/maps/floresta_gigante.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:floresta_gigante | `assets/audio/music/track_floresta_gigante.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| track_scene:estacao_abandonada | `assets/models/tracks/estacao_abandonada.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 76 meshes |
+| track_scene:estacao_abandonada | `assets/models/tracks/estacao_abandonada.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 77 meshes |
 | track_data:estacao_abandonada | `assets/data/tracks/estacao_abandonada.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:estacao_abandonada | `assets/sprites/maps/estacao_abandonada.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:estacao_abandonada | `assets/audio/music/track_estacao_abandonada.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| track_scene:tempestade_polar | `assets/models/tracks/tempestade_polar.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 52 meshes |
+| track_scene:tempestade_polar | `assets/models/tracks/tempestade_polar.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 53 meshes |
 | track_data:tempestade_polar | `assets/data/tracks/tempestade_polar.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:tempestade_polar | `assets/sprites/maps/tempestade_polar.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:tempestade_polar | `assets/audio/music/track_tempestade_polar.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
@@ -115,7 +117,7 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | track_data:cume_celestial | `assets/data/tracks/cume_celestial.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:cume_celestial | `assets/sprites/maps/cume_celestial.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:cume_celestial | `assets/audio/music/track_cume_celestial.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
-| track_scene:parque_manobras | `assets/models/tracks/parque_manobras.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 91 meshes |
+| track_scene:parque_manobras | `assets/models/tracks/parque_manobras.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 92 meshes |
 | track_data:parque_manobras | `assets/data/tracks/parque_manobras.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
 | map:parque_manobras | `assets/sprites/maps/parque_manobras.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:parque_manobras | `assets/audio/music/track_parque_manobras.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
@@ -187,6 +189,36 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | texture:snow_storm_normal | `assets/textures/snow_storm_normal.png` | integrated | procedural PBR texture synthesis (tools/gen_textures.py) | project-original | 512x512 |
 | texture:wood_plank_albedo | `assets/textures/wood_plank_albedo.png` | integrated | procedural PBR texture synthesis (tools/gen_textures.py) | project-original | 512x512 |
 | texture:wood_plank_normal | `assets/textures/wood_plank_normal.png` | integrated | procedural PBR texture synthesis (tools/gen_textures.py) | project-original | 512x512 |
+| texture_cc0:metal_plate_albedo | `assets/textures/cc0/metal_plate_albedo.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:metal_plate_normal | `assets/textures/cc0/metal_plate_normal.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:metal_plate_rough | `assets/textures/cc0/metal_plate_rough.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:rock_cliff_albedo | `assets/textures/cc0/rock_cliff_albedo.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:rock_cliff_normal | `assets/textures/cc0/rock_cliff_normal.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:rock_cliff_rough | `assets/textures/cc0/rock_cliff_rough.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:rock_dark_albedo | `assets/textures/cc0/rock_dark_albedo.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:rock_dark_normal | `assets/textures/cc0/rock_dark_normal.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:rock_dark_rough | `assets/textures/cc0/rock_dark_rough.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:snow_groomed_albedo | `assets/textures/cc0/snow_groomed_albedo.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:snow_groomed_normal | `assets/textures/cc0/snow_groomed_normal.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:snow_groomed_rough | `assets/textures/cc0/snow_groomed_rough.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:snow_powder_albedo | `assets/textures/cc0/snow_powder_albedo.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:snow_powder_normal | `assets/textures/cc0/snow_powder_normal.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:snow_powder_rough | `assets/textures/cc0/snow_powder_rough.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:wood_planks_albedo | `assets/textures/cc0/wood_planks_albedo.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:wood_planks_normal | `assets/textures/cc0/wood_planks_normal.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:wood_planks_rough | `assets/textures/cc0/wood_planks_rough.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:ice_albedo | `assets/textures/cc0/ice_albedo.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:ice_normal | `assets/textures/cc0/ice_normal.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| texture_cc0:ice_rough | `assets/textures/cc0/ice_rough.jpg` | integrated | CC0 photo texture, converted by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:day | `assets/sky/sky_day.jpg` | integrated | CC0 HDRI tone-mapped by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:forest | `assets/sky/sky_forest.jpg` | integrated | CC0 HDRI tone-mapped by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:ice | `assets/sky/sky_ice.jpg` | integrated | CC0 HDRI tone-mapped by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:night | `assets/sky/sky_night.jpg` | integrated | CC0 HDRI tone-mapped by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:sky | `assets/sky/sky_sky.jpg` | integrated | CC0 HDRI tone-mapped by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:station | `assets/sky/sky_station.jpg` | integrated | CC0 HDRI tone-mapped by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:storm | `assets/sky/sky_storm.jpg` | integrated | CC0 HDRI tone-mapped by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:volcano | `assets/sky/sky_volcano.jpg` | integrated | CC0 HDRI tone-mapped by tools/fetch_cc0.py | CC0-1.0 |  |
+| sky:meta | `assets/sky/sky_meta.json` | integrated | sun position per sky (tools/fetch_cc0.py) | project-original |  |
 | fx:confetti_strip | `assets/sprites/fx/confetti_strip.png` | integrated | drawn with Pillow (tools/gen_sprites.py) | project-original | 256x64 |
 | fx:flake | `assets/sprites/fx/flake.png` | integrated | drawn with Pillow (tools/gen_sprites.py) | project-original | 64x64 |
 | fx:puff | `assets/sprites/fx/puff.png` | integrated | drawn with Pillow (tools/gen_sprites.py) | project-original | 64x64 |

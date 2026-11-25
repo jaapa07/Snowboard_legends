@@ -1,0 +1,243 @@
+{
+ "ambientcg_textures": {
+  "ice": {
+   "asset": "Ice002",
+   "files": {
+    "zip": {
+     "md5": "ae0b879e04f1f29b6c2291b05d41c60a",
+     "url": "https://ambientcg.com/get?file=Ice002_1K-JPG.zip"
+    }
+   },
+   "license": "CC0-1.0",
+   "page": "https://ambientcg.com/view?id=Ice002"
+  }
+ },
+ "polyhaven_skies": {
+  "day": {
+   "asset": "kloofendal_48d_partly_cloudy_puresky",
+   "exposure_stops": -0.3,
+   "grade": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "license": "CC0-1.0",
+   "md5": "2eba3a4d7eeb23cbfbeca364c97e7980",
+   "page": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+   "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/kloofendal_48d_partly_cloudy_puresky_2k.hdr"
+  },
+  "forest": {
+   "asset": "kloppenheim_06_puresky",
+   "exposure_stops": 0.0,
+   "grade": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "license": "CC0-1.0",
+   "md5": "590a829b3cf71216451655e601d542c6",
+   "page": "https://polyhaven.com/a/kloppenheim_06_puresky",
+   "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/kloppenheim_06_puresky_2k.hdr"
+  },
+  "ice": {
+   "asset": "syferfontein_18d_clear_puresky",
+   "exposure_stops": 0.0,
+   "grade": [
+    0.95,
+    1.0,
+    1.05
+   ],
+   "license": "CC0-1.0",
+   "md5": "413841ca76945d22238d5167c338c79f",
+   "page": "https://polyhaven.com/a/syferfontein_18d_clear_puresky",
+   "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/syferfontein_18d_clear_puresky_2k.hdr"
+  },
+  "night": {
+   "asset": "qwantani_night_puresky",
+   "exposure_stops": -2.6,
+   "grade": [
+    0.55,
+    0.7,
+    1.35
+   ],
+   "license": "CC0-1.0",
+   "md5": "a2ef5b92f49f77b5bad15add5dad4feb",
+   "page": "https://polyhaven.com/a/qwantani_night_puresky",
+   "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/qwantani_night_puresky_2k.hdr"
+  },
+  "sky": {
+   "asset": "qwantani_dusk_2_puresky",
+   "exposure_stops": -0.7,
+   "grade": [
+    1.12,
+    0.86,
+    1.18
+   ],
+   "license": "CC0-1.0",
+   "md5": "a6754f300315d6b2e06c4682009a7991",
+   "page": "https://polyhaven.com/a/qwantani_dusk_2_puresky",
+   "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/qwantani_dusk_2_puresky_2k.hdr"
+  },
+  "station": {
+   "asset": "kloofendal_28d_misty_puresky",
+   "exposure_stops": 0.0,
+   "grade": [
+    0.97,
+    0.99,
+    1.02
+   ],
+   "license": "CC0-1.0",
+   "md5": "bbda20a597cd1c7b6e1e1c9d1c1899f4",
+   "page": "https://polyhaven.com/a/kloofendal_28d_misty_puresky",
+   "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/kloofendal_28d_misty_puresky_2k.hdr"
+  },
+  "storm": {
+   "asset": "kloofendal_overcast_puresky",
+   "exposure_stops": 0.0,
+   "grade": [
+    0.95,
+    0.98,
+    1.04
+   ],
+   "license": "CC0-1.0",
+   "md5": "26462123fc5ce757a331553d05e4db37",
+   "page": "https://polyhaven.com/a/kloofendal_overcast_puresky",
+   "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/kloofendal_overcast_puresky_2k.hdr"
+  },
+  "volcano": {
+   "asset": "belfast_sunset_puresky",
+   "exposure_stops": -0.4,
+   "grade": [
+    1.25,
+    0.86,
+    0.68
+   ],
+   "license": "CC0-1.0",
+   "md5": "4bb56d6163ef1c7ec762e4a7ef8ede81",
+   "page": "https://polyhaven.com/a/belfast_sunset_puresky",
+   "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/belfast_sunset_puresky_2k.hdr"
+  }
+ },
+ "polyhaven_textures": {
+  "metal_plate": {
+   "albedo_mode": "neutral",
+   "asset": "metal_plate_02",
+   "files": {
+    "albedo": {
+     "md5": "531b7e067dc537e0b3c7962175e04ffd",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_02/metal_plate_02_diff_1k.jpg"
+    },
+    "normal": {
+     "md5": "ce8198004fd9409f592a7f024be0c01e",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_02/metal_plate_02_nor_gl_1k.jpg"
+    },
+    "rough": {
+     "md5": "1fa97d5031aa575656a316bfd404ca4d",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate_02/metal_plate_02_rough_1k.jpg"
+    }
+   },
+   "license": "CC0-1.0",
+   "page": "https://polyhaven.com/a/metal_plate_02"
+  },
+  "rock_cliff": {
+   "albedo_mode": "neutral",
+   "asset": "rocks_ground_04",
+   "files": {
+    "albedo": {
+     "md5": "54cde4912f2ce068aea22f9cae51d787",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_04/rocks_ground_04_diff_1k.jpg"
+    },
+    "normal": {
+     "md5": "28632e917b38c104ce218e1d252cee39",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_04/rocks_ground_04_nor_gl_1k.jpg"
+    },
+    "rough": {
+     "md5": "c1cd7552be2356a9b99957dd3af7ff06",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rocks_ground_04/rocks_ground_04_rough_1k.jpg"
+    }
+   },
+   "license": "CC0-1.0",
+   "page": "https://polyhaven.com/a/rocks_ground_04"
+  },
+  "rock_dark": {
+   "albedo_mode": "neutral",
+   "asset": "dark_rock_02",
+   "files": {
+    "albedo": {
+     "md5": "92e53acc3f9878b525d0234d8c51fadf",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dark_rock_02/dark_rock_02_diff_1k.jpg"
+    },
+    "normal": {
+     "md5": "ddae04d066a75ff94b7dd34e8c0f9b74",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dark_rock_02/dark_rock_02_nor_gl_1k.jpg"
+    },
+    "rough": {
+     "md5": "8751b2c4ca67b2d8defa15f5ab9ce396",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dark_rock_02/dark_rock_02_rough_1k.jpg"
+    }
+   },
+   "license": "CC0-1.0",
+   "page": "https://polyhaven.com/a/dark_rock_02"
+  },
+  "snow_groomed": {
+   "albedo_mode": "snow",
+   "asset": "snow_02",
+   "files": {
+    "albedo": {
+     "md5": "fc54766c6b36ff298699115a619d440b",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_diff_1k.jpg"
+    },
+    "normal": {
+     "md5": "f16b5701f9ad521cdd6af10c1d6d2b48",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_nor_gl_1k.jpg"
+    },
+    "rough": {
+     "md5": "1dbae0269e53dbf80d4fd1c4335f25a2",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_rough_1k.jpg"
+    }
+   },
+   "license": "CC0-1.0",
+   "page": "https://polyhaven.com/a/snow_02"
+  },
+  "snow_powder": {
+   "albedo_mode": "snow",
+   "asset": "snow_01",
+   "files": {
+    "albedo": {
+     "md5": "1e1ad483b74fddd3be67cfb638d42460",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_01/snow_01_diff_1k.jpg"
+    },
+    "normal": {
+     "md5": "8f703c74553d494f9e0bb4543431dba5",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_01/snow_01_nor_gl_1k.jpg"
+    },
+    "rough": {
+     "md5": "d2b2033f9f4c0eb299cf4e75c2c0289a",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_01/snow_01_rough_1k.jpg"
+    }
+   },
+   "license": "CC0-1.0",
+   "page": "https://polyhaven.com/a/snow_01"
+  },
+  "wood_planks": {
+   "albedo_mode": "neutral",
+   "asset": "brown_planks_03",
+   "files": {
+    "albedo": {
+     "md5": "6c9fdc21afcdf171d0a39999392a70f4",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_planks_03/brown_planks_03_diff_1k.jpg"
+    },
+    "normal": {
+     "md5": "4944cb903b7d7c4029310deb8a51d69e",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_planks_03/brown_planks_03_nor_gl_1k.jpg"
+    },
+    "rough": {
+     "md5": "7c205220c96d8fc72b1fae2ae8d7ccb6",
+     "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_planks_03/brown_planks_03_rough_1k.jpg"
+    }
+   },
+   "license": "CC0-1.0",
+   "page": "https://polyhaven.com/a/brown_planks_03"
+  }
+ }
+}

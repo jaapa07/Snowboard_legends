@@ -50,10 +50,10 @@ func _init() -> void:
 	var pm := StandardMaterial3D.new()
 	pm.albedo_color = Color(0.62, 0.72, 0.9)
 	pm.roughness = 0.55
-	var snow := "res://assets/textures/snow_day_albedo.png"
-	if ResourceLoader.exists(snow):
-		pm.albedo_texture = load(snow)
-		pm.uv1_scale = Vector3(2, 2, 2)
+	pm.albedo_texture = load("res://assets/textures/cc0/snow_powder_albedo.jpg")
+	pm.normal_enabled = true
+	pm.normal_texture = load("res://assets/textures/cc0/snow_powder_normal.jpg")
+	pm.uv1_scale = Vector3(2, 2, 2)
 	ped.material_override = pm
 	ped.position = Vector3(0, -0.15, 0)
 	vp.add_child(ped)

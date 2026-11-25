@@ -39,6 +39,10 @@ func _mat(tex: String, col: Color, uv: float = 1.0) -> StandardMaterial3D:
 		m.uv1_triplanar = true
 		m.uv1_scale = Vector3.ONE * uv
 	m.roughness = 0.7
+	if tex.ends_with("snow_day_albedo.png"):   # photographic CC0 snow relief (tools/fetch_cc0.py)
+		m.albedo_texture = load("res://assets/textures/cc0/snow_powder_albedo.jpg")
+		m.normal_enabled = true; m.normal_texture = load("res://assets/textures/cc0/snow_powder_normal.jpg")
+		m.albedo_color = col * 1.12
 	return m
 
 func _prop(name_: String, pos: Vector3, rot_y: float = 0.0, sc: float = 1.0) -> void:

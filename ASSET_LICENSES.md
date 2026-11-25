@@ -39,6 +39,24 @@ definidos em `tools/blender/build_riders.py`); não representa personagem de ter
 | Fonte Inter 4.0 (Bold, Black, SemiBold) | `assets/fonts/Inter-*.otf` | The Inter Project Authors | https://github.com/rsms/inter (obtida do pacote Debian/Ubuntu `fonts-inter` 4.0+ds-1) | SIL Open Font License 1.1 — texto completo em `assets/fonts/OFL-Inter.txt` | nenhuma |
 | Godot Engine 4.4.1-stable (templates de exportação, embutidos nos executáveis) | `builds/*` | Godot Engine contributors; Juan Linietsky, Ariel Manzur | https://godotengine.org | MIT — `GODOT_LICENSE.txt` e avisos de componentes de terceiros do motor em `GODOT_THIRDPARTY.txt`, gerados por `tests/dump_licenses.gd` e incluídos no ZIP | nenhuma |
 
+| Textura “metal_plate_02” (albedo neutralizado, normal GL, rugosidade, 1K) | `assets/textures/cc0/metal_plate_*.jpg` | Poly Haven | https://polyhaven.com/a/metal_plate_02 | CC0 1.0 | redimensionada 1K; albedo com cor média removida (`neutral`) |
+| Textura “rocks_ground_04” (albedo neutralizado, normal GL, rugosidade, 1K) | `assets/textures/cc0/rock_cliff_*.jpg` | Poly Haven | https://polyhaven.com/a/rocks_ground_04 | CC0 1.0 | redimensionada 1K; albedo com cor média removida (`neutral`) |
+| Textura “dark_rock_02” (albedo neutralizado, normal GL, rugosidade, 1K) | `assets/textures/cc0/rock_dark_*.jpg` | Poly Haven | https://polyhaven.com/a/dark_rock_02 | CC0 1.0 | redimensionada 1K; albedo com cor média removida (`neutral`) |
+| Textura “snow_02” (albedo neutralizado, normal GL, rugosidade, 1K) | `assets/textures/cc0/snow_groomed_*.jpg` | Poly Haven | https://polyhaven.com/a/snow_02 | CC0 1.0 | redimensionada 1K; albedo com cor média removida (`snow`) |
+| Textura “snow_01” (albedo neutralizado, normal GL, rugosidade, 1K) | `assets/textures/cc0/snow_powder_*.jpg` | Poly Haven | https://polyhaven.com/a/snow_01 | CC0 1.0 | redimensionada 1K; albedo com cor média removida (`snow`) |
+| Textura “brown_planks_03” (albedo neutralizado, normal GL, rugosidade, 1K) | `assets/textures/cc0/wood_planks_*.jpg` | Poly Haven | https://polyhaven.com/a/brown_planks_03 | CC0 1.0 | redimensionada 1K; albedo com cor média removida (`neutral`) |
+| Textura “Ice002” (1K-JPG) | `assets/textures/cc0/ice_*.jpg` | ambientCG (Lennart Demes) | https://ambientcg.com/view?id=Ice002 | CC0 1.0 | albedo com cor média removida |
+| Céu HDRI “kloofendal_48d_partly_cloudy_puresky” (2K .hdr) | `assets/sky/sky_day.jpg` | Poly Haven | https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky | CC0 1.0 | tone mapping ACES, exposição -0.3 EV, grade (1.0, 1.0, 1.0), metade inferior esmaecida para a cor do horizonte |
+| Céu HDRI “kloppenheim_06_puresky” (2K .hdr) | `assets/sky/sky_forest.jpg` | Poly Haven | https://polyhaven.com/a/kloppenheim_06_puresky | CC0 1.0 | tone mapping ACES, exposição +0.0 EV, grade (1.0, 1.0, 1.0), metade inferior esmaecida para a cor do horizonte |
+| Céu HDRI “syferfontein_18d_clear_puresky” (2K .hdr) | `assets/sky/sky_ice.jpg` | Poly Haven | https://polyhaven.com/a/syferfontein_18d_clear_puresky | CC0 1.0 | tone mapping ACES, exposição +0.0 EV, grade (0.95, 1.0, 1.05), metade inferior esmaecida para a cor do horizonte |
+| Céu HDRI “qwantani_night_puresky” (2K .hdr) | `assets/sky/sky_night.jpg` | Poly Haven | https://polyhaven.com/a/qwantani_night_puresky | CC0 1.0 | tone mapping ACES, exposição -2.6 EV, grade (0.55, 0.7, 1.35), metade inferior esmaecida para a cor do horizonte |
+| Céu HDRI “qwantani_dusk_2_puresky” (2K .hdr) | `assets/sky/sky_sky.jpg` | Poly Haven | https://polyhaven.com/a/qwantani_dusk_2_puresky | CC0 1.0 | tone mapping ACES, exposição -0.7 EV, grade (1.12, 0.86, 1.18), metade inferior esmaecida para a cor do horizonte |
+| Céu HDRI “kloofendal_28d_misty_puresky” (2K .hdr) | `assets/sky/sky_station.jpg` | Poly Haven | https://polyhaven.com/a/kloofendal_28d_misty_puresky | CC0 1.0 | tone mapping ACES, exposição +0.0 EV, grade (0.97, 0.99, 1.02), metade inferior esmaecida para a cor do horizonte |
+| Céu HDRI “kloofendal_overcast_puresky” (2K .hdr) | `assets/sky/sky_storm.jpg` | Poly Haven | https://polyhaven.com/a/kloofendal_overcast_puresky | CC0 1.0 | tone mapping ACES, exposição +0.0 EV, grade (0.95, 0.98, 1.04), metade inferior esmaecida para a cor do horizonte |
+| Céu HDRI “belfast_sunset_puresky” (2K .hdr) | `assets/sky/sky_volcano.jpg` | Poly Haven | https://polyhaven.com/a/belfast_sunset_puresky | CC0 1.0 | tone mapping ACES, exposição -0.4 EV, grade (1.25, 0.86, 0.68), metade inferior esmaecida para a cor do horizonte |
+
+Os arquivos CC0 são baixados e convertidos por `tools/fetch_cc0.py`; URLs e MD5 dos originais ficam em `source_art/cc0/sources.json`. CC0 não exige atribuição; os créditos acima são cortesia.
+
 ## 3. Ferramentas usadas apenas na produção (não distribuídas)
 
 Blender 5.0.1 como módulo Python (`bpy`, GPL — usado como ferramenta; os arquivos gerados não herdam a GPL), Python 3,

@@ -171,36 +171,61 @@ func zones_at(s: float, lat: float) -> Array:
 func _tex(name: String) -> Texture2D:
 	return load("res://assets/textures/%s.png" % name)
 
-func material(key: String) -> StandardMaterial3D:
+## Photographic CC0 materials (Poly Haven / ambientCG, see tools/fetch_cc0.py): neutral-mean albedo + OpenGL
+## normal + roughness. The stylised palette stays: each surface is tinted by its authored colour.
+const SNOW_TINT := {"snow_day": Color(0.93, 0.96, 1.0), "snow_soft": Color(0.95, 0.97, 1.0), "snow_night": Color(0.66, 0.73, 0.98),
+	"snow_ash": Color(0.86, 0.82, 0.82), "snow_storm": Color(0.88, 0.92, 0.97), "snow_sky": Color(0.98, 0.92, 1.0)}
+const PHOTO := {"mountain": "rock_cliff", "divider_rocks": "rock_cliff", "divider_lava_rocks": "rock_dark",
+	"rail_metal": "metal_plate", "metal_dark": "metal_plate", "ramp_metal": "metal_plate", "platform_metal": "metal_plate",
+	"platform_walkway": "wood_planks", "platform_roof": "wood_planks"}
+
+func _cc0(name: String) -> Texture2D:
+	return load("res://assets/textures/cc0/%s.jpg" % name)
+
+func _photo(m: StandardMaterial3D, set_name: String, normal_scale: float = 1.0) -> void:
+	m.albedo_texture = _cc0(set_name + "_albedo")
+	m.normal_enabled = true; m.normal_texture = _cc0(set_name + "_normal"); m.normal_scale = normal_scale
+	m.roughness_texture = _cc0(set_name + "_rough"); m.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+	m.roughness = 1.0
+
+func material(key: String, original: Material = null) -> StandardMaterial3D:
 	if _mats.has(key):
 		return _mats[key]
 	var m := StandardMaterial3D.new()
 	var snow := String(data.snow)
+	var tint: Color = SNOW_TINT.get(snow, Color(0.93, 0.96, 1.0))
 	match key:
 		"track_groomed":
-			m.albedo_texture = _tex(snow + "_albedo"); m.normal_enabled = true; m.normal_texture = _tex(snow + "_normal")
-			m.normal_scale = 0.8; m.roughness = 0.7; m.uv1_scale = Vector3(1, 1, 1)
-			m.albedo_color = Color(0.8, 0.84, 0.9)   # keeps highlight headroom so slope shading/grooves stay visible
+			_photo(m, "snow_groomed", 0.9); m.uv1_scale = Vector3(1.6, 1.6, 1.6)
+			m.albedo_color = tint * 0.9   # highlight headroom so slope shading stays visible
 		"track_berm":
-			m.albedo_texture = _tex("snow_soft_albedo"); m.normal_enabled = true; m.normal_texture = _tex("snow_soft_normal")
-			m.roughness = 0.8; m.albedo_color = Color(0.86, 0.9, 0.97)
-			if snow == "snow_night":
-				m.albedo_color = Color(0.62, 0.68, 0.92)
-			elif snow == "snow_ash":
-				m.albedo_color = Color(0.82, 0.78, 0.78)
+			_photo(m, "snow_powder", 1.0); m.uv1_scale = Vector3(1.2, 1.2, 1.2); m.albedo_color = tint * 0.95
 		"track_ice":
-			m.albedo_texture = _tex("ice_albedo"); m.normal_enabled = true; m.normal_texture = _tex("ice_normal")
-			m.roughness = 0.08; m.metallic = 0.15; m.metallic_specular = 0.8
+			_photo(m, "ice", 0.6); m.albedo_color = Color(0.78, 0.95, 1.25)
+			m.roughness = 0.25; m.metallic = 0.15; m.metallic_specular = 0.8
 		"track_slush":
-			m.albedo_texture = _tex("snow_soft_albedo"); m.albedo_color = Color(0.68, 0.76, 0.86); m.roughness = 0.9
+			_photo(m, "snow_powder", 1.4); m.albedo_color = Color(0.68, 0.76, 0.86)
 		"track_boost":
 			m.albedo_color = Color(1.0, 0.82, 0.2); m.emission_enabled = true; m.emission = Color(1.0, 0.7, 0.1); m.emission_energy_multiplier = 0.8
-		"terrain_snow":
-			m.albedo_texture = _tex(snow + "_albedo"); m.normal_enabled = true; m.normal_texture = _tex("snow_soft_normal")
-			m.uv1_triplanar = true; m.uv1_scale = Vector3(0.08, 0.08, 0.08); m.vertex_color_use_as_albedo = true; m.roughness = 0.85
-			m.albedo_color = Color(0.84, 0.88, 0.95)
+		"terrain_snow", "mountain_cap", "ramp_snow":
+			_photo(m, "snow_powder", 1.0)
+			m.uv1_triplanar = true; m.uv1_scale = Vector3(0.12, 0.12, 0.12) if key != "ramp_snow" else Vector3(0.5, 0.5, 0.5)
+			m.vertex_color_use_as_albedo = key == "terrain_snow"
+			m.albedo_color = tint * (0.92 if key == "terrain_snow" else 1.0)
 		_:
-			return null
+			if not PHOTO.has(key) or not (original is StandardMaterial3D):
+				return null
+			var o := original as StandardMaterial3D
+			m = o.duplicate() as StandardMaterial3D
+			var set_name := String(PHOTO[key])
+			if key == "mountain" and String(data.theme) == "volcano":
+				set_name = "rock_dark"
+			_photo(m, set_name, 1.2)
+			m.uv1_triplanar = true
+			m.uv1_scale = Vector3.ONE * (0.03 if key == "mountain" else 0.35)
+			m.albedo_color = Color(o.albedo_color.r * 1.35, o.albedo_color.g * 1.35, o.albedo_color.b * 1.35, o.albedo_color.a)
+			if o.metallic > 0.3:
+				m.metallic = o.metallic
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	m.resource_name = key
 	_mats[key] = m
@@ -215,7 +240,7 @@ func _apply_materials(root: Node) -> void:
 			var sm := m.mesh.surface_get_material(si)
 			if sm == null:
 				continue
-			var rep := material(sm.resource_name)
+			var rep := material(sm.resource_name, sm)
 			if rep:
 				m.set_surface_override_material(si, rep)
 			elif sm is BaseMaterial3D and sm.resource_name.begins_with("tunnel"):
@@ -238,7 +263,23 @@ func _build_environment() -> void:
 	sm.sky_curve = 0.12
 	sm.sky_energy_multiplier = 1.05
 	sm.ground_curve = 0.04
-	sky.sky_material = sm
+	var theme0 := String(data.theme)
+	var pano_path := "res://assets/sky/sky_%s.jpg" % theme0
+	if ResourceLoader.exists(pano_path):
+		# photographic CC0 sky dome (Poly Haven pure-sky HDRI, tone-mapped and graded per theme)
+		var pm := PanoramaSkyMaterial.new()
+		pm.panorama = load(pano_path)
+		pm.filter = true
+		pm.energy_multiplier = 1.0
+		sky.sky_material = pm
+		sky.radiance_size = Sky.RADIANCE_SIZE_64 if quality == 0 else Sky.RADIANCE_SIZE_128
+		# turn the dome so the photographed sun sits where the course's sun light comes from
+		var meta = JSON.parse_string(FileAccess.get_file_as_string("res://assets/sky/sky_meta.json"))
+		if meta is Dictionary and (meta.sun_uv as Dictionary).has(theme0):
+			var u := float(meta.sun_uv[theme0][0])
+			e.sky_rotation = Vector3(0, deg_to_rad(float(data.sun[1])) - (u - 0.5) * TAU, 0)
+	else:
+		sky.sky_material = sm
 	e.background_mode = Environment.BG_SKY; e.sky = sky
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY; e.ambient_light_energy = 0.75
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC; e.tonemap_exposure = 1.0; e.tonemap_white = 6.0
