@@ -892,6 +892,8 @@ func _e2e() -> void:
 	check(Game.participants.size() == 4 and Game.participants[0].type == "human", "participants built from the slots", str(Game.participants.size()))
 	menu.queue_free()
 	await _frames(2)
+	await _e2e_garage()
+	await _e2e_grand_prix()
 	# pause -> restart / menu in a live race (human slot)
 	begin("e2e: race pause / restart / quit")
 	Game.remove_meta("requested_scene")
@@ -919,6 +921,98 @@ func _e2e() -> void:
 	Game.remove_meta("requested_scene")
 	get_tree().paused = false
 	await _end_race(race)
+
+func _e2e_garage() -> void:
+	begin("e2e: garage purchase + equip")
+	_fresh_save()
+	Save.data.profile.credits = 1000
+	Save.data.profile.boards_unlocked.append("rocket")
+	Save.write()
+	var menu := (load("res://scenes/menus/main_menu.tscn") as PackedScene).instantiate() as MainMenu
+	add_child(menu)
+	await _frames(5)
+	menu.go("garage")
+	await _frames(3)
+	var target: Button = null
+	for b in menu.find_children("*", "Button", true, false):
+		if (b as Button).text.begins_with("Rocket"):
+			target = b
+	check(target != null, "Rocket listed in the shop")
+	target.grab_focus()
+	await _press("ui_accept")
+	await _frames(2)
+	var yes: Button = null
+	for b in menu.find_children("*", "Button", true, false):
+		if (b as Button).text == Game.t("yes"):
+			yes = b
+	check(yes != null, "purchase asks for confirmation")
+	check(Save.credits() == 1000, "nothing charged before confirming")
+	yes.pressed.emit()
+	yes.pressed.emit()   # double confirm must not charge twice
+	await _frames(3)
+	check(Save.credits() == 600 and Save.has_board("rocket"), "charged once (1000 -> 600), board owned", str(Save.credits()))
+	for b in menu.find_children("*", "Button", true, false):
+		if (b as Button).text.begins_with("Rocket"):
+			target = b
+	target.grab_focus()
+	await _press("ui_accept")
+	check(String(Save.profile().equipped.board) == "rocket" and Save.credits() == 600, "owned board equips without charge")
+	Save.load_or_create()
+	check(Save.has_board("rocket") and Save.credits() == 600, "purchase persisted on disk")
+	menu.queue_free()
+	await _frames(2)
+	_fresh_save()
+
+func _e2e_grand_prix() -> void:
+	begin("e2e: grand prix results flow")
+	_fresh_save()
+	Game.mode = Game.Mode.GRAND_PRIX
+	Game.cup_index = 0
+	Game.cup_race = 0
+	Game.cup_points.clear()
+	Game.cup_credits_earned = 0
+	Game.track_id = &"vale_pinheiros"
+	Game.participants = [{"type": "human", "device": "kb", "rider": "niko", "board": "starter"}, {"type": "ai", "rider": "mika", "board": "carver", "device": ""},
+		{"type": "ai", "rider": "taro", "board": "float", "device": ""}, {"type": "ai", "rider": "luna", "board": "grip", "device": ""}]
+	var rows := func(order: Array) -> Array:
+		var out: Array = []
+		for k in order.size():
+			var i: int = order[k]
+			out.append({"index": i, "rider": Game.participants[i].rider, "board": Game.participants[i].board, "human": i == 0, "place": k + 1,
+				"time": 60.0 + k, "tricks": 400 if i == 0 else 0, "coins": 10, "laps_done": 4, "gates": 0, "missed": 0, "landings": 0})
+		return out
+	Game.last_results = rows.call([1, 0, 2, 3])
+	Game.results_processed = false
+	if Game.has_meta("requested_scene"):
+		Game.remove_meta("requested_scene")
+	var res := (load("res://scenes/menus/results.tscn") as PackedScene).instantiate()
+	add_child(res)
+	await _frames(5)
+	check(_focus() is Button and (_focus() as Button).text == Game.t("next_race"), "race 1 of 2: 'Next race' focused")
+	check(int(Game.cup_points[0]) == 7 and int(Game.cup_points[1]) == 10, "points 10/7/4/2 awarded")
+	check(Save.credits() == 70 + 10, "2nd place credits 70 + trick bonus 10", str(Save.credits()))
+	await _press("ui_accept")
+	check(String(Game.get_meta("requested_scene", "")) == "race" and Game.cup_race == 1 and Game.track_id == &"lago_cristal", "next cup race requested (Lago Cristal)")
+	res.queue_free()
+	await _frames(2)
+	Game.remove_meta("requested_scene")
+	Game.last_results = rows.call([0, 1, 3, 2])
+	Game.results_processed = false
+	res = (load("res://scenes/menus/results.tscn") as PackedScene).instantiate()
+	add_child(res)
+	await _frames(5)
+	var s: Dictionary = Game.last_summary
+	check(s.cup_done and Game.standings(Game.cup_points)[0][0] == 0, "cup closes, player leads on 17 points", str(Game.cup_points))
+	check(int(s.medal) == 3 and Save.medal("cup1") == 3, "gold medal stored")
+	check("rider:yuki" in s.unlocks and "cup:2" in s.unlocks, "unlocks listed on the results screen", str(s.unlocks))
+	var labels := res.find_children("*", "Label", true, false).map(func(l): return (l as Label).text)
+	check(labels.any(func(t): return t.contains("Yuki")), "unlock text visible")
+	await _press("ui_accept")
+	check(String(Game.get_meta("requested_scene", "")) == "menu:main", "last race returns to the main menu")
+	res.queue_free()
+	await _frames(2)
+	Game.remove_meta("requested_scene")
+	_fresh_save()
 
 # ================================================================ AI RACES
 func _ai_races() -> void:

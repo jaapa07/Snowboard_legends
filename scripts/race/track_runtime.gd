@@ -379,6 +379,7 @@ func _build_props() -> void:
 var cabins: Array[Node3D] = []
 var _cable_pts: PackedVector3Array = PackedVector3Array()
 var _cable_len: PackedFloat32Array = PackedFloat32Array()
+var _tower_cable_y: PackedFloat32Array = PackedFloat32Array()
 var _cabin_t: float = 0.0
 
 func _build_lift() -> void:
@@ -389,11 +390,14 @@ func _build_lift() -> void:
 		st.global_position = p + Vector3(0, -7.5, 0)
 		var dir := (lift_top - lift_bottom); dir.y = 0
 		st.rotation.y = atan2(dir.x, dir.z)
+	var ti := 0
 	for tw in data.lift.towers:
 		var t := Registry.prop_mesh(PROPS_GLB, "lift_tower")
 		add_child(t)
 		var base := _v(tw.pos)
-		var h := float(tw.cable_y) - base.y
+		var cy: float = _tower_cable_y[ti] if ti < _tower_cable_y.size() else float(tw.cable_y)
+		ti += 1
+		var h := cy - base.y
 		t.global_position = base
 		t.scale = Vector3(1, maxf(0.3, h / 18.0), 1)
 		var dir := (lift_top - lift_bottom); dir.y = 0
@@ -424,11 +428,38 @@ func _cable(a: Vector3, b: Vector3) -> void:
 	var z := x.cross(y).normalized()
 	mi.global_basis = Basis(x, y, z)
 
+const CABLE_CLEARANCE := 9.0   ## metres of air between the cable and any part of the course below it
+
+func _course_height_near(p: Vector3, radius: float) -> float:
+	var best := -INF
+	for i in range(0, pos.size(), 2):
+		var q := pos[i]
+		if Vector2(q.x - p.x, q.z - p.z).length() < radius + width[i] * 0.5:
+			best = maxf(best, q.y)
+	return best
+
 func _build_cable_path() -> void:
-	_cable_pts = PackedVector3Array([lift_bottom])
+	## Cable polyline: bottom station -> tower heads -> top station, densified and lifted wherever the course
+	## passes underneath (the straight lift line crosses winding courses, which put cabins at rider height).
+	var raw := PackedVector3Array([lift_bottom])
 	for tw in data.lift.towers:
 		var p := _v(tw.pos)
-		_cable_pts.append(Vector3(p.x, float(tw.cable_y), p.z))
+		raw.append(Vector3(p.x, float(tw.cable_y), p.z))
+	raw.append(lift_top)
+	_cable_pts = PackedVector3Array()
+	_tower_cable_y.clear()
+	for k in raw.size() - 1:
+		var a := raw[k]; var b := raw[k + 1]
+		var steps := maxi(1, int(a.distance_to(b) / 12.0))
+		for j in steps:
+			var p := a.lerp(b, float(j) / steps)
+			if k > 0 or j > 0:   # stations keep their height; everything in between keeps clearance
+				var h := _course_height_near(p, 6.0)
+				if h > -INF:
+					p.y = maxf(p.y, h + CABLE_CLEARANCE)
+			if j == 0 and k > 0:
+				_tower_cable_y.append(p.y)
+			_cable_pts.append(p)
 	_cable_pts.append(lift_top)
 	_cable_len = PackedFloat32Array([0.0])
 	for k in range(1, _cable_pts.size()):
