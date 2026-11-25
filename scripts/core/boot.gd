@@ -29,12 +29,16 @@ func _ready() -> void:
 				if p.type == "ai" and j < names.size():
 					p.rider = names[j]
 					j += 1
+		if "--log-every" in args:
+			Game.set_meta("log_every", _int(args, "--log-every", 300))
 		if "--show-results" in args:
 			Game.set_meta("show_results", true)
 		if m == "gp":
 			Game.cup_index = _int(args, "--cup", 0)
 			Game.cup_race = _int(args, "--cup-race", 0)
 		Game.goto_race.call_deferred()
+		if "--benchmark" in args:
+			_benchmark(float(_str(args, "--benchmark", "30")))
 		var si := args.find("--screenshot")
 		if si >= 0 and "--shots" in args:
 			_capture_shots(args[si + 1], _str(args, "--shots", "10"), "--spectate" in args)
@@ -96,7 +100,7 @@ func _capture_shots(path: String, times: String, spectate: bool) -> void:
 			cam.target = rm.riders[k % rm.riders.size()]
 			cam.snap()
 		RenderingServer.render_loop_enabled = true
-		for f in 15:
+		for f in int(_str(OS.get_cmdline_user_args(), "--settle", "4")):
 			await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		var img := get_viewport().get_texture().get_image()
@@ -104,6 +108,50 @@ func _capture_shots(path: String, times: String, spectate: bool) -> void:
 		img.save_png(p)
 		print("SCREENSHOT ", p)
 		k += 1
+	get_tree().quit()
+
+func _benchmark(seconds: float) -> void:
+	## Real-time benchmark of a running race: frame times (wall clock), FPS, p95/p99, memory, hardware.
+	(func(): get_tree().current_scene = null).call_deferred()
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	var rm: Node = null
+	while rm == null or rm.phase != 2:
+		await get_tree().process_frame
+		rm = get_tree().get_first_node_in_group("race_manager")
+	for i in 30:
+		await get_tree().process_frame   # skip warm-up frames (shader compilation)
+	var times: Array[float] = []
+	var mem_peak := 0.0
+	var t_prev := Time.get_ticks_usec()
+	var t_end := t_prev + int(seconds * 1000000.0)
+	while Time.get_ticks_usec() < t_end:
+		await get_tree().process_frame
+		var now := Time.get_ticks_usec()
+		times.append((now - t_prev) / 1000.0)
+		t_prev = now
+		mem_peak = maxf(mem_peak, Performance.get_monitor(Performance.MEMORY_STATIC))
+	var sorted := times.duplicate()
+	sorted.sort()
+	var total := 0.0
+	for x in times:
+		total += x
+	var res := {
+		"frames": times.size(), "seconds": snappedf(total / 1000.0, 0.01),
+		"fps_avg": snappedf(times.size() / (total / 1000.0), 0.1),
+		"frame_ms_avg": snappedf(total / times.size(), 0.01),
+		"frame_ms_p50": snappedf(sorted[int(sorted.size() * 0.50)], 0.01),
+		"frame_ms_p95": snappedf(sorted[int(sorted.size() * 0.95)], 0.01),
+		"frame_ms_p99": snappedf(sorted[mini(sorted.size() - 1, int(sorted.size() * 0.99))], 0.01),
+		"mem_static_mb_peak": snappedf(mem_peak / 1048576.0, 0.1),
+		"video_mem_mb": snappedf(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / 1048576.0, 0.1),
+		"draw_calls": Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),
+		"objects": Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME),
+		"renderer": RenderingServer.get_current_rendering_method(), "adapter": RenderingServer.get_video_adapter_name(),
+		"adapter_vendor": RenderingServer.get_video_adapter_vendor(), "cpu": OS.get_processor_name(), "cores": OS.get_processor_count(),
+		"os": OS.get_name() + " " + OS.get_version(), "resolution": str(get_viewport().get_visible_rect().size), "quality": Game.quality(),
+		"track": String(Game.track_id), "engine": Engine.get_version_info().string,
+	}
+	print("BENCHMARK " + JSON.stringify(res))
 	get_tree().quit()
 
 func _int(a: PackedStringArray, k: String, d: int) -> int:

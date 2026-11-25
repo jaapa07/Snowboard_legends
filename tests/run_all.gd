@@ -106,10 +106,11 @@ func _finish() -> void:
 	var secs := (Time.get_ticks_msec() - t0) / 1000.0
 	var report := {"passed": passed, "failed": failed, "failures": failures, "sections": sections, "ai": ai_report,
 		"seconds": snappedf(secs, 0.1), "engine": Engine.get_version_info().string, "args": Array(_args())}
-	var f := FileAccess.open("user://test_report.json", FileAccess.WRITE)
+	var rp := _arg("--report", "user://test_report.json")
+	var f := FileAccess.open(rp, FileAccess.WRITE)
 	f.store_string(JSON.stringify(report, "\t"))
 	f.close()
-	print("TEST_REPORT ", ProjectSettings.globalize_path("user://test_report.json"))
+	print("TEST_REPORT ", ProjectSettings.globalize_path(rp))
 	for k in sections:
 		print("  %-28s pass=%d fail=%d" % [k, sections[k].pass, sections[k].fail])
 	print("TEST_SUMMARY passed=%d failed=%d seconds=%.1f" % [passed, failed, secs])
@@ -933,10 +934,12 @@ func _ai_races() -> void:
 		tracks = Registry.TRACK_IDS + Registry.EXTRA_TRACK_IDS
 	for tid in tracks:
 		var stats := {"track": String(tid), "races": 0, "completed": 0, "riders_finished": 0, "riders_total": 0, "cp_skips": 0, "nan": 0,
-			"resets": 0, "max_stall": 0.0, "times": [], "fails": []}
+			"resets": 0, "max_stall": 0.0, "times": [], "fails": [], "wins": {}, "laps": laps}
 		for k in n:
 			var seed_ := 1000 + k * 37
-			var race := _new_race(tid, laps, Game.Mode.QUICK_RACE, seed_)
+			Game.seed_value = seed_
+			Game.default_participants(String(Registry.RIDER_IDS[k % 8]), ["starter", "carver", "float", "rocket"][k % 4])
+			var race := _new_race(tid, laps, Game.Mode.QUICK_RACE, seed_, Game.participants.duplicate(true))
 			var rm := _rm(race)
 			var done := [{}]
 			rm.race_done.connect(func(s): done[0] = s)
@@ -957,6 +960,8 @@ func _ai_races() -> void:
 			for v in (s.max_stall as Dictionary).values():
 				stats.max_stall = maxf(float(stats.max_stall), float(v))
 			stats.times.append(float(s.results[0].time))
+			var w := String(s.results[0].rider)
+			stats.wins[w] = int(stats.wins.get(w, 0)) + 1
 			await _end_race(race)
 		var times: Array = stats.times
 		times.sort()

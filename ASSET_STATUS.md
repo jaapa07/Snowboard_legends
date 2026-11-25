@@ -76,39 +76,39 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | props | `assets/models/props/props.glb` | integrated | scripted modelling in Blender (tools/blender/build_props.py) | project-original | 64 meshes |
 | track_scene:vale_pinheiros | `assets/models/tracks/vale_pinheiros.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 54 meshes |
 | track_data:vale_pinheiros | `assets/data/tracks/vale_pinheiros.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:vale_pinheiros | `assets/sprites/maps/vale_pinheiros.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:vale_pinheiros | `assets/sprites/maps/vale_pinheiros.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:vale_pinheiros | `assets/audio/music/track_vale_pinheiros.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | track_scene:lago_cristal | `assets/models/tracks/lago_cristal.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 51 meshes |
 | track_data:lago_cristal | `assets/data/tracks/lago_cristal.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:lago_cristal | `assets/sprites/maps/lago_cristal.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:lago_cristal | `assets/sprites/maps/lago_cristal.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:lago_cristal | `assets/audio/music/track_lago_cristal.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | track_scene:pico_vulcanico | `assets/models/tracks/pico_vulcanico.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 54 meshes |
 | track_data:pico_vulcanico | `assets/data/tracks/pico_vulcanico.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:pico_vulcanico | `assets/sprites/maps/pico_vulcanico.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:pico_vulcanico | `assets/sprites/maps/pico_vulcanico.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:pico_vulcanico | `assets/audio/music/track_pico_vulcanico.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | track_scene:festival_boreal | `assets/models/tracks/festival_boreal.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 78 meshes |
 | track_data:festival_boreal | `assets/data/tracks/festival_boreal.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:festival_boreal | `assets/sprites/maps/festival_boreal.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:festival_boreal | `assets/sprites/maps/festival_boreal.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:festival_boreal | `assets/audio/music/track_festival_boreal.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | track_scene:floresta_gigante | `assets/models/tracks/floresta_gigante.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 70 meshes |
 | track_data:floresta_gigante | `assets/data/tracks/floresta_gigante.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:floresta_gigante | `assets/sprites/maps/floresta_gigante.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:floresta_gigante | `assets/sprites/maps/floresta_gigante.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:floresta_gigante | `assets/audio/music/track_floresta_gigante.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | track_scene:estacao_abandonada | `assets/models/tracks/estacao_abandonada.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 76 meshes |
 | track_data:estacao_abandonada | `assets/data/tracks/estacao_abandonada.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:estacao_abandonada | `assets/sprites/maps/estacao_abandonada.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:estacao_abandonada | `assets/sprites/maps/estacao_abandonada.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:estacao_abandonada | `assets/audio/music/track_estacao_abandonada.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | track_scene:tempestade_polar | `assets/models/tracks/tempestade_polar.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 52 meshes |
 | track_data:tempestade_polar | `assets/data/tracks/tempestade_polar.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:tempestade_polar | `assets/sprites/maps/tempestade_polar.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:tempestade_polar | `assets/sprites/maps/tempestade_polar.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:tempestade_polar | `assets/audio/music/track_tempestade_polar.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | track_scene:cume_celestial | `assets/models/tracks/cume_celestial.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 114 meshes |
 | track_data:cume_celestial | `assets/data/tracks/cume_celestial.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:cume_celestial | `assets/sprites/maps/cume_celestial.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:cume_celestial | `assets/sprites/maps/cume_celestial.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:cume_celestial | `assets/audio/music/track_cume_celestial.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | track_scene:parque_manobras | `assets/models/tracks/parque_manobras.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 91 meshes |
 | track_data:parque_manobras | `assets/data/tracks/parque_manobras.json` | verified | exported with the course (spline, widths, checkpoints, zones, lift) | project-original |  |
-| map:parque_manobras | `assets/sprites/maps/parque_manobras.png` | verified | illustrated map drawn from course data (tools/gen_sprites.py) | project-original | 512x512 |
+| map:parque_manobras | `assets/sprites/maps/parque_manobras.png` | verified | top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py) | project-original | 768x512 |
 | music:parque_manobras | `assets/audio/music/track_parque_manobras.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | music:menu | `assets/audio/music/menu.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |
 | music:results | `assets/audio/music/results.ogg` | verified | original synthesized loop (tools/gen_audio.py) | project-original |  |

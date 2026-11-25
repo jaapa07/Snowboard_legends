@@ -71,8 +71,12 @@ func _think(r: RiderController, delta: float) -> InputCommand:
 	var tgt := tr.point_at(minf(s + look, tr.length - 1.0), _lat_smooth)
 	var to := tgt - r.global_position
 	var desired := atan2(-to.x, -to.z)
-	var err := wrapf(desired - r.yaw, -PI, PI)
-	var gain := 2.4 + difficulty * 0.4
+	# steer against the heading the rider will have when this (delayed) command lands: the reaction delay
+	# otherwise turns the steering loop into a limit cycle (±50° weave that bleeds all speed), worst for
+	# high-control riders whose boards turn fastest
+	var delay_s := float(_delay_frames) / 60.0
+	var err := wrapf(desired - (r.yaw + r.yaw_rate * delay_s), -PI, PI)
+	var gain := (2.4 + difficulty * 0.4) / maxf(0.8, r.m_control)
 	if r.fog_t > 0.0:
 		_noise = lerpf(_noise, rng.randf_range(-0.5, 0.5), 0.1)
 		err += _noise * 0.3
@@ -88,7 +92,7 @@ func _think(r: RiderController, delta: float) -> InputCommand:
 		ss += 4.0
 	var krad := deg_to_rad(kmax)
 	var vcap := 99.0 if krad < 0.0005 else sqrt((26.0 + difficulty * 3.0) * r.m_control / krad)
-	if r.speed > vcap + 1.5 or absf(err) > 0.8:
+	if r.speed > vcap + 1.5 or (absf(err) > 0.8 and r.speed > 9.0):
 		c.brake = true
 	elif kmax < 0.25 and absf(err) < 0.25:
 		c.tuck = true

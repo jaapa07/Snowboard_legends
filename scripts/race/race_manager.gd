@@ -193,10 +193,13 @@ func _race_tick(delta: float) -> void:
 		_track_rider(r, delta)
 	_repel()
 	_lift_tick(delta)
-	if Game.headless_autoplay and Engine.get_physics_frames() % 300 == 0:
+	if Game.headless_autoplay and Engine.get_physics_frames() % int(Game.get_meta("log_every", 300)) == 0:
 		var parts: Array[String] = []
 		for r in riders:
-			parts.append("%s s=%.0f lat=%.1f v=%.1f st=%d lap=%d cp=%d y=%.1f" % [r.def.id, r.s, r.lat, r.speed, r.state, r.lap, r.next_cp, r.global_position.y])
+			parts.append("%s s=%.0f lat=%.1f v=%.1f st=%d lap=%d cp=%d y=%.1f vf=%.1f br=%d tk=%d slow=%.1f sp=%.1f surf=%s" % [r.def.id, r.s, r.lat, r.speed, r.state, r.lap, r.next_cp,
+				r.global_position.y, r._vf, int(r.last_cmd.brake), int(r.last_cmd.tuck), r.slow_t, r.spinout_t, r.surface])
+			if Game.has_meta("log_every"):
+				parts[-1] += " st=%.2f yr=%.2f herr=%.0f gn=%s fl=%d" % [r.last_cmd.steer, r.yaw_rate, rad_to_deg(r.forward_dir().signed_angle_to(track.fwd[track.idx_at(r.s)], Vector3.UP)), r.ground_n.snapped(Vector3.ONE * 0.01), int(r.is_on_floor())]
 		print("T=%.0f | " % race_time + " | ".join(parts))
 	_rank_t += delta
 	if _rank_t >= 0.1:

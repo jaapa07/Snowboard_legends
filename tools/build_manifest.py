@@ -86,7 +86,7 @@ def collect():
         E.append(entry(f"track_scene:{t}", f"{A}models/tracks/{t}.glb", "track_scene", "authored course built in Blender from the course definition (tools/blender/build_tracks.py)",
                        f"source_art/blend/track_{t}.blend", [f"track_data:{t}", "props", f"music:{t}", f"map:{t}"]))
         E.append(entry(f"track_data:{t}", f"{A}data/tracks/{t}.json", "track_data", "exported with the course (spline, widths, checkpoints, zones, lift)", f"source_art/blend/track_{t}.blend"))
-        E.append(entry(f"map:{t}", f"{A}sprites/maps/{t}.png", "map", "illustrated map drawn from course data (tools/gen_sprites.py)", "tools/gen_sprites.py"))
+        E.append(entry(f"map:{t}", f"{A}sprites/maps/{t}.png", "map", "top-down Cycles render of the authored course (tools/blender/render_maps.py) + overlay from course data (tools/gen_maps.py)", f"source_art/blend/track_{t}.blend"))
         E.append(entry(f"music:{t}", f"{A}audio/music/track_{t}.ogg", "music", "original synthesized loop (tools/gen_audio.py)", f"source_art/audio/track_{t}.wav"))
     for m in ["menu", "results", "victory"]:
         E.append(entry(f"music:{m}", f"{A}audio/music/{m}.ogg", "music", "original synthesized loop (tools/gen_audio.py)", f"source_art/audio/{m}.wav"))
