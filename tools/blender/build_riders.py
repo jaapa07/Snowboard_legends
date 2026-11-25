@@ -598,34 +598,6 @@ MOCAP = {
 }
 MIX = {}
 
-# rider -> Rokoko free mocap dance (HumanIK FBX) used as the "victory" clip (podium, finish, rider pick)
-DANCES = {
-    "niko": "AirGuitar_HUMANIK_769.fbx", "mika": "MacarenaDance_HUMANIK_769.fbx",
-    "taro": "Dancing_Marching_HUMANIK_769.fbx", "luna": "Dance02_FlappyDance_HUMANIK_769.fbx",
-    "boro": "InflatableTubeManDance_HUMANIK_769.fbx", "yuki": "Dancing02_HUMANIK_769.fbx",
-    "zed": "Dancing_HUMANIK_769.fbx", "kaito": "Dancing01_HUMANIK_769.fbx",
-    "pippa": "SillyDance_Short_HUMANIK_TF1.fbx",
-}
-DANCE_CLIPS = {}
-
-
-def load_dances(ids):
-    for rid in ids:
-        path = mixr.available(ROOT, DANCES.get(rid, ""))
-        if path and os.path.isfile(path):
-            clip = mixr.sample_abs(path, 24)
-            win = mixr.pick_window(clip)
-            DANCE_CLIPS[rid] = (clip, win)
-            print(f"DANCE {rid} <- {DANCES[rid]} frames {win[0]}-{win[1]} of {len(clip['frames'])}")
-
-
-def dance_clip(rig, rid):
-    clip, win = DANCE_CLIPS[rid]
-    our_dir = {b: (rig.data.bones[b].tail_local - rig.data.bones[b].head_local).normalized() for b in mixr.ORDER}
-    leg_scale = rig.data.bones["hips"].head_local.z / clip["rest_h"]
-    return mixr.transfer_abs(clip, win, our_dir, F, leg_scale)
-
-
 def load_mocap():
     for name, (fn, *_rest) in MOCAP.items():
         path = mixr.available(ROOT, fn)
@@ -649,6 +621,64 @@ def mocap_clips(rig):
     return out
 
 
+# Rokoko free mocap (HumanIK FBX), absolute-pose transfer. clip -> (rider -> file, options)
+# window=None: automatic (most energetic stretch that loops); fixed windows are capture frames at 24 fps.
+_V = {
+    "niko": "AirGuitar_HUMANIK_769.fbx", "mika": "MacarenaDance_HUMANIK_769.fbx",
+    "taro": "Dancing_Marching_HUMANIK_769.fbx", "luna": "Dance02_FlappyDance_HUMANIK_769.fbx",
+    "boro": "InflatableTubeManDance_HUMANIK_769.fbx", "yuki": "Dancing02_HUMANIK_769.fbx",
+    "zed": "Emote_Celebrate_HUMANIK_769.fbx", "kaito": "Emote_JumpforJoy_HUMANIK_769.fbx",
+    "pippa": "SillyDance_Short_HUMANIK_TF1.fbx",
+}
+_I = {
+    "niko": "Idle_01_HUMANIK_TF1.fbx", "mika": "Idle_Conversation_HUMANIK_769.fbx",
+    "taro": "Idle_HUMANIK_769.fbx", "luna": "Idle_CharacterLoading02_HUMANIK_769.fbx",
+    "boro": "Idle_03_HUMANIK_TF1.fbx", "yuki": "Idle_CharacterLoading01_HUMANIK_769.fbx",
+    "zed": "Idle_02_HUMANIK_TF1.fbx", "kaito": "Idle_01_HUMANIK_TF1.fbx",
+    "pippa": "Idle_CharacterLoading02_HUMANIK_769.fbx",
+}
+ABS = {
+    "victory": (_V, dict()),
+    "idle": (_I, dict(length=(120, 168))),
+    # Pilot_Wave (seated) was tried for liftIdle with upper_only=True: the chosen stretch read as a slumped head,
+    # no visible wave, so the authored lift clip stays.
+    # strapped-in fall: body goes over, board stays on the feet; then the get-up
+    "fall": ({"*": "Falling_HUMANIK_769.fbx"}, dict(window=(30, 108), speed=2.0, loop=False, hips_clamp=0.35, z_range=(-0.62, 0.05))),
+    "recover": ({"*": "Falling_HUMANIK_769.fbx"}, dict(window=(350, 400), speed=2.0, loop=False, hips_clamp=0.35, z_range=(-0.62, 0.05))),
+}
+_SAMPLES = {}
+ABS_CLIPS = {}   # (clip, rider) -> (sample, window)
+
+
+def load_abs(ids):
+    for clip, (files, opt) in ABS.items():
+        for rid in ids:
+            fn = files.get(rid, files.get("*", ""))
+            path = mixr.available(ROOT, fn) if fn else ""
+            if not path:
+                continue
+            if fn not in _SAMPLES:
+                _SAMPLES[fn] = mixr.sample_abs(path, 24)
+            smp = _SAMPLES[fn]
+            win = opt.get("window") or mixr.pick_window(smp, length=opt.get("length", (96, 144)))
+            ABS_CLIPS[(clip, rid)] = (smp, win)
+            print(f"MOCAP {clip}/{rid} <- {fn} frames {win[0]}-{win[1]}")
+
+
+def abs_clip(rig, clip, rid):
+    smp, win = ABS_CLIPS[(clip, rid)]
+    opt = ABS[clip][1]
+    our_dir = {b: (rig.data.bones[b].tail_local - rig.data.bones[b].head_local).normalized() for b in mixr.ORDER}
+    leg_scale = rig.data.bones["hips"].head_local.z / smp["rest_h"]
+    base = opt.get("base")
+    kw = {}
+    if base is not None:
+        kw = dict(base_q={b: char_q(*base.get(b, (0, 0, 0))) for b in mixr.ORDER}, base_hips_loc=base["hips_loc"])
+    return mixr.transfer_abs(smp, win, our_dir, F, leg_scale, loop_blend=10 if opt.get("loop", True) else 0,
+                             hips_clamp=opt.get("hips_clamp", 0.1), z_range=opt.get("z_range", (-0.3, 0.08)),
+                             speed=opt.get("speed", 1.0), upper_only=opt.get("upper_only", False), **kw)
+
+
 def make_actions(rig, victory_kind, rid=""):
     rig.animation_data_create()
     clips = list(CLIPS)
@@ -656,10 +686,9 @@ def make_actions(rig, victory_kind, rid=""):
         clips = [c for c in clips if c[0] not in MIX] + mocap_clips(rig)
     v = VICTORY[victory_kind]
     mid = padd(v[1], {"hips_loc": (0, 0, 0.02)})          # small overshoot for snap
-    if rid in DANCE_CLIPS:
-        clips.append(("victory", True, dance_clip(rig, rid)))
-    else:
-        clips.append(("victory", True, [(0, v[0]), (8, mid), (15, v[1]), (22, mid), (30, v[0])]))
+    clips.append(("victory", True, [(0, v[0]), (8, mid), (15, v[1]), (22, mid), (30, v[0])]))
+    mo = {c: (c, ABS[c][1].get("loop", True), abs_clip(rig, c, rid)) for c in ABS if (c, rid) in ABS_CLIPS}
+    clips = [mo.pop(c[0]) if c[0] in mo else c for c in clips]
     actions = []
     for name, loop, keys in clips:
         act = bpy.data.actions.new(name)
@@ -699,6 +728,6 @@ def build(rid):
 if __name__ == "__main__":
     ids = sys.argv[1:] or list(RIDERS.keys())
     load_mocap()
-    load_dances(ids)
+    load_abs(ids)
     for r in ids:
         build(r)
