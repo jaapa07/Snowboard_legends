@@ -36,6 +36,7 @@ var speed: float = 0.0
 var air_time: float = 0.0
 var off_ground_t: float = 0.0
 var jump_charge: float = 0.0
+var _flip_lock: bool = false    ## tuck/brake held through take-off: no flip until released and pressed again
 var _jump_was_held: bool = false
 var _buffer_t: float = 0.0
 var _vf: float = 0.0
@@ -244,6 +245,8 @@ func _step_ground(cmd: InputCommand, delta: float) -> void:
 	vf += g.dot(f) * delta * tuning.slope_accel_factor * m_accel
 	if vf < tuning.push_until and not cmd.brake:
 		vf += tuning.push_accel * m_accel * delta
+	if device == "touch" and not cmd.brake and not cmd.jump_held and absf(cmd.steer) < 0.25:
+		cmd.tuck = true   # phones: tuck by itself on straights (holding the stick up all race is tiring)
 	var dk := tuning.drag_k * (tuning.tuck_drag_mult if cmd.tuck else 1.0)
 	vf -= (dk * vf * absf(vf) + tuning.rolling * signf(vf) + float(si.drag) * 0.1 * vf) * delta
 	if cmd.brake:
@@ -261,7 +264,7 @@ func _step_ground(cmd: InputCommand, delta: float) -> void:
 	if cmd.tuck:
 		turn *= tuning.tuck_turn_mult
 	if cmd.jump_held:
-		turn *= 0.35
+		turn *= 0.6 if device == "touch" else 0.35
 	if spinout_t > 0.0:
 		yaw_rate = 7.0
 	else:
@@ -327,6 +330,7 @@ func _enter_air(from_jump: bool) -> void:
 	spin_angle = 0.0; flip_angle = 0.0; grab_time = 0.0
 	did_grind = false
 	sig_active = false; sig_done = false; sig_t = 0.0; _sig_step = 0
+	_flip_lock = last_cmd != null and (last_cmd.tuck or last_cmd.brake) or device == "touch"
 	floor_snap_length = 0.0
 	if not from_jump:
 		pass
@@ -352,7 +356,9 @@ func _step_air(cmd: InputCommand, delta: float) -> void:
 	elif cmd.spin_right:
 		spin_angle -= sr * delta
 	var fr := deg_to_rad(tuning.flip_rate_deg) * m_spin
-	if sig_active or sig_done:
+	if _flip_lock and not cmd.flip_front and not cmd.flip_back:
+		_flip_lock = false
+	if sig_active or sig_done or _flip_lock:
 		pass
 	elif cmd.flip_front:
 		flip_angle += fr * delta
@@ -360,6 +366,7 @@ func _step_air(cmd: InputCommand, delta: float) -> void:
 		flip_angle -= fr * delta
 	if cmd.grab and not sig_active and not sig_done:
 		grab_time += delta
+	_landing_assist(cmd, delta)
 	# release buffer: a jump pressed just before touching down fires on landing
 	if cmd.jump_held and not _jump_was_held:
 		_buffer_t = tuning.jump_buffer
@@ -371,6 +378,17 @@ func _step_air(cmd: InputCommand, delta: float) -> void:
 	if is_on_floor() and air_time > 0.06:
 		_land()
 
+func _landing_assist(cmd: InputCommand, delta: float) -> void:
+	## Humans: while falling with no rotation input, the board eases to the nearest clean angle (half spins,
+	## whole flips), so a trick released a little early still lands. Stronger on touch screens.
+	if not is_human or sig_active or velocity.y > 0.0:
+		return
+	var rate := deg_to_rad(300.0 if device == "touch" else 150.0) * delta
+	if not cmd.spin_left and not cmd.spin_right:
+		spin_angle = move_toward(spin_angle, snappedf(spin_angle, PI), rate)
+	if (not cmd.flip_front and not cmd.flip_back) or _flip_lock:
+		flip_angle = move_toward(flip_angle, snappedf(flip_angle, TAU), rate)
+
 func _land() -> void:
 	var spin_deg := rad_to_deg(absf(spin_angle))
 	var flip_deg := rad_to_deg(absf(flip_angle))
@@ -378,7 +396,7 @@ func _land() -> void:
 	var r2 := fposmod(flip_deg, 360.0); var dev2 := minf(r2, 360.0 - r2)
 	var dev := maxf(dev1, dev2)
 	if last_cmd.grab and grab_time > 0.0 and not sig_done:
-		dev += 35.0
+		dev += 15.0 if device == "touch" else 35.0
 	if sig_active:
 		dev = 999.0   # touched down before the signature trick finished
 	# landing slope check: steep impact with high vertical speed is harder
@@ -488,7 +506,20 @@ func _score_tricks(spin_deg: float, flip_deg: float, quality: String) -> void:
 	add_coins(gained)
 	trick_points_total += total
 	best_combo = maxi(best_combo, parts.size())
-	trick_landed.emit(self, " + ".join(parts), total, gained, quality)
+	var shown: Array[String] = []
+	for part in parts:
+		shown.append(_trick_label(part))
+	trick_landed.emit(self, " + ".join(shown), total, gained, quality)
+
+const TRICK_PT := {"frontflip": "mortal p/ frente", "backflip": "mortal p/ trás", "grab": "agarrada", "grind": "corrimão", "ollie": "pulo"}
+
+func _trick_label(part: String) -> String:
+	if Game.lang() == "en":
+		return part
+	for k in TRICK_PT:
+		if part.ends_with(k):
+			return part.replace(k, String(TRICK_PT[k]))
+	return part
 
 func _crash() -> void:
 	state = State.FALLEN

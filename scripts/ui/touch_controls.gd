@@ -73,11 +73,11 @@ func _layout() -> void:
 	var u := clampf(vs.y / 900.0, 0.6, 1.6) * 1.0
 	_buttons = [
 		{"id": "jump", "c": br + Vector2(-130, -130) * u, "r": 92.0 * u, "label": "SALTO" if Game.lang() != "en" else "JUMP", "col": Color(0.25, 0.65, 1.0)},
-		{"id": "grab", "c": br + Vector2(-330, -80) * u, "r": 62.0 * u, "label": "GRAB", "col": Color(0.95, 0.75, 0.2)},
-		{"id": "spin_l", "c": br + Vector2(-310, -250) * u, "r": 52.0 * u, "label": "◀", "col": Color(0.6, 0.45, 1.0)},
-		{"id": "spin_r", "c": br + Vector2(-150, -330) * u, "r": 52.0 * u, "label": "▶", "col": Color(0.6, 0.45, 1.0)},
-		{"id": "off", "c": br + Vector2(-60, -440) * u, "r": 58.0 * u, "label": "", "col": Color(1.0, 0.3, 0.3)},
-		{"id": "util", "c": br + Vector2(-210, -470) * u, "r": 58.0 * u, "label": "", "col": Color(0.3, 0.6, 1.0)},
+		{"id": "grab", "c": br + Vector2(-330, -80) * u, "r": 62.0 * u, "label": "AGARRAR" if Game.lang() != "en" else "GRAB", "col": Color(0.95, 0.75, 0.2)},
+		{"id": "spin_l", "c": br + Vector2(-310, -250) * u, "r": 52.0 * u, "label": "↺ GIRO" if Game.lang() != "en" else "↺ SPIN", "col": Color(0.6, 0.45, 1.0)},
+		{"id": "spin_r", "c": br + Vector2(-150, -330) * u, "r": 52.0 * u, "label": "GIRO ↻" if Game.lang() != "en" else "SPIN ↻", "col": Color(0.6, 0.45, 1.0)},
+		{"id": "off", "c": br + Vector2(-60, -440) * u, "r": 58.0 * u, "label": "ATAQUE" if Game.lang() != "en" else "ATTACK", "col": Color(1.0, 0.3, 0.3)},
+		{"id": "util", "c": br + Vector2(-210, -470) * u, "r": 58.0 * u, "label": "APOIO" if Game.lang() != "en" else "SUPPORT", "col": Color(0.3, 0.6, 1.0)},
 		{"id": "pause", "c": Vector2(_safe.position.x + _safe.size.x * 0.5, _safe.position.y + 46 * u), "r": 36.0 * u, "label": "II", "col": Color(1, 1, 1)},
 	]
 	for b in _buttons:
@@ -130,9 +130,10 @@ func _update_stick() -> void:
 		v = v.normalized()
 	if not tilt_steering:
 		var x := v.x
-		state.steer = 0.0 if absf(x) < 0.12 else signf(x) * (absf(x) - 0.12) / 0.88
-	state.tuck = v.y < -0.45
-	state.brake = v.y > 0.45
+		var a := 0.0 if absf(x) < 0.1 else (absf(x) - 0.1) / 0.9
+		state.steer = signf(x) * pow(a, 1.4)   # gentle near the centre, full lock at the rim
+	state.tuck = v.y < -0.5
+	state.brake = v.y > 0.55
 
 func _press(id: String, on: bool) -> void:
 	match id:
@@ -167,6 +168,8 @@ func _draw() -> void:
 		var hint := Vector2(_safe.position.x + 200 * u, _safe.end.y - 180 * u)
 		draw_arc(hint, STICK_R, 0, TAU, 48, Color(1, 1, 1, 0.18), 3.0)
 		draw_string(_font, hint + Vector2(-70, 8) * u, "◀  ▶" if not tilt_steering else "▲ / ▼", HORIZONTAL_ALIGNMENT_CENTER, 140 * u, int(28 * u), Color(1, 1, 1, 0.35))
+		var cap := ("DIREÇÃO" if not tilt_steering else "↑ AGACHAR  ↓ FREAR") if Game.lang() != "en" else ("STEER" if not tilt_steering else "↑ TUCK  ↓ BRAKE")
+		draw_string(_font, hint + Vector2(-140, STICK_R + 34) * u, cap, HORIZONTAL_ALIGNMENT_CENTER, 280 * u, int(22 * u), Color(1, 1, 1, 0.45))
 	for b in _buttons:
 		var pressed := int(b.touch) >= 0
 		var col: Color = b.col
@@ -181,7 +184,8 @@ func _draw() -> void:
 			var s := float(b.r) * 1.3
 			draw_texture_rect(tex, Rect2(b.c - Vector2(s, s) * 0.5, Vector2(s, s)), false)
 		elif String(b.label) != "":
-			var fs := int(float(b.r) * (0.42 if String(b.label).length() > 2 else 0.8))
+			var ln := String(b.label).length()
+			var fs := int(float(b.r) * (0.8 if ln <= 2 else 0.42 if ln <= 5 else 0.3))
 			draw_string(_font, b.c + Vector2(-b.r, fs * 0.36), String(b.label), HORIZONTAL_ALIGNMENT_CENTER, b.r * 2.0, fs, Color(1, 1, 1, 0.95))
 		if String(b.id) == "jump" and rider and rider.jump_charge > 0.0:
 			draw_arc(b.c, float(b.r) + 8, -PI / 2, -PI / 2 + TAU * clampf(rider.jump_charge / rider.tuning.jump_charge_max, 0, 1), 40, Color(1, 0.9, 0.3), 7.0)
