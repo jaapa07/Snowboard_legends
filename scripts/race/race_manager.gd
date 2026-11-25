@@ -158,6 +158,13 @@ func _build_screens() -> void:
 		hud.setup(self, humans[i], n)
 		huds.append(hud)
 	get_viewport().size_changed.connect(_relayout)
+	# phone/tablet: on-screen controls for the touch player (single screen)
+	for r in riders:
+		if r.is_human and r.device == "touch" and humans.size() == 1 and DisplayServer.get_name() != "headless":
+			var tc := TouchControls.new()
+			get_parent().get_node("UI").add_child(tc)
+			tc.setup(r)
+			tc.pause_pressed.connect(request_pause)
 
 func _layout(c: Control, i: int, n: int) -> void:
 	var sz := get_viewport().get_visible_rect().size

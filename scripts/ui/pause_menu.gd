@@ -31,7 +31,7 @@ func _ready() -> void:
 func _btn(parent: Control, txt: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = txt
-	b.custom_minimum_size = Vector2(420, 64)
+	b.custom_minimum_size = Vector2(420, 84 if TouchControls.enabled() else 64)   # finger-sized on phones
 	b.pressed.connect(func(): Audio.play("ui_ok"); cb.call())
 	b.focus_entered.connect(func(): Audio.play("ui_move"))
 	parent.add_child(b)

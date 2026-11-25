@@ -73,6 +73,9 @@ const S := {
 	"local_mp": ["Multiplayer local", "Local multiplayer"],
 	"local_mp_desc": ["2 a 4 jogadores no mesmo PC, tela dividida. Teclado dividido ou gamepads; START entra no jogo.", "2 to 4 players on one PC, split screen. Split keyboard or gamepads; START joins."],
 	"player_joined": ["J%d entrou (%s)", "P%d joined (%s)"], "player_short": ["J", "P"],
+	"touch": ["Toque (tela)", "Touch (screen)"], "touch_controls": ["Controles na tela", "On-screen controls"],
+	"tilt_steering": ["Virar inclinando o aparelho", "Tilt to steer"], "auto": ["Automático", "Automatic"],
+	"tap_to_play": ["Toque em JOGAR", "Tap PLAY"], "touch_footer": ["Toque para escolher  ·  ◀ Voltar no canto superior", "Tap to choose  ·  ◀ Back in the top corner"],
 	"credits_screen": ["Créditos do jogo", "Game credits"], "press_start": ["Pressione ENTER / START", "Press ENTER / START"],
 }
 

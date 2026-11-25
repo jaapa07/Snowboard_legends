@@ -22,6 +22,7 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | texture | 28 | 0 | 0 | 28 | 0 | validação de arquivo/formato |
 | fx_sprite | 6 | 0 | 0 | 6 | 0 | validação de arquivo/formato |
 | atlas_metadata | 1 | 0 | 0 | 1 | 0 | validação de arquivo/formato |
+| app_icon | 12 | 0 | 0 | 12 | 0 | validação de arquivo/formato |
 | ui_theme | 1 | 0 | 0 | 1 | 0 | validação de arquivo/formato |
 | font | 3 | 0 | 0 | 3 | 0 | validação de arquivo/formato |
 | license_text | 1 | 0 | 0 | 1 | 0 | validação de arquivo/formato |
@@ -199,6 +200,18 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | ui:lock | `assets/sprites/ui/lock.png` | integrated | drawn with Pillow (tools/gen_ui_icons.py) | project-original | 128x128 |
 | ui:unlock | `assets/sprites/ui/unlock.png` | integrated | drawn with Pillow (tools/gen_ui_icons.py) | project-original | 128x128 |
 | ui:atlas_json | `assets/sprites/ui/atlas.json` | integrated | generated with the atlas (tools/gen_sprites.py) | project-original |  |
+| ios_icon:1024 | `assets/ios/icon_1024.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 1024x1024 |
+| ios_icon:180 | `assets/ios/icon_180.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 180x180 |
+| ios_icon:167 | `assets/ios/icon_167.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 167x167 |
+| ios_icon:152 | `assets/ios/icon_152.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 152x152 |
+| ios_icon:120 | `assets/ios/icon_120.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 120x120 |
+| ios_icon:87 | `assets/ios/icon_87.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 87x87 |
+| ios_icon:80 | `assets/ios/icon_80.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 80x80 |
+| ios_icon:76 | `assets/ios/icon_76.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 76x76 |
+| ios_icon:60 | `assets/ios/icon_60.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 60x60 |
+| ios_icon:58 | `assets/ios/icon_58.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 58x58 |
+| ios_icon:40 | `assets/ios/icon_40.png` | integrated | Cycles portrait of Niko over the emblem (tools/gen_app_icons.py) | project-original | 40x40 |
+| ios_launch | `assets/ios/launch_2048.png` | integrated | logo on gradient (tools/gen_app_icons.py) | project-original | 2048x2048 |
 | ui:theme | `assets/ui/theme.tres` | integrated | hand-written Godot theme | project-original |  |
 | font:Inter-Bold | `assets/fonts/Inter-Bold.otf` | integrated | third-party font, unmodified | OFL-1.1 |  |
 | font:Inter-Black | `assets/fonts/Inter-Black.otf` | integrated | third-party font, unmodified | OFL-1.1 |  |

@@ -6,7 +6,8 @@ extends Node
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
-	if "--screenshot" in args:
+	if "--screenshot" in args or "--benchmark" in args:
+		# queued before the scene change so the change does not free this node (it keeps measuring/capturing)
 		(func(): get_tree().current_scene = null).call_deferred()
 	var i := args.find("--race")
 	if i >= 0:
@@ -112,7 +113,6 @@ func _capture_shots(path: String, times: String, spectate: bool) -> void:
 
 func _benchmark(seconds: float) -> void:
 	## Real-time benchmark of a running race: frame times (wall clock), FPS, p95/p99, memory, hardware.
-	(func(): get_tree().current_scene = null).call_deferred()
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var rm: Node = null
 	while rm == null or rm.phase != 2:

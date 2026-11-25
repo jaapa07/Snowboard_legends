@@ -24,7 +24,8 @@ func default_data() -> Dictionary:
 		"records": {},   ## track_id -> {board_id: best_time_seconds}
 		"ghosts": {},    ## track_id -> {"time": t, "rider": id, "board": id, "frames": [[x,y,z,yaw], ...]}
 		"settings": {"lang": "pt", "music": 0.8, "sfx": 0.9, "voice": 0.8, "quality": 1, "shake": true, "motion": true,
-			"vibration": true, "assist": true, "fullscreen": false, "remaps": {}},
+			"vibration": true, "assist": true, "fullscreen": false, "remaps": {}, "touch_controls": "auto", "tilt_steering": false,
+			"mobile_profile_applied": false},
 	}
 
 func load_or_create() -> void:

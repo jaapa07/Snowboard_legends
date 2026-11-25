@@ -1,35 +1,69 @@
 # IMPLEMENTATION_STATUS — Snowboard Legends 3D
 
-Legenda: ✅ feito e verificado · 🟡 implementado, não verificado/incompleto · ❌ não feito
+Legenda: ✅ feito e verificado (evidência citada) · 🟡 implementado, verificação parcial · ❌ não feito / bloqueado
+
+Relatórios: `docs/test_reports/suite_unit_integration_e2e.json` (329 verificações, 0 falhas),
+`docs/test_reports/ai_<pista>.json` (100 corridas × 9 pistas), `docs/test_reports/benchmark_*.json`.
+Capturas reais: `docs/screenshots/`.
 
 ## Ambiente
-- ✅ Godot 4.4.1 + templates Win/Linux; Blender 5.0.1 (bpy); Xvfb+Mesa disponíveis (sem GPU real).
+- ✅ Godot 4.4.1-stable + templates (Windows/Linux x64); Blender 5.0.1 (`bpy`, Python 3.11 em `tools/blenv`); Pillow, NumPy, FFmpeg.
+- ✅ Captura sem GPU: Forward+ via Mesa lavapipe + Xvfb (`CLAUDE.md`). Compatibility no llvmpipe estoura a neve — não usado como evidência.
+- ✅ Bloqueio encontrado na verificação inicial e corrigido: `boot.gd` tinha `_capture` duplicado (erro de parse; o jogo não iniciava).
 
-## Assets (scripted modelling em Blender — método declarado, não escultura manual)
-- ✅ 9 pilotos rigados (8 da spec + Kaito, secreto/extra), 5,7–7,4k tri, rig compartilhado com IK nos pés, 24 clips + vitória própria. Renders Cycles conferidos. ⚠ abaixo do orçamento 8–18k tri.
-- ✅ 12 pranchas únicas (contorno, kick, sidecut, bindings, arte).
-- ✅ Props: 6 árvores, 4 arbustos, 3 rochas, 4 bancos de neve, 5 cercas, 6 placas, 3 bandeiras, 4 lanternas, 3 rails, 4 rampas, 3 pontes, 4 túneis, 6 edifícios, torre/estação/4 cabines de teleférico, arco de largada, tronco, vagão.
-- ✅ 10 modelos de itens + moeda + 2 estações.
-- ✅ 9 pistas GLB + JSON (8 campanha com comprimentos exatos da spec + Parque de Manobras), 3 marcos exclusivos cada, rotas divididas, zonas (gelo, lama, vapor, fenda, vento, abrigo, turbo), plataformas, rails, túneis.
-- ✅ 14 texturas PBR; sprites FX, medalhas, avisos, 9 mapas ilustrados, logo, ícone, atlas+JSON.
-- ✅ 37 SFX + 12 músicas originais sintetizadas (loops). ⚠ qualidade de síntese, não produção de estúdio.
-- ❌ Ícones de itens (render do items.blend), retratos dos pilotos (render_rider portrait) — scripts prontos, renders não gerados.
-- ❌ `assets.manifest.json`, `ASSET_STATUS.md`, `ASSET_LICENSES.md`.
+## Assets (`ASSET_STATUS.md`, `assets.manifest.json` — 174 entradas, 0 missing/in_progress; `--check` bloqueia release)
+- ✅ 9 pilotos rigados (8 + Kaito, original e secreto), 24 clips cada (validados no GLB pelo manifesto). ⚠ 5,7–7,4k tri, abaixo do orçamento indicativo 8–18k.
+- ✅ 12 pranchas, props/vegetação/teleférico, 12 itens (10 + cometa caçador + redemoinho), moeda, 2 estações, alvo de desafio.
+- ✅ 9 pistas GLB + dados; checkpoints a cada 60 m (teste de conteúdo); descidas por pista (3–9).
+- ✅ Retratos (9) e ícones de itens (12 + moeda + alvo) renderizados em Cycles (`tools/blender/render_rider.py`, `render_objects.py`).
+- ✅ Mapas ilustrados a partir do render ortográfico real de cada pista + sobreposição de rota (`tools/blender/render_maps.py`, `tools/gen_maps.py`).
+- ✅ Texturas PBR, sprites FX/UI, atlas+JSON, cadeados (`tools/gen_ui_icons.py`), fonte Inter (OFL-1.1).
+- ✅ 37 SFX + 12 músicas sintetizadas. ⚠ qualidade de síntese, sem vozes.
+- ✅ `ASSET_LICENSES.md` (conteúdo original: licença pública ainda não escolhida pelo titular; terceiros: Inter OFL-1.1, Godot MIT).
 
-## Gameplay
-- ✅ Física arcade (tangente, arrasto, carving, tuck, freio/curva fechada, salto carregado, coyote/buffer, pouso avaliado, queda).
-- ✅ Corrida 5 descidas + teleférico FIFO em Vale dos Pinheiros: concluída headless, 4 IAs, 0 resets (seeds 1234 e 99: 3:06–3:40).
-- 🟡 Manobras/pontuação/moedas (funcionam na simulação; sem teste unitário).
-- 🟡 10 itens (IA compra e usa; nem todos exercitados em teste).
-- 🟡 Rails/grind, plataformas, fendas, vento, gelo — implementados, não testados individualmente.
-- ❌ Corridas nas outras 7 pistas + parque (nunca executadas).
-- 🟡 HUD (código pronto; nunca visto renderizado). 🟡 Câmera chase. 🟡 Pausa.
-- 🟡 Time Trial com fantasma, Trick Attack, Slalom (lógica no RaceManager, não testados). ❌ Desafio de pousos/coleta completos.
-- ❌ Menus: título, perfil, modos, participantes (4 vagas), piloto/prancha com modelo giratório, mapa de pista, opções/remapeamento, garagem/loja, resultados com pódio. (`main_menu.tscn` e `results.tscn` NÃO existem — `Game.goto_menu/goto_results` quebram.)
-- ❌ Grand Prix completo (pontos 10/7/4/2, créditos, medalhas, desbloqueios na UI). Save/migração escritos, não testados.
-- 🟡 Multiplayer local em tela dividida (código de layout pronto, não testado).
+## Gameplay (testes em `tests/run_all.gd`)
+- ✅ Física arcade (24/29/35 m/s, salto carregado 4–8 m/s, coyote 100 ms, buffer 120 ms, pouso avaliado, queda 0,8–1,4 s) — unit: physics/speed/jump/tricks.
+- ✅ Corrida com teleférico FIFO (1 cabine/1,2 s, viagem 3 s, invulnerável) — unit: lift FIFO; integração: corrida completa 5 descidas/4 pilotos.
+  O cabo passa pelas torres com 9 m de folga sobre a pista (antes cortava a pista em Lago Cristal).
+- ✅ Descidas por pista (Vale 5, Lago 4, Pico 4, Festival 5, Floresta 4, Estação 4, Tempestade 4, Cume 3, Parque 9): corridas de 3:04–3:54 com o vencedor de IA.
+- ✅ Manobras, combos (teto 3×), repetição −30 %, moedas por manobra (5/100 pts, máx. 30), saldo máx. 200, estação 20 — unit: tricks/coins.
+- ✅ Manobra-assinatura por piloto (Q, E, Shift no ar) — unit: sequência, queda se pousar antes, pontuação; a IA usa em saltos longos.
+- ✅ 12 itens com efeitos, cooldown de dano 2 s, projéteis expiram em 4 s, telegraph — integração: cada item; unit: cooldown/escudo.
+- ✅ Sorteio ponderado por posição e seed — unit: RNG.
+- ✅ Reset fora da pista (2 s + penalidade) — integração; recuo para checkpoint com embalo antes de fendas (corrigido após falha em 41/100 corridas no Pico).
+- ✅ Rotas alternativas: as duas rotas de cada bifurcação das 8 pistas são percorríveis e contam checkpoints — integração (32 verificações).
+- ✅ IA: 100 corridas × 9 pistas (2 descidas, teleférico), **900/900 concluídas, 3600/3600 pilotos**, 0 checkpoints pulados, 0 NaN, sem piloto preso — `docs/test_reports/ai_*.json`.
+  Correções feitas a partir da bateria: oscilação da direção (atraso de reação) e loop de reset na fenda.
+- ✅ Assistência de IA ≤5 %, sob o teto físico, desligável — unit (antes era uma opção sem efeito).
+- ✅ HUD (posição, descida x/N, tempo, velocidade, moedas, 2 slots, barra vertical de retratos a 10 Hz, minimapa, avisos) — capturas `docs/screenshots/tracks/`.
+- ✅ Pausa (Esc/Start), retomar, reiniciar — e2e.
 
-## Testes / entrega
-- ❌ Suíte `tests/run_all` (unitários, integração, 100 corridas IA/pista), relatório.
-- ❌ Capturas reais de gameplay/menus.
-- ❌ `export_presets.cfg`, build Windows, README, benchmark.
+## Modos e progressão
+- ✅ Grand Prix: 4 copas × 2 pistas, pontos 10/7/4/2, créditos 100/70/40/25 + bônus ≤50, medalhas, desbloqueios — unit + integração + e2e (corrida 1 → próxima → final da copa → ouro → desbloqueios → menu).
+- ✅ Corrida rápida (pista, descidas padrão ou 1–9, dificuldade, itens).
+- ✅ Contra o relógio com fantasma (amostras de transformação) e recordes por pista/prancha — integração.
+- ✅ Trick Attack 2 min no Parque — integração. ✅ Desafios: slalom, pousos limpos, corrida das moedas, tiro ao alvo — integração.
+- ✅ Garagem/loja: prévia 3D, comparação de atributos, confirmação, cobrança única, equipar, upgrades de prancha (3 níveis, teto ±12 %) — unit + e2e.
+- ✅ Save com schema, migração, backup, exportar/importar validado — unit.
+- ✅ Multiplayer local 2–4 em tela dividida (horizontal / grade), dispositivo por vaga, entrada com START, tags J1–J4 — integração + e2e + capturas `docs/screenshots/multiplayer/`.
+
+## Front-end
+- ✅ `main_menu.tscn`: título com pista 3D animada, modos, participantes (4 vagas), piloto com modelo giratório e animação de confirmação, prancha, pista com mapa, copa, desafios, garagem, perfil, opções (volumes, qualidade, idioma PT/EN, acessibilidade), remapeamento — capturas `docs/screenshots/menus/`.
+- ✅ `results.tscn`: pódio 3D animado, tempos, pontos, créditos, medalhas, desbloqueios — captura `docs/screenshots/results.png`; e2e.
+- ✅ Navegação completa por teclado e gamepad com foco visível — e2e. (Corrigido: o InputMap padrão não ligava D-pad/A/B aos `ui_*`.)
+
+## Visual
+- ✅ MSAA 4x + FXAA, filtro anisotrópico, SSAO (média+), SSIL (alta), sombras suaves 4096, neblina de vale, precipitação por clima, animação polida (crossfades, inclinação, squash no pouso), noite mais legível — capturas.
+
+## Entrega
+- ✅ `tests/run_all.tscn` (unit/integration/e2e/ai), sai com código 1 em falha.
+- ✅ `export_presets.cfg`; builds Windows x64 e Linux x64 em `builds/` + ZIPs com licenças e instruções (não versionados: o `.exe` tem 137 MB).
+- 🟡 ZIP Linux testado em pasta limpa (corrida completa OK). ZIP Windows: PCK validado com o motor 4.4.1; **o `.exe` não foi executado** (sem Windows; Wine aborta neste container).
+- 🟡 Benchmark real registrado (README), mas **só em render por software** (sem GPU): 1,1–5,3 FPS. FPS em hardware com GPU não medido.
+- ✅ README com controles, testes, benchmark, build e limitações.
+
+## Pendências explícitas
+1. Medir FPS/frame time em PC com GPU (meta 60 FPS) e executar o `.exe` no Windows.
+2. Balanceamento entre pilotos (velocidade alta vence mais nas corridas de IA).
+3. Pilotos abaixo do orçamento indicativo de triângulos; áudio sem qualidade de estúdio.
+4. Escolha da licença pública do conteúdo original (decisão do titular).

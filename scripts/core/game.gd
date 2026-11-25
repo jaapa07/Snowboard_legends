@@ -48,9 +48,29 @@ func _ready() -> void:
 	Inputs.vibration_enabled = bool(Save.settings().vibration)
 	apply_display()
 	get_tree().root.focus_exited.connect(_on_focus_lost)
+	_apply_mobile_profile()
+
+func is_mobile() -> bool:
+	return OS.has_feature("mobile")
+
+func _apply_mobile_profile() -> void:
+	## First launch on a phone/tablet: low quality preset (Mobile renderer, 0.75 render scale, no heavy effects).
+	if is_mobile() and not bool(Save.settings().get("mobile_profile_applied", false)):
+		Save.settings().quality = 0
+		Save.settings().mobile_profile_applied = true
+		Save.write()
+
+func _notification(what: int) -> void:
+	# iOS/Android: app sent to background (home button, call, notification centre) -> pause and save
+	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		var race := get_tree().get_first_node_in_group("race_manager") if get_tree() else null
+		if race and race.has_method("request_pause") and human_count() <= 1:
+			race.request_pause()
+		if what == NOTIFICATION_APPLICATION_PAUSED:
+			Save.write()
 
 func apply_display() -> void:
-	if DisplayServer.get_name() == "headless":
+	if DisplayServer.get_name() == "headless" or OS.has_feature("mobile"):
 		return
 	var fs := bool(Save.settings().fullscreen)
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fs else DisplayServer.WINDOW_MODE_WINDOWED)
@@ -73,7 +93,7 @@ func human_count() -> int:
 
 func default_participants(player_rider: String, player_board: String, humans: Array = []) -> void:
 	participants.clear()
-	participants.append({"type": "human", "device": "kb", "rider": player_rider, "board": player_board})
+	participants.append({"type": "human", "device": "touch" if TouchControls.enabled() else "kb", "rider": player_rider, "board": player_board})
 	for h in humans:
 		participants.append(h)
 	var rng := RandomNumberGenerator.new()

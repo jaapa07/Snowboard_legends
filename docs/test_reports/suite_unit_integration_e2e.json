@@ -1,0 +1,124 @@
+{
+	"ai": [],
+	"args": [
+		"--suite",
+		"unit,integration,e2e",
+		"--report",
+		"docs/test_reports/suite_unit_integration_e2e.json"
+	],
+	"engine": "4.4.1-stable (official)",
+	"failed": 0,
+	"failures": [],
+	"passed": 329,
+	"seconds": 54.6,
+	"sections": {
+		"e2e: garage purchase + equip": {
+			"fail": 0,
+			"pass": 6
+		},
+		"e2e: grand prix results flow": {
+			"fail": 0,
+			"pass": 9
+		},
+		"e2e: menu flow (keyboard + gamepad)": {
+			"fail": 0,
+			"pass": 23
+		},
+		"e2e: race pause / restart / quit": {
+			"fail": 0,
+			"pass": 5
+		},
+		"integration: 5-run race, 4 riders, lift": {
+			"fail": 0,
+			"pass": 9
+		},
+		"integration: cup finish, unlock, save reload": {
+			"fail": 0,
+			"pass": 6
+		},
+		"integration: local multiplayer split screen": {
+			"fail": 0,
+			"pass": 12
+		},
+		"integration: off-track reset": {
+			"fail": 0,
+			"pass": 3
+		},
+		"integration: skill games": {
+			"fail": 0,
+			"pass": 6
+		},
+		"integration: split routes / shortcuts": {
+			"fail": 0,
+			"pass": 32
+		},
+		"integration: stations + all 12 items": {
+			"fail": 0,
+			"pass": 25
+		},
+		"integration: target shooting": {
+			"fail": 0,
+			"pass": 3
+		},
+		"integration: time trial ghost": {
+			"fail": 0,
+			"pass": 3
+		},
+		"integration: trick attack (2 min)": {
+			"fail": 0,
+			"pass": 2
+		},
+		"unit: board upgrades": {
+			"fail": 0,
+			"pass": 28
+		},
+		"unit: coin balance": {
+			"fail": 0,
+			"pass": 3
+		},
+		"unit: content / i18n": {
+			"fail": 0,
+			"pass": 80
+		},
+		"unit: credits / medals / unlocks": {
+			"fail": 0,
+			"pass": 9
+		},
+		"unit: damage cooldown and shield": {
+			"fail": 0,
+			"pass": 5
+		},
+		"unit: jump": {
+			"fail": 0,
+			"pass": 13
+		},
+		"unit: lift FIFO": {
+			"fail": 0,
+			"pass": 4
+		},
+		"unit: physics integration": {
+			"fail": 0,
+			"pass": 4
+		},
+		"unit: ranking / standings": {
+			"fail": 0,
+			"pass": 2
+		},
+		"unit: save / migration": {
+			"fail": 0,
+			"pass": 13
+		},
+		"unit: seeded RNG": {
+			"fail": 0,
+			"pass": 4
+		},
+		"unit: speed limits": {
+			"fail": 0,
+			"pass": 6
+		},
+		"unit: tricks, combos, landing": {
+			"fail": 0,
+			"pass": 14
+		}
+	}
+}

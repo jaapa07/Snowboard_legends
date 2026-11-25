@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "generated_by": "tools/build_manifest.py",
- "count": 174,
+ "count": 186,
  "assets": [
   {
    "id": "rider_model:niko",
@@ -3130,6 +3130,234 @@
    "fallback": null,
    "bytes": 2382,
    "sha1": "ad58de65fa19",
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:1024",
+   "path": "res://assets/ios/icon_1024.png",
+   "file": "assets/ios/icon_1024.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 294911,
+   "sha1": "56739872c874",
+   "size_px": [
+    1024,
+    1024
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:180",
+   "path": "res://assets/ios/icon_180.png",
+   "file": "assets/ios/icon_180.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 21351,
+   "sha1": "5340dc20297c",
+   "size_px": [
+    180,
+    180
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:167",
+   "path": "res://assets/ios/icon_167.png",
+   "file": "assets/ios/icon_167.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 19103,
+   "sha1": "facf3b8ebb21",
+   "size_px": [
+    167,
+    167
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:152",
+   "path": "res://assets/ios/icon_152.png",
+   "file": "assets/ios/icon_152.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 16645,
+   "sha1": "38663801d1c0",
+   "size_px": [
+    152,
+    152
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:120",
+   "path": "res://assets/ios/icon_120.png",
+   "file": "assets/ios/icon_120.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 11936,
+   "sha1": "32fcc0027f73",
+   "size_px": [
+    120,
+    120
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:87",
+   "path": "res://assets/ios/icon_87.png",
+   "file": "assets/ios/icon_87.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 7505,
+   "sha1": "c34a0d2e223b",
+   "size_px": [
+    87,
+    87
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:80",
+   "path": "res://assets/ios/icon_80.png",
+   "file": "assets/ios/icon_80.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 6684,
+   "sha1": "0f48bda5dfa4",
+   "size_px": [
+    80,
+    80
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:76",
+   "path": "res://assets/ios/icon_76.png",
+   "file": "assets/ios/icon_76.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 6282,
+   "sha1": "4f21c0c49501",
+   "size_px": [
+    76,
+    76
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:60",
+   "path": "res://assets/ios/icon_60.png",
+   "file": "assets/ios/icon_60.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 4476,
+   "sha1": "fcb81de4ca80",
+   "size_px": [
+    60,
+    60
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:58",
+   "path": "res://assets/ios/icon_58.png",
+   "file": "assets/ios/icon_58.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 4256,
+   "sha1": "0f6d218f6ffb",
+   "size_px": [
+    58,
+    58
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_icon:40",
+   "path": "res://assets/ios/icon_40.png",
+   "file": "assets/ios/icon_40.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 2550,
+   "sha1": "cc421e824fe3",
+   "size_px": [
+    40,
+    40
+   ],
+   "status": "integrated"
+  },
+  {
+   "id": "ios_launch",
+   "path": "res://assets/ios/launch_2048.png",
+   "file": "assets/ios/launch_2048.png",
+   "type": "app_icon",
+   "license": "project-original",
+   "method": "logo on gradient (tools/gen_app_icons.py)",
+   "source": "tools/gen_app_icons.py",
+   "dependencies": [],
+   "required": true,
+   "fallback": null,
+   "bytes": 162397,
+   "sha1": "fcd7977fe7c7",
+   "size_px": [
+    2048,
+    2048
+   ],
    "status": "integrated"
   },
   {

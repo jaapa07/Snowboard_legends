@@ -105,6 +105,9 @@ def collect():
     for f in ["lock.png", "unlock.png"]:
         E.append(entry(f"ui:{f[:-4]}", f"{A}sprites/ui/{f}", "ui_sprite", "drawn with Pillow (tools/gen_ui_icons.py)", "tools/gen_ui_icons.py"))
     E.append(entry("ui:atlas_json", f"{A}sprites/ui/atlas.json", "atlas_metadata", "generated with the atlas (tools/gen_sprites.py)", "tools/gen_sprites.py", ["ui:atlas"]))
+    for sz in [1024, 180, 167, 152, 120, 87, 80, 76, 60, 58, 40]:
+        E.append(entry(f"ios_icon:{sz}", f"{A}ios/icon_{sz}.png", "app_icon", "Cycles portrait of Niko over the emblem (tools/gen_app_icons.py)", "tools/gen_app_icons.py"))
+    E.append(entry("ios_launch", f"{A}ios/launch_2048.png", "app_icon", "logo on gradient (tools/gen_app_icons.py)", "tools/gen_app_icons.py"))
     E.append(entry("ui:theme", f"{A}ui/theme.tres", "ui_theme", "hand-written Godot theme", None, ["font:Inter-Bold"]))
     for f in ["Inter-Bold.otf", "Inter-Black.otf", "Inter-SemiBold.otf"]:
         E.append(entry(f"font:{f[:-4]}", f"{A}fonts/{f}", "font", "third-party font, unmodified", "https://github.com/rsms/inter (Debian fonts-inter 4.0+ds-1)",

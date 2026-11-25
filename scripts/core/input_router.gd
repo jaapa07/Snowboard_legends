@@ -122,7 +122,7 @@ func key_name(action: String) -> String:
 	return "-"
 
 func connected_devices() -> Array[String]:
-	var out: Array[String] = ["kb"]
+	var out: Array[String] = ["touch"] if TouchControls.enabled() else ["kb"]
 	for j in Input.get_connected_joypads():
 		out.append("joy%d" % j)
 	return out
@@ -144,6 +144,11 @@ func read(device: String, cmd: InputCommand) -> void:
 		cmd.jump_held = Input.is_physical_key_pressed(m.jump); cmd.spin_left = Input.is_physical_key_pressed(m.spin_left)
 		cmd.spin_right = Input.is_physical_key_pressed(m.spin_right); cmd.grab = Input.is_physical_key_pressed(m.grab)
 		off = Input.is_physical_key_pressed(m.item_offense); util = Input.is_physical_key_pressed(m.item_utility)
+	elif device == "touch":
+		var t: Dictionary = TouchControls.state
+		cmd.steer = float(t.steer); cmd.tuck = bool(t.tuck); cmd.brake = bool(t.brake)
+		cmd.jump_held = bool(t.jump); cmd.spin_left = bool(t.spin_l); cmd.spin_right = bool(t.spin_r); cmd.grab = bool(t.grab)
+		off = bool(t.off); util = bool(t.util)
 	elif device.begins_with("joy"):
 		var d := int(device.substr(3))
 		var x := Input.get_joy_axis(d, JOY_AXIS_LEFT_X)
@@ -164,5 +169,7 @@ func read(device: String, cmd: InputCommand) -> void:
 	_prev_items[device] = [off, util]
 
 func rumble(device: String, strength: float, duration: float) -> void:
-	if vibration_enabled and device.begins_with("joy"):
+	if vibration_enabled and device == "touch":
+		Input.vibrate_handheld(int(duration * 1000.0 * clampf(strength, 0.2, 1.0)))
+	elif vibration_enabled and device.begins_with("joy"):
 		Input.start_joy_vibration(int(device.substr(3)), strength * 0.5, strength, duration)

@@ -515,6 +515,7 @@ func _u_content() -> void:
 	Save.load_or_create()
 	check(Save.board_level("starter") == 3, "upgrade level persisted")
 	_fresh_save()
+	begin("unit: content / i18n")
 	var bad_keys := []
 	for k in I18n.S:
 		if (I18n.S[k] as Array).size() != 2 or String(I18n.S[k][0]) == "" or String(I18n.S[k][1]) == "":
@@ -599,7 +600,7 @@ func _i_full_race() -> void:
 	await _end_race(race)
 
 func _i_items_and_stations() -> void:
-	begin("integration: stations + all 10 items")
+	begin("integration: stations + all 12 items")
 	var race := _new_race(&"vale_pinheiros", 5, Game.Mode.QUICK_RACE, 77)
 	var rm := _rm(race)
 	await _wait_racing(rm)
@@ -1028,6 +1029,7 @@ func _e2e() -> void:
 	await _frames(2)
 	await _e2e_garage()
 	await _e2e_grand_prix()
+	await _e2e_touch()
 	# pause -> restart / menu in a live race (human slot)
 	begin("e2e: race pause / restart / quit")
 	Game.remove_meta("requested_scene")
@@ -1055,6 +1057,79 @@ func _e2e() -> void:
 	Game.remove_meta("requested_scene")
 	get_tree().paused = false
 	await _end_race(race)
+
+func _e2e_touch() -> void:
+	begin("e2e: touch controls (handler level)")
+	var tc := TouchControls.new()
+	add_child(tc)
+	tc.size = get_viewport().get_visible_rect().size
+	tc.setup(null)
+	await _frames(2)
+	var vs := get_viewport().get_visible_rect().size
+	# The headless display server never dispatches screen-touch events (neither Input.parse_input_event nor
+	# Viewport.push_input), so the events are fed to the control's own handler. OS delivery needs a real device.
+	var touch := func(idx: int, pos: Vector2, on: bool) -> void:
+		var e := InputEventScreenTouch.new(); e.index = idx; e.position = pos; e.pressed = on
+		tc._input(e)
+	var drag := func(idx: int, pos: Vector2) -> void:
+		var e := InputEventScreenDrag.new(); e.index = idx; e.position = pos
+		tc._input(e)
+	# thumb-stick on the left half: drag right = steer right, up = tuck
+	var o := Vector2(vs.x * 0.2, vs.y * 0.7)
+	touch.call(0, o, true)
+	drag.call(0, o + Vector2(100, 0))
+	await _frames(1)
+	check(float(TouchControls.state.steer) > 0.7, "stick dragged right steers right", str(TouchControls.state.steer))
+	drag.call(0, o + Vector2(0, -90))
+	await _frames(1)
+	check(bool(TouchControls.state.tuck) and absf(float(TouchControls.state.steer)) < 0.2, "stick pushed up = tuck")
+	# second finger on JUMP while steering (multi-touch)
+	var jb: Dictionary = tc._buttons.filter(func(b): return b.id == "jump")[0]
+	touch.call(1, jb.c, true)
+	await _frames(1)
+	check(bool(TouchControls.state.jump) and bool(TouchControls.state.tuck), "multi-touch: jump held while steering")
+	var cmd := InputCommand.new()
+	Inputs.read("touch", cmd)
+	check(cmd.jump_held and cmd.tuck, "InputRouter reads the 'touch' device")
+	touch.call(1, jb.c, false)
+	touch.call(0, o, false)
+	await _frames(1)
+	check(not bool(TouchControls.state.jump) and float(TouchControls.state.steer) == 0.0, "releasing fingers resets the controls")
+	# item button edge-triggers use_offense once
+	var ob: Dictionary = tc._buttons.filter(func(b): return b.id == "off")[0]
+	touch.call(2, ob.c, true)
+	Inputs.read("touch", cmd)
+	var first := cmd.use_offense
+	Inputs.read("touch", cmd)
+	check(first and not cmd.use_offense, "item button fires once per tap")
+	touch.call(2, ob.c, false)
+	var paused := [false]
+	tc.pause_pressed.connect(func(): paused[0] = true)
+	var pb: Dictionary = tc._buttons.filter(func(b): return b.id == "pause")[0]
+	touch.call(3, pb.c, true)
+	touch.call(3, pb.c, false)
+	check(paused[0], "on-screen pause button")
+	for b in tc._buttons:
+		check(Rect2(Vector2.ZERO, vs).has_point(b.c), "button %s inside the screen" % b.id)
+	tc.queue_free()
+	await _frames(1)
+	TouchControls.reset_state()
+	# forced touch mode: menus show an on-screen back button and default the player to the touch device
+	Save.settings().touch_controls = "on"
+	var menu := (load("res://scenes/menus/main_menu.tscn") as PackedScene).instantiate() as MainMenu
+	add_child(menu)
+	await _frames(3)
+	menu.go("main")
+	await _frames(2)
+	check(menu._back_btn != null, "touch: on-screen Back button in menus")
+	menu._back_btn.pressed.emit()
+	await _frames(2)
+	check(menu.screen == "title", "Back button goes back")
+	menu._begin(Game.Mode.QUICK_RACE)
+	check(String(menu.slots[0].device) == "touch", "player 1 defaults to the touch device")
+	menu.queue_free()
+	await _frames(2)
+	Save.settings().touch_controls = "auto"
 
 func _e2e_garage() -> void:
 	begin("e2e: garage purchase + equip")

@@ -30,6 +30,17 @@ var pick_index: int = 0                ## which human is choosing
 var picks: Array[Dictionary] = []      ## per human {rider, board}
 var quick := {"laps": 0, "difficulty": 1, "items": true}   ## laps 0 = the course's own number of descents
 var garage_filter: int = 0
+var _back_btn: Button
+
+func _safe_inset() -> Vector2:
+	## Top/side inset of the display safe area (notch / Dynamic Island) in viewport units.
+	var vs := get_viewport().get_visible_rect().size
+	var screen := DisplayServer.screen_get_size()
+	var sa := DisplayServer.get_display_safe_area()
+	if screen.x <= 0 or sa.size.x <= 0:
+		return Vector2.ZERO
+	var k := vs / Vector2(screen)
+	return Vector2(sa.position) * k
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -110,9 +121,23 @@ func _build() -> void:
 	for c in content.get_children():
 		c.queue_free()
 	footer.text = "↑↓←→ / D-pad: %s    Enter / A: %s    Esc / B: %s" % (["navegar", "confirmar", "voltar"] if Game.lang() != "en" else ["navigate", "confirm", "back"])
+	if TouchControls.enabled():
+		footer.text = t("touch_footer")
+	var ins := _safe_inset()
+	content.add_theme_constant_override("margin_left", int(56 + ins.x))
+	content.add_theme_constant_override("margin_top", int(56 + ins.y))
 	var focus: Control = call("_screen_" + screen)
 	if focus:
 		focus.grab_focus.call_deferred()
+	if _back_btn:
+		_back_btn.queue_free()
+		_back_btn = null
+	if TouchControls.enabled() and screen != "title":
+		# phones have no Esc / B: an on-screen back button inside the safe area
+		_back_btn = UiKit.button("◀ " + t("back"), back, 220, 72)
+		_back_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		_back_btn.position = Vector2(get_viewport().get_visible_rect().size.x - 260 - _safe_inset().x, 24 + _safe_inset().y)
+		root.add_child(_back_btn)
 
 func show_toast(msg: String, col: Color = UiKit.GOLD) -> void:
 	toast.text = msg
@@ -204,7 +229,7 @@ func _screen_title() -> Control:
 	var logo := UiKit.texture("res://assets/sprites/ui/logo.png", Vector2(760, 380))
 	logo.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	v.add_child(logo)
-	var press := UiKit.label(t("press_start"), 34, Color.WHITE, true)
+	var press := UiKit.label(t("tap_to_play") if TouchControls.enabled() else t("press_start"), 34, Color.WHITE, true)
 	v.add_child(press)
 	var tw := press.create_tween().set_loops()
 	tw.tween_property(press, "modulate:a", 0.25, 0.8)
@@ -247,7 +272,7 @@ func _screen_main() -> Control:
 func _begin(mode: int) -> void:
 	flow_mode = mode
 	slots.clear()
-	slots.append({"type": "human", "device": "kb"})
+	slots.append({"type": "human", "device": "touch" if TouchControls.enabled() else "kb"})
 	for i in 3:
 		slots.append({"type": "ai" if mode in [Game.Mode.GRAND_PRIX, Game.Mode.QUICK_RACE] else "empty", "device": ""})
 	if mode in [Game.Mode.GRAND_PRIX, Game.Mode.QUICK_RACE]:
@@ -259,7 +284,7 @@ func _begin_multiplayer() -> void:
 	## Local multiplayer: two humans pre-seated (pads first, otherwise the two keyboard halves), CPUs fill the rest.
 	flow_mode = Game.Mode.QUICK_RACE
 	var pads := Input.get_connected_joypads()
-	var d1 := "joy%d" % pads[0] if pads.size() >= 2 else "kb_left"
+	var d1 := "joy%d" % pads[0] if pads.size() >= 2 else ("touch" if TouchControls.enabled() else "kb_left")
 	var d2 := ("joy%d" % pads[1]) if pads.size() >= 2 else ("joy%d" % pads[0] if pads.size() == 1 else "kb_right")
 	slots = [{"type": "human", "device": d1}, {"type": "human", "device": d2}, {"type": "ai", "device": ""}, {"type": "ai", "device": ""}]
 	go("participants")
@@ -282,7 +307,7 @@ func _try_join(device: String) -> bool:
 
 # ---------------------------------------------------------------- participants (4 slots + device)
 func _device_options() -> PackedStringArray:
-	var out := PackedStringArray(["kb", "kb_left", "kb_right"])
+	var out := PackedStringArray(["touch", "kb", "kb_left", "kb_right"]) if TouchControls.enabled() else PackedStringArray(["kb", "kb_left", "kb_right"])
 	for j in Input.get_connected_joypads():
 		out.append("joy%d" % j)
 	for j in 4:
@@ -791,6 +816,13 @@ func _screen_options() -> Control:
 			if key == "vibration":
 				Inputs.vibration_enabled = bool(s.vibration))
 		left.add_child(c)
+	var tmodes := ["auto", "on", "off"]
+	var tc := Cycler.new().setup(t("touch_controls"), PackedStringArray([t("auto"), t("on"), t("off")]), maxi(0, tmodes.find(String(s.get("touch_controls", "auto")))), 680)
+	tc.changed.connect(func(k): s.touch_controls = tmodes[k]; Save.write(); _build())
+	left.add_child(tc)
+	var tl := Cycler.new().setup(t("tilt_steering"), PackedStringArray([t("off"), t("on")]), 1 if bool(s.get("tilt_steering", false)) else 0, 680)
+	tl.changed.connect(func(k): s.tilt_steering = k == 1; Save.write())
+	left.add_child(tl)
 	left.add_child(UiKit.button(t("controls"), func(): go("controls"), 680))
 	var desc := _desc_panel(cols[1])
 	desc.text = ("Qualidade afeta escala de renderização (0,75/0,9/1,0), sombras, SSAO e partículas.\nAssistência de IA: aproximação limitada a 5%% e respeita o teto físico." if Game.lang() != "en"
