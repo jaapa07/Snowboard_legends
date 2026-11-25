@@ -13,3 +13,4 @@ __pycache__/
 *.blend@
 source_art/cc0/*
 !source_art/cc0/sources.json
+source_art/anim_import/*.fbx

@@ -10,7 +10,7 @@
 	"failed": 0,
 	"failures": [],
 	"passed": 367,
-	"seconds": 62.9,
+	"seconds": 63.8,
 	"sections": {
 		"e2e: garage purchase + equip": {
 			"fail": 0,

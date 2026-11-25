@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import bpy
 from mathutils import Vector, Quaternion, Matrix
 from lib import *
+import mixamo_retarget as mixr
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 P = math.pi
@@ -562,23 +563,70 @@ def apply_pose(rig, pose):
         if bn == "hips_loc":
             rig.pose.bones["hips"].location = loc_local(rig, "hips", Vector(v))
             continue
+        if bn.endswith("_loc"):
+            ib = bn[:-4]
+            if ib in rig.pose.bones:
+                rig.pose.bones[ib].location = loc_local(rig, ib, Vector(v))
+            continue
         if bn not in rig.pose.bones:
+            continue
+        if isinstance(v, Quaternion):   # armature-space relative rotation (motion transfer)
+            bm = rig.data.bones[bn].matrix_local.to_3x3().to_quaternion()
+            rig.pose.bones[bn].rotation_quaternion = bm.inverted() @ v @ bm
             continue
         rig.pose.bones[bn].rotation_quaternion = pose_q(rig, bn, *v)
 
 
 def key_all(rig, frame):
     for pb in rig.pose.bones:
-        if pb.name.startswith("pole") or pb.name.startswith("ik") or pb.name == "root":
+        if pb.name.startswith("pole") or pb.name == "root":
+            continue
+        if pb.name.startswith("ik"):
+            pb.keyframe_insert("location", frame=frame)   # rest in authored clips; the push clip lifts the back foot
             continue
         pb.keyframe_insert("rotation_quaternion", frame=frame)
         if pb.name == "hips":
             pb.keyframe_insert("location", frame=frame)
 
 
+# ---------------- motion-captured clips (Mixamo, optional) -----------------
+# name -> (file in source_art/anim_import, reference frame, gain, lift back foot, loop blend frames)
+MOCAP = {
+    # Skateboarding.fbx (riding still) was tried for "glide": its body moves < 3 degrees, less than the
+    # authored glide cycle, so it is not used.
+    "push": ("Skateboarding_1.fbx", 0, 1.0, True, 8),      # pushing with the back foot (start, low speed)
+}
+MIX = {}
+
+
+def load_mocap():
+    for name, (fn, *_rest) in MOCAP.items():
+        path = mixr.available(ROOT, fn)
+        if path:
+            MIX[name] = mixr.sample(path, 24)   # build scenes run at the factory 24 fps
+            print(f"MOCAP {name} <- {fn} ({len(MIX[name])} frames)")
+
+
+def char_q(p=0, y=0, r=0):
+    return axis_q(R, -p) @ axis_q(U, y) @ axis_q(F, r)
+
+
+def mocap_clips(rig):
+    base = {b: char_q(*GLIDE.get(b, (0, 0, 0))) for b in mixr.ORDER}
+    leg_scale = rig.data.bones["hips"].head_local.z / 0.85
+    out = []
+    for name, frames in MIX.items():
+        _fn, ref, gain, foot, lb = MOCAP[name]
+        out.append((name, True, mixr.transfer(frames, base, GLIDE["hips_loc"], ref=ref, gain=gain,
+                                              leg_scale=leg_scale, move_back_foot=foot, loop_blend=lb)))
+    return out
+
+
 def make_actions(rig, victory_kind):
     rig.animation_data_create()
     clips = list(CLIPS)
+    if MIX:
+        clips = [c for c in clips if c[0] not in MIX] + mocap_clips(rig)
     v = VICTORY[victory_kind]
     mid = padd(v[1], {"hips_loc": (0, 0, 0.02)})          # small overshoot for snap
     clips.append(("victory", True, [(0, v[0]), (8, mid), (15, v[1]), (22, mid), (30, v[0])]))
@@ -620,5 +668,6 @@ def build(rid):
 
 if __name__ == "__main__":
     ids = sys.argv[1:] or list(RIDERS.keys())
+    load_mocap()
     for r in ids:
         build(r)
