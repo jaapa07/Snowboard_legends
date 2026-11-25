@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1795640205|7648659';
+const CACHE_VERSION = '1795640577|5593036';
 /** @type {string} */
 const CACHE_PREFIX = 'Snowboard Legend-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
