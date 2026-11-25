@@ -598,6 +598,33 @@ MOCAP = {
 }
 MIX = {}
 
+# rider -> Rokoko free mocap dance (HumanIK FBX) used as the "victory" clip (podium, finish, rider pick)
+DANCES = {
+    "niko": "AirGuitar_HUMANIK_769.fbx", "mika": "MacarenaDance_HUMANIK_769.fbx",
+    "taro": "Dancing_Marching_HUMANIK_769.fbx", "luna": "Dance02_FlappyDance_HUMANIK_769.fbx",
+    "boro": "InflatableTubeManDance_HUMANIK_769.fbx", "yuki": "Dancing02_HUMANIK_769.fbx",
+    "zed": "Dancing_HUMANIK_769.fbx", "kaito": "Dancing01_HUMANIK_769.fbx",
+    "pippa": "SillyDance_Short_HUMANIK_TF1.fbx",
+}
+DANCE_CLIPS = {}
+
+
+def load_dances(ids):
+    for rid in ids:
+        path = mixr.available(ROOT, DANCES.get(rid, ""))
+        if path and os.path.isfile(path):
+            clip = mixr.sample_abs(path, 24)
+            win = mixr.pick_window(clip)
+            DANCE_CLIPS[rid] = (clip, win)
+            print(f"DANCE {rid} <- {DANCES[rid]} frames {win[0]}-{win[1]} of {len(clip['frames'])}")
+
+
+def dance_clip(rig, rid):
+    clip, win = DANCE_CLIPS[rid]
+    our_dir = {b: (rig.data.bones[b].tail_local - rig.data.bones[b].head_local).normalized() for b in mixr.ORDER}
+    leg_scale = rig.data.bones["hips"].head_local.z / clip["rest_h"]
+    return mixr.transfer_abs(clip, win, our_dir, F, leg_scale)
+
 
 def load_mocap():
     for name, (fn, *_rest) in MOCAP.items():
@@ -622,14 +649,17 @@ def mocap_clips(rig):
     return out
 
 
-def make_actions(rig, victory_kind):
+def make_actions(rig, victory_kind, rid=""):
     rig.animation_data_create()
     clips = list(CLIPS)
     if MIX:
         clips = [c for c in clips if c[0] not in MIX] + mocap_clips(rig)
     v = VICTORY[victory_kind]
     mid = padd(v[1], {"hips_loc": (0, 0, 0.02)})          # small overshoot for snap
-    clips.append(("victory", True, [(0, v[0]), (8, mid), (15, v[1]), (22, mid), (30, v[0])]))
+    if rid in DANCE_CLIPS:
+        clips.append(("victory", True, dance_clip(rig, rid)))
+    else:
+        clips.append(("victory", True, [(0, v[0]), (8, mid), (15, v[1]), (22, mid), (30, v[0])]))
     actions = []
     for name, loop, keys in clips:
         act = bpy.data.actions.new(name)
@@ -657,7 +687,7 @@ def build(rid):
     rig = build_armature(rid, j)
     body.parent = rig
     m = body.modifiers.new("Armature", "ARMATURE"); m.object = rig
-    make_actions(rig, s["victory"])
+    make_actions(rig, s["victory"], rid)
     rig.name = rid
     tris = tri_count([body])
     save_blend(os.path.join(ROOT, "source_art", "blend", f"rider_{rid}.blend"))
@@ -669,5 +699,6 @@ def build(rid):
 if __name__ == "__main__":
     ids = sys.argv[1:] or list(RIDERS.keys())
     load_mocap()
+    load_dances(ids)
     for r in ids:
         build(r)

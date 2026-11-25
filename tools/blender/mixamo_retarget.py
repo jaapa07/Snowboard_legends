@@ -119,3 +119,108 @@ def blend(a: dict, b: dict, w: float) -> dict:
 def available(root: str, name: str) -> str:
     p = os.path.join(root, "source_art", "anim_import", name)
     return p if os.path.exists(p) else ""
+
+
+# ---------------------------------------------------------------- full-body clips (dances -> victory)
+# Rokoko "HumanIK" exports (Character1_*) and Mixamo (mixamorig:*) share the bone names after the prefix.
+# Dances are captured standing, facing the camera; here the absolute pose is transferred (not a delta on an
+# authored pose): every bone's world rotation since the capture's rest pose is applied to our bone after
+# aligning the rest directions, the facing is turned to the rider's chest direction, feet stay on the board.
+DBONES = {"hips": "Hips", "spine": "Spine2", "head": "Head",
+          "upperarm.L": "LeftArm", "forearm.L": "LeftForeArm", "hand.L": "LeftHand",
+          "upperarm.R": "RightArm", "forearm.R": "RightForeArm", "hand.R": "RightHand"}
+DCHILD = {"Hips": "Spine", "Spine2": "Neck", "Head": None, "LeftArm": "LeftForeArm", "LeftForeArm": "LeftHand",
+          "LeftHand": "LeftHandMiddle1", "RightArm": "RightForeArm", "RightForeArm": "RightHand",
+          "RightHand": "RightHandMiddle1"}
+
+
+def _prefix(arm) -> str:
+    return [b.name for b in arm.data.bones if b.name.endswith("Hips")][0][:-4]
+
+
+def sample_abs(path: str, fps: int = 24):
+    """Whole clip at `fps`: per frame world rotations (relative to the capture rest), hips height and
+    hips offset from the feet midpoint; plus the rest bone directions and facing."""
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.import_scene.fbx(filepath=path)
+    arm = [o for o in bpy.data.objects if o.type == "ARMATURE"][0]
+    pre = _prefix(arm)
+    act = arm.animation_data.action
+    f0, f1 = act.frame_range
+    src = bpy.context.scene.render.fps / bpy.context.scene.render.fps_base
+    mw = arm.matrix_world
+    rest_q, rest_dir = {}, {}
+    for ours, mix in DBONES.items():
+        b = arm.data.bones[pre + mix]
+        rest_q[ours] = (mw @ b.matrix_local).to_3x3().normalized().to_quaternion()
+        ch = DCHILD[mix]
+        tail = (mw @ arm.data.bones[pre + ch].head_local) if ch else (mw @ b.tail_local)
+        rest_dir[ours] = (tail - mw @ b.head_local).normalized()
+    rhip = mw @ arm.data.bones[pre + "RightUpLeg"].head_local - mw @ arm.data.bones[pre + "LeftUpLeg"].head_local
+    rhip.z = 0.0
+    facing = Vector((0, 0, 1)).cross(rhip.normalized())        # F = U x R
+    rest_h = (mw @ arm.data.bones[pre + "Hips"].head_local).z
+    n = int((f1 - f0) / src * fps)
+    sc = bpy.context.scene
+    frames = []
+    for i in range(n + 1):
+        f = f0 + i / fps * src
+        sc.frame_set(int(f), subframe=f - int(f))
+        rec = {}
+        for ours, mix in DBONES.items():
+            q = (mw @ arm.pose.bones[pre + mix].matrix).to_3x3().normalized().to_quaternion()
+            rec[ours] = q @ rest_q[ours].inverted()              # world delta since rest
+        hp = mw @ arm.pose.bones[pre + "Hips"].head
+        feet = (mw @ arm.pose.bones[pre + "LeftFoot"].head + mw @ arm.pose.bones[pre + "RightFoot"].head) / 2
+        rec["hips_off"] = Vector((hp.x - feet.x, hp.y - feet.y, hp.z - rest_h))
+        frames.append(rec)
+    return {"frames": frames, "rest_dir": rest_dir, "facing": facing, "rest_h": rest_h}
+
+
+def _ang(q: Quaternion) -> float:
+    return min(q.angle, 6.283185307 - q.angle)
+
+
+def pick_window(clip, length=(96, 144), step=6, max_hips=0.8):
+    """Most energetic stretch that loops well and keeps the hips roughly facing forward (feet are on a board)."""
+    fr = clip["frames"]
+    arms = ["upperarm.L", "forearm.L", "upperarm.R", "forearm.R", "spine", "head", "hips"]
+    speed = [0.0] + [sum(_ang(fr[i][b] @ fr[i - 1][b].inverted()) for b in arms) for i in range(1, len(fr))]
+    best, best_s = None, -1e9
+    for L in range(length[0], length[1] + 1, 12):
+        for s in range(0, max(1, len(fr) - L), step):
+            e = s + L
+            if any(_ang(fr[i]["hips"]) > max_hips for i in range(s, e, 3)):
+                continue
+            energy = sum(speed[s:e]) / L
+            seam = sum(_ang(fr[e][b] @ fr[s][b].inverted()) for b in arms)
+            score = energy - 0.08 * seam
+            if score > best_s:
+                best, best_s = (s, e), score
+    return best or (0, min(len(fr) - 1, length[0]))
+
+
+def transfer_abs(clip, window, our_dir: dict, chest_facing: Vector, leg_scale: float, loop_blend: int = 10,
+                 hips_clamp: float = 0.1, base_hips_loc=(0, 0, -0.04)):
+    s, e = window
+    fz = clip["facing"]
+    Y = fz.rotation_difference(chest_facing)                  # capture facing -> rider chest
+    A = {b: our_dir[b].rotation_difference(Y @ clip["rest_dir"][b]) for b in DBONES}
+    keys = []
+    for i in range(s, e + 1):
+        f = clip["frames"][i]
+        D, pose = {}, {}
+        for b in ORDER:
+            D[b] = (Y @ f[b] @ Y.inverted()) @ A[b]
+            p = PARENT[b]
+            pose[b] = (D[p].inverted() if p else Quaternion()) @ D[b]
+        o = Y @ f["hips_off"]
+        h = Vector((max(-hips_clamp, min(hips_clamp, o.x)), max(-hips_clamp, min(hips_clamp, o.y)), o.z)) * leg_scale
+        pose["hips_loc"] = (base_hips_loc[0] + h.x, base_hips_loc[1] + h.y, base_hips_loc[2] + max(-0.3, min(0.08, h.z)))
+        keys.append((i - s, pose))
+    if loop_blend:
+        n = len(keys)
+        for j in range(loop_blend):
+            idx = n - loop_blend + j
+            keys[idx] = (idx, blend(keys[idx][1], keys[0][1], (j + 1) / loop_blend))
+    return keys
