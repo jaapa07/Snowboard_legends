@@ -259,7 +259,7 @@ func _build_ui() -> void:
 			if String(summary.skill_kind) != "":
 				var th: Array = Game.SKILL_THRESHOLDS[summary.skill_kind]
 				var val := "%d" % int(summary.skill_value)
-				var lab: String = {"trick": t("score"), "landing": t("landing"), "coins": t("coins"), "slalom_missed": t("gates"), "targets": t("targets_hit")}[summary.skill_kind]
+				var lab: String = {"trick": t("score"), "landing": t("landing"), "coins": t("coins"), "slalom_missed": t("gates"), "targets": t("targets_hit"), "snowmen": t("snowmen_hit"), "flakes": t("golden_flakes")}[summary.skill_kind]
 				if summary.skill_kind == "targets":
 					val = "%d/%d" % [int(summary.rows[0].get("targets", 0)), int(summary.rows[0].get("targets_total", 0))]
 				if summary.skill_kind == "slalom_missed":
@@ -270,6 +270,8 @@ func _build_ui() -> void:
 				if summary.record:
 					v.add_child(UiKit.label(t("new_record"), 34, UiKit.GOLD, true))
 				_medal_row(v, int(summary.medal))
+	if int(summary.get("flakes", 0)) > 0:
+		v.add_child(UiKit.label("%s: %d  (+%d %s)" % [t("golden_flakes"), int(summary.flakes), int(summary.flakes) * Game.FLAKE_CREDITS, t("credits")], 24, UiKit.GOLD))
 	for u in summary.unlocks:
 		var ur := UiKit.hbox(10)
 		ur.add_child(UiKit.texture("res://assets/sprites/ui/unlock.png", Vector2(40, 40)))
@@ -306,4 +308,6 @@ func _unlock_name(u: String) -> String:
 			return Registry.rider(StringName(p[1])).display_name
 		"board":
 			return Registry.board(StringName(p[1])).display_name
+		"flake":
+			return "%s (%s)" % [t("golden_flakes"), Registry.track(StringName(p[1])).display_name if Registry.track(StringName(p[1])) else p[1]]
 	return u

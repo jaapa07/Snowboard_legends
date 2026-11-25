@@ -9,8 +9,8 @@
 	"engine": "4.4.1-stable (official)",
 	"failed": 0,
 	"failures": [],
-	"passed": 329,
-	"seconds": 54.6,
+	"passed": 363,
+	"seconds": 56.1,
 	"sections": {
 		"e2e: garage purchase + equip": {
 			"fail": 0,
@@ -28,6 +28,10 @@
 			"fail": 0,
 			"pass": 5
 		},
+		"e2e: touch controls (handler level)": {
+			"fail": 0,
+			"pass": 17
+		},
 		"integration: 5-run race, 4 riders, lift": {
 			"fail": 0,
 			"pass": 9
@@ -44,9 +48,17 @@
 			"fail": 0,
 			"pass": 3
 		},
+		"integration: power minigames": {
+			"fail": 0,
+			"pass": 8
+		},
 		"integration: skill games": {
 			"fail": 0,
 			"pass": 6
+		},
+		"integration: special pickups": {
+			"fail": 0,
+			"pass": 9
 		},
 		"integration: split routes / shortcuts": {
 			"fail": 0,

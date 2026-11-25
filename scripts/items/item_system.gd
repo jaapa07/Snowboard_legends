@@ -118,6 +118,8 @@ func use_item(r: RiderController, id: StringName) -> bool:
 			n.global_position = r.global_position + Vector3.UP * 0.2
 			n.scale = Vector3.ONE
 			projectiles.append({"kind": "wave", "node": n, "owner": r, "t": 0.0, "p": r.global_position})
+			if race.has_method("wave_hit"):
+				race.wave_hit(r.global_position, 12.0)
 			for o in race.riders:
 				if o != r and o.global_position.distance_to(r.global_position) < 12.0:
 					var away: Vector3 = (o.global_position - r.global_position)
@@ -268,6 +270,9 @@ func _physics_process(delta: float) -> void:
 				pj.p = nxt
 				(pj.node as Node3D).global_position = nxt
 				(pj.node as Node3D).rotate_y(delta * 14.0)
+				if race.has_method("hit_target") and race.hit_target(nxt + Vector3.UP * 0.8):
+					_burst(nxt)
+					done = true
 				for o in race.riders:
 					if o != pj.owner and o.global_position.distance_to(nxt) < 2.2:
 						if o.apply_hit("whirl"):

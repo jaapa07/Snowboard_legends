@@ -667,6 +667,7 @@ func _screen_challenges() -> Control:
 	var first: Control
 	for e in [["slalom", "slalom_desc", Game.Mode.SKILL_SLALOM, "slalom_missed"], ["landing", "landing_desc", Game.Mode.SKILL_LANDING, "landing"],
 			["coin_rush", "coins_desc", Game.Mode.SKILL_COINS, "coins"], ["targets", "targets_desc", Game.Mode.SKILL_TARGETS, "targets"],
+			["snowmen", "snowmen_desc", Game.Mode.SKILL_SNOWMEN, "snowmen"], ["flake_hunt", "flake_hunt_desc", Game.Mode.SKILL_FLAKES, "flakes"],
 			["trick_attack", "trick_desc", Game.Mode.TRICK_ATTACK, "trick"]]:
 		var m: int = e[2]
 		var b := UiKit.button(t(e[0]), func(): _begin(m), 480)
@@ -1025,6 +1026,7 @@ func _screen_profile() -> Control:
 		if i >= int(p.cups_unlocked):
 			row.add_child(UiKit.texture("res://assets/sprites/ui/lock.png", Vector2(30, 30)))
 		left.add_child(row)
+	left.add_child(UiKit.label("%s: %d/%d" % [t("album"), (p.get("flake_album", {}) as Dictionary).size(), (Registry.TRACK_IDS.size() + Registry.EXTRA_TRACK_IDS.size()) * 3], 24, UiKit.GOLD))
 	left.add_child(UiKit.label("%s: %d/%d   ·   %s: %d/%d" % [t("participants"), p.riders.size(), Registry.RIDER_IDS.size(), t("garage"), p.boards_owned.size(), Registry.BOARD_IDS.size()], 22))
 	var exp := UiKit.button(t("export_save"), func():
 		var path := OS.get_user_data_dir().path_join("save_export.json")

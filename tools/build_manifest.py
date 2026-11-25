@@ -81,6 +81,8 @@ def collect():
     for i in ITEMS:
         E.append(entry(f"item_icon:{i}", f"{A}sprites/items/{i}.png", "item_icon", "Cycles render of the item model (tools/blender/render_objects.py item)", "source_art/blend/items.blend", ["items"]))
     E.append(entry("ui:target", f"{A}sprites/items/target.png", "ui_sprite", "Cycles render of the target model (tools/blender/render_objects.py item)", "source_art/blend/items.blend", ["items"]))
+    for n in ["special_flake", "special_crystal", "special_box", "special_bigcoin", "snowman"]:
+        E.append(entry(f"ui:{n}", f"{A}sprites/items/{n}.png", "ui_sprite", "Cycles render of the model (tools/blender/render_objects.py item)", "source_art/blend/items.blend", ["items"]))
     E.append(entry("item_icon:coin", f"{A}sprites/items/coin.png", "item_icon", "Cycles render (tools/blender/render_objects.py item)", "source_art/blend/items.blend", ["items"]))
     E.append(entry("props", f"{A}models/props/props.glb", "prop_library", "scripted modelling in Blender (tools/blender/build_props.py)", "source_art/blend/props.blend"))
     for t in TRACKS:

@@ -444,31 +444,85 @@ VICTORY = {
     "jump": [pose_set(mk(hips=(0, 0, -0.2), spine=(20, -10, 0), head=(-10, -20, 0)), arms(-20, 30, 30)), pose_set(mk(hips=(0, 0, 0.08), spine=(-10, -10, 0), head=(-25, -20, 0)), arms(0, 150, 10))],
 }
 
+def padd(base, delta, w=1.0):
+    """base pose + w * delta (per-bone tuple addition); missing bones in base start at zero."""
+    out = dict(base)
+    for k, v in delta.items():
+        b = out.get(k, (0, 0, 0))
+        out[k] = tuple(b[i] + w * v[i] for i in range(3))
+    return out
+
+
+def cycle(base, layers, length, step=4):
+    """Seamless loop: base + sum(delta * sin(2*pi*(f*t) + phase)) for each (delta, freq, phase) layer.
+    Gives continuous secondary motion (weight shift, arm balance, breathing) instead of two static poses."""
+    keys = []
+    for fr in range(0, length + 1, step):
+        t = fr / length
+        pose = dict(base)
+        for delta, freq, phase in layers:
+            pose = padd(pose, delta, math.sin(2 * math.pi * (freq * t) + phase))
+        keys.append((fr, pose))
+    keys[-1] = (length, keys[0][1])   # exact loop closure
+    return keys
+
+
+H = lambda x=0, y=0, z=0: {"hips_loc": (x, y, z)}
+SP = lambda p=0, y=0, r=0: {"spine": (p, y, r)}
+HD = lambda p=0, y=0, r=0: {"head": (p, y, r)}
+HR = lambda p=0, y=0, r=0: {"hips": (p, y, r)}
+ARM_L = lambda p=0, ab=0, el=0: {"upperarm.L": (-p, 0, ab), "forearm.L": (-el, 0, 0)}
+ARM_R = lambda p=0, ab=0, el=0: {"upperarm.R": (-p, 0, -ab), "forearm.R": (-el, 0, 0)}
+
+
+def M(*ds):
+    return pose_set(*ds)
+
+
+SPIN_OPEN = pose_set(SPIN, arms(10, 70, 20))
+SPIN_WRAP = pose_set(SPIN, arms(45, 5, 115))
+FLIP_TIGHT = pose_set(FLIP, mk(hips=(0, 0, -0.31), spine=(64, -5, 0), head=(-40, -10, 0)), arms(70, 5, 75))
+
 CLIPS = [
-    # name, loop, [(frame, pose)]
-    ("idle", True, [(0, IDLE), (30, pose_set(IDLE, mk(hips=(0, 0, -0.07), spine=(10, -10, 0), head=(-2, -28, 3)))), (60, IDLE)]),
-    ("push", True, [(0, GLIDE), (10, pose_set(GLIDE, mk(hips=(0, 0, -0.15), spine=(25, -10, 0)))), (20, GLIDE)]),
-    ("glide", True, [(0, GLIDE), (20, pose_set(GLIDE, mk(hips=(0, 0, -0.1), spine=(16, -12, 2)))), (40, GLIDE)]),
-    ("tuck", True, [(0, TUCK), (15, pose_set(TUCK, mk(hips=(0, 0, -0.23), spine=(44, -15, 1), head=(-31, -25, 0)))), (30, TUCK)]),
-    ("carveLeft", True, [(0, CARVE_L), (20, pose_set(CARVE_L, mk(hips=(0, 0.05, -0.15), spine=(19, -5, -15)))), (40, CARVE_L)]),
-    ("carveRight", True, [(0, CARVE_R), (20, pose_set(CARVE_R, mk(hips=(0, -0.05, -0.15), spine=(19, -22, 15)))), (40, CARVE_R)]),
-    ("brake", True, [(0, BRAKE), (6, pose_set(BRAKE, mk(hips=(0, 0, -0.17), spine=(-7, -26, 1)))), (12, BRAKE)]),
-    ("jumpCharge", True, [(0, JCHARGE), (8, pose_set(JCHARGE, mk(hips=(0, 0, -0.28), spine=(36, -12, 0)))), (16, JCHARGE)]),
-    ("takeoff", False, [(0, JCHARGE), (5, TAKEOFF), (10, AIR)]),
-    ("airIdle", True, [(0, AIR), (20, pose_set(AIR, arms(15, 78, 20))), (40, AIR)]),
-    ("grab", True, [(0, GRAB), (10, pose_set(GRAB, mk(hips=(0, 0, -0.25), spine=(50, -22, 12), head=(-30, -32, 0)))), (20, GRAB)]),
-    ("spin", True, [(0, SPIN), (10, SPIN)]),
-    ("flip", True, [(0, FLIP), (10, FLIP)]),
-    ("grind", True, [(0, GRIND), (15, pose_set(GRIND, arms(0, 80, 15))), (30, GRIND)]),
-    ("landSoft", False, [(0, AIR), (4, LAND), (12, GLIDE)]),
-    ("landHard", False, [(0, AIR), (3, pose_set(LAND, mk(hips=(0, 0, -0.33), spine=(45, -12, 0)))), (16, LAND), (24, GLIDE)]),
-    ("hit", False, [(0, GLIDE), (4, HIT), (16, pose_set(HIT, mk(spine=(-20, -10, -10)))), (24, GLIDE)]),
-    ("fall", False, [(0, HIT), (8, FALL), (30, FALL)]),
-    ("recover", False, [(0, FALL), (10, DIZZY), (20, GLIDE)]),
-    ("liftEnter", False, [(0, GLIDE), (15, LIFT)]),
-    ("liftIdle", True, [(0, LIFT), (30, pose_set(LIFT, mk(head=(-5, -15, 5)))), (60, LIFT)]),
-    ("liftExit", False, [(0, LIFT), (15, GLIDE)]),
-    ("defeat", True, [(0, DEFEAT), (30, pose_set(DEFEAT, mk(head=(35, -15, 5)))), (60, DEFEAT)]),
+    # name, loop, [(frame, pose)]  — all loops are seamless; rates are scaled at runtime by speed
+    ("idle", True, cycle(IDLE, [(M(SP(3, 0, 0), H(0, 0, -0.012)), 2, 0.0),            # breathing
+                                (M(HD(0, 22, 4)), 1, 0.0),                              # look around
+                                (M(H(0, 0.02, 0), HR(0, 0, 3)), 1, 1.2),                 # weight shift
+                                (M(ARM_L(4, 5, 6), ARM_R(-4, 5, 6)), 1, 0.6)], 72, 6)),
+    ("push", True, cycle(GLIDE, [(M(H(0, 0, -0.06), SP(10, 0, 0), HD(-4, 0, 0)), 1, 0.0),   # pumping
+                                 (M(ARM_L(22, 0, 10), ARM_R(-22, 0, -10)), 1, 0.0)], 24, 3)),
+    ("glide", True, cycle(GLIDE, [(M(H(0, 0.03, -0.015), SP(0, 0, 4), HR(0, 0, 3)), 1, 0.0),   # weight shift
+                                  (M(ARM_L(0, 10, 8), ARM_R(0, -8, -6)), 1, 0.4),             # balancing arms
+                                  (M(HD(3, 6, -3), SP(3, 0, 0)), 2, 0.9),                      # bob
+                                  (M(H(0, 0, -0.02)), 3, 0.3)], 48, 4)),
+    ("tuck", True, cycle(TUCK, [(M(H(0, 0, -0.015), SP(2, 0, 0)), 2, 0.0), (M(HD(-3, 4, 0)), 1, 0.5)], 24, 3)),
+    ("carveLeft", True, cycle(pose_set(CARVE_L, mk(hips=(0, 0.06, -0.18), spine=(21, -5, -17), head=(-10, -14, 10), hipsrot=(0, 0, -15)), arms(0, 62, 18, abR=14)),
+                              [(M(H(0, 0.015, -0.03), SP(2, 0, -3)), 1, 0.0), (M(ARM_L(8, 8, 0), ARM_R(-6, 0, 10)), 1, 0.7)], 40, 4)),
+    ("carveRight", True, cycle(pose_set(CARVE_R, mk(hips=(0, -0.06, -0.18), spine=(21, -22, 17), head=(-10, -42, -10), hipsrot=(0, 0, 15)), arms(0, 14, 18, abR=62)),
+                               [(M(H(0, -0.015, -0.03), SP(2, 0, 3)), 1, 0.0), (M(ARM_R(8, 8, 0), ARM_L(-6, 0, 10)), 1, 0.7)], 40, 4)),
+    ("brake", True, cycle(BRAKE, [(M(H(0, 0, -0.01), SP(2, 0, 1)), 4, 0.0), (M(ARM_L(0, 6, 0), ARM_R(0, 6, 0)), 2, 1.0)], 12, 1)),
+    ("jumpCharge", True, cycle(JCHARGE, [(M(H(0, 0, -0.025), SP(3, 0, 0)), 2, 0.0), (M(ARM_L(-6, 0, 6), ARM_R(-6, 0, 6)), 2, 0.0)], 16, 2)),
+    ("takeoff", False, [(0, JCHARGE), (3, pose_set(TAKEOFF, mk(hips=(0, 0, 0.06), spine=(-10, -10, 0), head=(-10, -20, 0)), arms(55, 80, 5))), (7, TAKEOFF), (12, AIR)]),
+    ("airIdle", True, cycle(pose_set(AIR, mk(hips=(0, 0, -0.12), spine=(14, -10, 0), head=(-10, -22, 0))),
+                            [(M(ARM_L(10, 12, 10), ARM_R(-10, 12, -10)), 1, 0.0), (M(H(0, 0, -0.02), SP(2, 0, 2)), 2, 0.4)], 40, 4)),
+    ("grab", True, [(0, GRAB), (5, pose_set(GRAB, mk(hips=(0, 0, -0.27), spine=(54, -24, 14), head=(-32, -34, 0)))),
+                    (12, pose_set(GRAB, mk(hips=(0, 0, -0.26), spine=(52, -14, 4), head=(-30, -22, 6)), arms(55, 20, 30, pR=10, abR=80, elR=5))),
+                    (18, pose_set(GRAB, mk(hips=(0, 0, -0.27), spine=(54, -26, 16), head=(-32, -36, -4)))), (24, GRAB)]),
+    ("spin", True, [(0, SPIN_OPEN), (4, SPIN_WRAP), (10, pose_set(SPIN_WRAP, mk(hips=(0, 0, -0.16), spine=(24, -8, 6)))), (16, SPIN_WRAP), (20, SPIN_OPEN)]),
+    ("flip", True, [(0, FLIP), (5, FLIP_TIGHT), (15, FLIP_TIGHT), (20, FLIP)]),
+    ("grind", True, cycle(GRIND, [(M(SP(0, 0, 7), HR(0, 0, 4), H(0, 0.02, 0)), 1, 0.0), (M(ARM_L(0, 12, 6), ARM_R(0, -10, -6)), 1, 1.2), (M(HD(0, 8, 4)), 2, 0.5)], 30, 3)),
+    ("landSoft", False, [(0, AIR), (3, LAND), (6, pose_set(LAND, mk(hips=(0, 0, -0.28), spine=(34, -12, 0)))), (11, pose_set(GLIDE, mk(hips=(0, 0, -0.04), spine=(8, -14, 0)))), (16, GLIDE)]),
+    ("landHard", False, [(0, AIR), (3, pose_set(LAND, mk(hips=(0, 0, -0.35), spine=(50, -12, 0), head=(-25, -22, 0)), arms(30, 70, 20))),
+                         (9, pose_set(LAND, mk(hips=(0, 0, -0.3), spine=(40, -4, 8)), arms(10, 85, 10, abR=40))),
+                         (15, pose_set(LAND, mk(spine=(36, -18, -8)), arms(10, 40, 30, abR=80))), (26, GLIDE)]),
+    ("hit", False, [(0, GLIDE), (3, HIT), (7, pose_set(HIT, mk(spine=(-36, -10, 22), head=(28, -10, 20)))), (13, pose_set(HIT, mk(spine=(-12, -10, -8), head=(5, -10, -5)))), (24, GLIDE)]),
+    ("fall", False, [(0, HIT), (6, FALL), (12, pose_set(FALL, mk(spine=(-50, 10, -25), head=(30, 25, -20)), arms(-100, 130, 5, pR=-50, abR=80))),
+                     (20, pose_set(FALL, mk(spine=(-35, -10, 35)))), (30, FALL), (40, pose_set(FALL, mk(head=(25, 5, 15))))]),
+    ("recover", False, [(0, FALL), (8, DIZZY), (12, pose_set(DIZZY, mk(head=(10, -15, 15)))), (16, pose_set(DIZZY, mk(head=(10, 20, -15)))), (24, GLIDE)]),
+    ("liftEnter", False, [(0, GLIDE), (8, pose_set(LIFT, mk(hips=(0, 0, -0.08)))), (15, LIFT)]),
+    ("liftIdle", True, cycle(LIFT, [(M(HD(0, 25, 3)), 1, 0.0), (M(SP(2, 0, 0)), 2, 0.0), (M(ARM_L(0, 0, 8), ARM_R(0, 0, -8)), 1, 1.0)], 72, 6)),
+    ("liftExit", False, [(0, LIFT), (8, pose_set(GLIDE, mk(hips=(0, 0, -0.14)))), (15, GLIDE)]),
+    ("defeat", True, cycle(DEFEAT, [(M(HD(4, 20, 3)), 1, 0.0), (M(SP(3, 0, 0), H(0, 0, -0.01)), 2, 0.0)], 60, 5)),
 ]
 
 
@@ -499,7 +553,8 @@ def make_actions(rig, victory_kind):
     rig.animation_data_create()
     clips = list(CLIPS)
     v = VICTORY[victory_kind]
-    clips.append(("victory", True, [(0, v[0]), (15, v[1]), (30, v[0])]))
+    mid = padd(v[1], {"hips_loc": (0, 0, 0.02)})          # small overshoot for snap
+    clips.append(("victory", True, [(0, v[0]), (8, mid), (15, v[1]), (22, mid), (30, v[0])]))
     actions = []
     for name, loop, keys in clips:
         act = bpy.data.actions.new(name)

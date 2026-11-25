@@ -608,6 +608,9 @@ func _i_items_and_stations() -> void:
 	var tr := rm.track
 	var a: RiderController = rm.riders[0]
 	var b: RiderController = rm.riders[1]
+	# isolate item effects from the course specials (a turbo crystal can carry the leader out of comet range)
+	if rm.specials:
+		rm.specials.pickups.clear()
 	# keep AIs from interfering: freeze everyone, we drive the effects directly
 	for r in rm.riders:
 		r.provider = Scripted.new()
@@ -840,6 +843,90 @@ func _i_modes() -> void:
 	Game.results_processed = false
 	var tsum := Game.process_results()
 	check(String(tsum.skill_kind) == "targets" and int(tsum.medal) == Game.skill_medal("targets", float(trow.targets)), "graded with target thresholds", "%d -> %d" % [trow.targets, tsum.medal])
+	await _end_race(race)
+
+	begin("integration: special pickups")
+	Game.laps = 0
+	race = _new_race(&"vale_pinheiros", 1, Game.Mode.QUICK_RACE, 31)
+	rm = _rm(race)
+	await _wait_racing(rm)
+	var sp: SpecialPickups = rm.specials
+	check(sp != null and sp.pickups.filter(func(x): return x.kind == "flake").size() == 3, "3 golden flakes per course")
+	check(sp.pickups.filter(func(x): return x.kind == "crystal").size() >= 3 and sp.pickups.any(func(x): return x.kind == "box") and sp.pickups.any(func(x): return x.kind == "bigcoin"), "crystals, mystery boxes and giant coins placed")
+	var rr: RiderController = rm.riders[0]
+	for r in rm.riders:
+		r.provider = Scripted.new()
+		(r.provider as Scripted).follow = false
+	var pick := func(kind: String) -> Dictionary:
+		return sp.pickups.filter(func(x): return x.kind == kind and not x.taken and float(x.cooldown) <= 0.0)[0]
+	var c0 := rr.race_coins
+	var bc: Dictionary = pick.call("bigcoin")
+	rr.global_position = bc.p - Vector3.UP * 0.6
+	await _frames(2)
+	check(rr.race_coins == mini(200, c0 + 25), "giant coin +25", "%d -> %d" % [c0, rr.race_coins])
+	check(float(bc.cooldown) > 0.0, "giant coin respawns later")
+	rr.offense_item = &""; rr.utility_item = &""
+	var bx: Dictionary = pick.call("box")
+	rr.global_position = bx.p - Vector3.UP * 0.6
+	await _frames(2)
+	check(rr.offense_item != &"" and rr.utility_item != &"", "mystery box fills both empty slots for free", "%s %s" % [rr.offense_item, rr.utility_item])
+	rr.boost_t = 0.0
+	var cy: Dictionary = pick.call("crystal")
+	rr.global_position = cy.p - Vector3.UP * 0.6
+	await _frames(2)
+	check(rr.boost_t > 1.0, "turbo crystal boosts")
+	var fl: Dictionary = pick.call("flake")
+	rr.global_position = fl.p - Vector3.UP * 0.6
+	await _frames(2)
+	check(fl.taken and sp.flakes_of(rr).size() == 1, "golden flake collected once")
+	var other: RiderController = rm.riders[1]
+	other.global_position = fl.p - Vector3.UP * 0.6
+	await _frames(2)
+	check(sp.flakes_of(other).is_empty(), "a taken flake cannot be collected again")
+	_fresh_save()
+	Game.mode = Game.Mode.QUICK_RACE
+	Game.last_results = rm.build_results()
+	Game.results_processed = false
+	var fs := Game.process_results()
+	check(int(fs.flakes) == 1 and (Save.profile().flake_album as Dictionary).size() == 1 and fs.unlocks.any(func(u): return String(u).begins_with("flake:")), "flake: credits + album entry", str(fs.unlocks))
+	_fresh_save()
+	await _end_race(race)
+
+	begin("integration: power minigames")
+	race = _new_race(&"vale_pinheiros", 1, Game.Mode.SKILL_SNOWMEN, 14, [{"type": "human", "device": "kb", "rider": "boro", "board": "grip"}])
+	rm = _rm(race)
+	done = [{}]
+	rm.race_done.connect(func(s): done[0] = s)
+	var used := {}
+	while done[0].is_empty():
+		await get_tree().physics_frame
+		if rm.riders[0].offense_item != &"":
+			used[rm.riders[0].offense_item] = true
+	var srow: Dictionary = done[0].results[0]
+	check(rm.targets.size() >= 12, "snowmen placed along the course", str(rm.targets.size()))
+	check(int(srow.snowmen) > 0, "powers knock snowmen down", "%d/%d" % [srow.snowmen, rm.targets.size()])
+	check(used.size() >= 3, "power cycle hands out snowball, whirlwind and wave", str(used.keys()))
+	Game.last_results = done[0].results
+	Game.results_processed = false
+	check(String(Game.process_results().skill_kind) == "snowmen", "graded as snowman smash")
+	await _end_race(race)
+	race = _new_race(&"vale_pinheiros", 1, Game.Mode.SKILL_FLAKES, 15, [{"type": "human", "device": "kb", "rider": "luna", "board": "float"}])
+	rm = _rm(race)
+	done = [{}]
+	rm.race_done.connect(func(s): done[0] = s)
+	var uused := {}
+	while done[0].is_empty():
+		await get_tree().physics_frame
+		if rm.riders[0].utility_item != &"":
+			uused[rm.riders[0].utility_item] = true
+	var frow: Dictionary = done[0].results[0]
+	check(rm.specials.pickups.filter(func(x): return x.kind == "flake").size() == 20, "20 flakes laid out for the hunt")
+	check(int(frow.flakes) > 0, "flakes collected with the help of powers", str(frow.flakes))
+	check(uused.size() >= 2, "utility powers cycle (spring, magnet, gust)", str(uused.keys()))
+	Game.last_results = done[0].results
+	Game.results_processed = false
+	check(String(Game.process_results().skill_kind) == "flakes", "graded as flake hunt")
+	_fresh_save()
 	await _end_race(race)
 
 	begin("integration: skill games")

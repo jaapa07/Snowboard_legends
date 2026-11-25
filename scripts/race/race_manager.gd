@@ -46,6 +46,11 @@ var gates_missed: int = 0
 var landings_clean: int = 0
 var targets: Array[Dictionary] = []   ## SKILL_TARGETS: {s, lat, p (board centre), node, hit}
 var targets_hit: int = 0
+var specials: SpecialPickups
+var snowmen_hit: int = 0
+var _power_cycle: int = 0
+const SNOWMAN_POWERS := [&"snowball", &"whirl", &"wave", &"snowball"]
+const FLAKE_POWERS := [&"spring", &"magnet", &"gust"]
 var _refill_t: float = 0.0
 var paused: bool = false
 var pause_menu: Control
@@ -61,7 +66,7 @@ func _ready() -> void:
 	mode = Game.mode
 	rng.seed = Game.seed_value
 	laps = Game.laps
-	if mode in [Game.Mode.TIME_TRIAL, Game.Mode.SKILL_SLALOM, Game.Mode.SKILL_COINS, Game.Mode.SKILL_TARGETS]:
+	if mode in [Game.Mode.TIME_TRIAL, Game.Mode.SKILL_SLALOM, Game.Mode.SKILL_COINS, Game.Mode.SKILL_TARGETS, Game.Mode.SKILL_SNOWMEN, Game.Mode.SKILL_FLAKES]:
 		laps = 1
 	if mode == Game.Mode.TRICK_ATTACK or mode == Game.Mode.SKILL_LANDING:
 		laps = 99
@@ -84,6 +89,12 @@ func _load() -> void:
 		_build_slalom()
 	if mode == Game.Mode.SKILL_TARGETS:
 		_build_targets()
+	if mode == Game.Mode.SKILL_SNOWMEN:
+		_build_targets("snowman")
+	if mode in [Game.Mode.GRAND_PRIX, Game.Mode.QUICK_RACE, Game.Mode.TIME_TRIAL, Game.Mode.SKILL_FLAKES]:
+		specials = SpecialPickups.new()
+		world.add_child(specials)
+		specials.setup(self, track, mode == Game.Mode.SKILL_FLAKES)
 	if mode == Game.Mode.TIME_TRIAL:
 		_load_ghost()
 	if Game.headless_autoplay or DisplayServer.get_name() == "headless":
@@ -96,7 +107,7 @@ func _load() -> void:
 
 func _spawn() -> void:
 	var ps: Array = Game.participants
-	if mode in [Game.Mode.TIME_TRIAL, Game.Mode.TRICK_ATTACK, Game.Mode.SKILL_SLALOM, Game.Mode.SKILL_LANDING, Game.Mode.SKILL_COINS, Game.Mode.SKILL_TARGETS]:
+	if mode in [Game.Mode.TIME_TRIAL, Game.Mode.TRICK_ATTACK, Game.Mode.SKILL_SLALOM, Game.Mode.SKILL_LANDING, Game.Mode.SKILL_COINS, Game.Mode.SKILL_TARGETS, Game.Mode.SKILL_SNOWMEN, Game.Mode.SKILL_FLAKES]:
 		ps = [Game.participants[0]]
 	for i in ps.size():
 		var p: Dictionary = ps[i]
@@ -233,6 +244,10 @@ func _race_tick(delta: float) -> void:
 		_slalom_tick()
 	if mode == Game.Mode.SKILL_TARGETS:
 		_targets_tick(delta)
+	if mode == Game.Mode.SKILL_SNOWMEN:
+		_power_refill(delta, "offense", SNOWMAN_POWERS)
+	if mode == Game.Mode.SKILL_FLAKES:
+		_power_refill(delta, "utility", FLAKE_POWERS)
 	# end conditions
 	var all_done := true
 	var humans_done := true
@@ -493,7 +508,8 @@ func build_results() -> Array:
 	for r in riders:
 		out.append({"index": r.index, "rider": String(r.def.id), "board": String(r.board.id), "human": r.is_human, "place": r.place,
 			"time": r.finish_time, "tricks": r.trick_points_total, "coins": r.race_coins, "laps_done": r.lap,
-			"gates": gates_passed, "missed": gates_missed, "landings": landings_clean, "targets": targets_hit, "targets_total": targets.size()})
+			"gates": gates_passed, "missed": gates_missed, "landings": landings_clean, "targets": targets_hit, "targets_total": targets.size(), "snowmen": snowmen_hit,
+			"flakes": specials.flakes_of(r).size() if specials else 0, "flake_ids": specials.flakes_of(r) if specials else []})
 	out.sort_custom(func(a, b): return a.place < b.place)
 	return out
 
@@ -577,8 +593,49 @@ func slalom_time() -> float:
 	return (r.finish_time if r.finish_time > 0 else race_time) + gates_missed * 2.0
 
 # ---------------------------------------------------------------- skill: target shooting
-func _build_targets() -> void:
-	## Ringed target boards (authored model from items.glb) every ~70 m, alternating sides, facing the riders.
+func _power_refill(delta: float, slot: String, cycle_: Array) -> void:
+	## Power minigames: the slot refills with the next power of the cycle shortly after each use.
+	var r := riders[0]
+	var cur: StringName = r.offense_item if slot == "offense" else r.utility_item
+	if cur != &"":
+		return
+	_refill_t += delta
+	if _refill_t > (0.9 if slot == "offense" else 2.2):
+		_refill_t = 0.0
+		var it: StringName = cycle_[_power_cycle % cycle_.size()]
+		_power_cycle += 1
+		if slot == "offense":
+			r.offense_item = it
+		else:
+			r.utility_item = it
+		r.items_changed.emit(r)
+
+func wave_hit(center: Vector3, radius: float) -> int:
+	## Snow wave in the snowman minigame knocks down every snowman around the rider.
+	var n := 0
+	for t in targets:
+		if not t.hit and (t.p as Vector3).distance_to(center + Vector3.UP * 1.0) < radius:
+			_knock(t)
+			n += 1
+	return n
+
+func _knock(t: Dictionary) -> void:
+	t.hit = true
+	if String(t.get("kind", "target")) == "snowman":
+		snowmen_hit += 1
+		Audio.play("ice_burst", -2.0)
+		if t.node:
+			var tw := (t.node as Node3D).create_tween()
+			tw.tween_property(t.node, "scale", Vector3(1.4, 0.05, 1.4), 0.25)   # flattened into a snow pile
+	else:
+		targets_hit += 1
+		Audio.play("gate")
+		if t.node:
+			var tw2 := (t.node as Node3D).create_tween()
+			tw2.tween_property(t.node, "rotation:x", -PI / 2.0, 0.35)   # knocked flat
+
+func _build_targets(kind: String = "target") -> void:
+	## Ringed target boards / snowmen (authored models from items.glb) every ~70 m, alternating sides, facing the riders.
 	var rr := RandomNumberGenerator.new()
 	rr.seed = Game.seed_value
 	var s := 90.0
@@ -586,17 +643,17 @@ func _build_targets() -> void:
 	while s < track.finish_s - 40.0:
 		var lat := side * track.half_width(s) * rr.randf_range(0.25, 0.55)
 		var base := track.point_at(s, lat, 0.0)
-		var d := {"s": s, "lat": lat, "p": base + Vector3.UP * 1.2, "hit": false, "node": null}
-		var n := Registry.prop_mesh(TrackRuntime.ITEMS_GLB, "target_board")
+		var d := {"s": s, "lat": lat, "p": base + Vector3.UP * 1.2, "hit": false, "node": null, "kind": kind}
+		var n := Registry.prop_mesh(TrackRuntime.ITEMS_GLB, "target_board" if kind == "target" else "snowman") if DisplayServer.get_name() != "headless" else null
 		if n:
 			world.add_child(n)
 			n.global_position = base
 			var f := track.fwd[track.idx_at(s)]
 			n.rotation.y = atan2(-f.x, -f.z)   # board face (+Z) looks back up the course
-			n.scale = Vector3.ONE * 0.55
+			n.scale = Vector3.ONE * (0.55 if kind == "target" else 0.8)
 			d.node = n
 		targets.append(d)
-		s += rr.randf_range(60.0, 80.0)
+		s += rr.randf_range(60.0, 80.0) if kind == "target" else rr.randf_range(42.0, 58.0)
 		side = -side
 
 func _targets_tick(delta: float) -> void:
@@ -615,13 +672,9 @@ func hit_target(p: Vector3) -> bool:
 		if t.hit:
 			continue
 		var c: Vector3 = t.p
-		if Vector2(p.x - c.x, p.z - c.z).length() < 1.1 and absf(p.y - c.y) < 1.1:
-			t.hit = true
-			targets_hit += 1
-			Audio.play("gate")
-			if t.node:
-				var tw := (t.node as Node3D).create_tween()
-				tw.tween_property(t.node, "rotation:x", -PI / 2.0, 0.35)   # knocked flat
+		var rad := 1.1 if String(t.get("kind", "target")) == "target" else 1.6
+		if Vector2(p.x - c.x, p.z - c.z).length() < rad and absf(p.y - c.y) < 1.4:
+			_knock(t)
 			return true
 	return false
 

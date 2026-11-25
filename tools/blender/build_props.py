@@ -286,6 +286,56 @@ def build_items():
            cyl("tg_r2", 0.37, 0.12, (0, 0, 2.2), rot=(P / 2, 0, 0), material=C("#f4f4f4", 0.6), verts=20),
            cyl("tg_r3", 0.18, 0.14, (0, 0, 2.2), rot=(P / 2, 0, 0), material=C("#e02a2a", 0.4, 0, "#ff4040", 0.6), verts=16)]
     objs.append(join(tgt, "target_board"))
+    # ---- special pickups (collected on the course) ----
+    # golden snowflake: six faceted arms with side branches, gold emissive, on a soft halo ring
+    gf = [cyl("gf_core", 0.16, 0.12, rot=(P / 2, 0, 0), material=C("#ffd84a", 0.2, 0.9, "#ffb000", 1.6), verts=6)]
+    for k in range(6):
+        a_ = k * P / 3
+        gf.append(box(f"gf_arm{k}", (0.09, 0.07, 0.62), (math.cos(a_) * 0.33, 0, math.sin(a_) * 0.33), rot=(0, -a_ + P / 2, 0), material=C("#ffe680", 0.2, 0.9, "#ffc020", 1.4)))
+        for sgn in (-1, 1):
+            b_ = a_ + sgn * 0.6
+            gf.append(box(f"gf_br{k}{sgn}", (0.06, 0.06, 0.2), (math.cos(a_) * 0.42 + math.cos(b_) * 0.08, 0, math.sin(a_) * 0.42 + math.sin(b_) * 0.08), rot=(0, -b_ + P / 2, 0), material=C("#fff2b0", 0.2, 0.9, "#ffd040", 1.2)))
+    gf.append(torus("gf_halo", 0.62, 0.025, rot=(P / 2, 0, 0), material=C("#fff6d0", 0.3, 0, "#fff0a0", 2.0), seg=28, cseg=4))
+    objs.append(join(gf, "special_flake"))
+    # turbo crystal: elongated octahedron with an inner glow core
+    cr = [mesh_from("cr_shell", [(0, 0, 0.75), (0.38, 0, 0), (0, 0.38, 0), (-0.38, 0, 0), (0, -0.38, 0), (0, 0, -0.75)],
+                    [(0, 1, 2), (0, 2, 3), (0, 3, 4), (0, 4, 1), (5, 2, 1), (5, 3, 2), (5, 4, 3), (5, 1, 4)], material=C("#7ff6ff", 0.05, 0.1, "#30d8ff", 1.8)),
+          sphere("cr_core", 0.16, material=C("#ffffff", 0.2, 0, "#c0faff", 3.0), seg=10, rings=6),
+          torus("cr_ring", 0.55, 0.03, rot=(0.4, 0, 0), material=C("#a0f0ff", 0.3, 0, "#60e0ff", 1.5), seg=24, cseg=4)]
+    objs.append(join(cr, "special_crystal"))
+    # mystery box: purple bevelled crate, gold ribbon and an embossed question-mark plate on each face
+    mb = [box("mb_box", (1.0, 1.0, 1.0), (0, 0, 0.5), material=C("#8a3ae0", 0.4, 0.1, "#6a20c0", 0.35), bevel=0.08, segs=3),
+          box("mb_rib1", (1.04, 0.18, 1.04), (0, 0, 0.5), material=C("#ffcc30", 0.3, 0.8)),
+          box("mb_rib2", (0.18, 1.04, 1.04), (0, 0, 0.5), material=C("#ffcc30", 0.3, 0.8)),
+          torus("mb_bow1", 0.16, 0.05, (-0.12, 0, 1.08), rot=(0, P / 2, 0.5), material=C("#ffcc30", 0.3, 0.8), seg=14, cseg=5),
+          torus("mb_bow2", 0.16, 0.05, (0.12, 0, 1.08), rot=(0, P / 2, -0.5), material=C("#ffcc30", 0.3, 0.8), seg=14, cseg=5)]
+    for k, (x, y, rz) in enumerate([(0, -0.53, 0), (0.53, 0, P / 2), (0, 0.53, P), (-0.53, 0, -P / 2)]):
+        mb.append(torus(f"mb_q{k}", 0.13, 0.04, (x * 1.0, y * 1.0, 0.62), rot=(P / 2, 0, rz), material=C("#ffffff", 0.3, 0, "#ffffff", 1.2), seg=12, cseg=4))
+        mb.append(sphere(f"mb_qd{k}", 0.045, (x * 1.0, y * 1.0, 0.33), material=C("#ffffff", 0.3, 0, "#ffffff", 1.2), seg=8, rings=5))
+    objs.append(join(mb, "special_box"))
+    # giant coin: large rimmed coin with a raised snowflake-star emblem
+    gc = [cyl("gc_body", 0.75, 0.16, rot=(P / 2, 0, 0), material=C("#ffbf1a", 0.25, 1.0, "#ff9a00", 0.5), verts=28),
+          torus("gc_rim", 0.72, 0.06, rot=(P / 2, 0, 0), material=C("#ffe070", 0.2, 1.0), seg=28, cseg=6),
+          cyl("gc_star", 0.42, 0.2, rot=(P / 2, 0, 0), material=C("#fff0a0", 0.2, 1.0, "#ffe060", 0.6), verts=5)]
+    objs.append(join(gc, "special_bigcoin"))
+    # snowman target for the power minigame: three stacked snowballs, coal eyes/buttons, carrot nose, scarf, hat, twig arms
+    sm = [sphere("sm_b0", 0.62, (0, 0, 0.55), scale=(1, 1, 0.92), material=C("#f4f8ff", 0.7), seg=16, rings=10),
+          sphere("sm_b1", 0.46, (0, 0, 1.38), material=C("#f4f8ff", 0.7), seg=16, rings=10),
+          sphere("sm_b2", 0.33, (0, 0, 2.0), material=C("#f4f8ff", 0.7), seg=14, rings=9),
+          cyl("sm_nose", 0.07, 0.36, (0, -0.42, 2.0), rot=(P / 2, 0, 0), material=C("#ff7a1a", 0.5), verts=8, r2=0.0),
+          sphere("sm_e1", 0.045, (-0.12, -0.29, 2.1), material=C("#1a1a22", 0.4), seg=8, rings=5),
+          sphere("sm_e2", 0.045, (0.12, -0.29, 2.1), material=C("#1a1a22", 0.4), seg=8, rings=5),
+          torus("sm_scarf", 0.33, 0.07, (0, 0, 1.72), material=C("#e0303a", 0.8), seg=18, cseg=6),
+          box("sm_tail", (0.12, 0.05, 0.4), (0.2, -0.3, 1.55), rot=(0.2, 0, 0.3), material=C("#e0303a", 0.8)),
+          cyl("sm_brim", 0.3, 0.05, (0, 0, 2.28), material=C("#22222a", 0.5), verts=16),
+          cyl("sm_hat", 0.2, 0.32, (0, 0, 2.45), material=C("#22222a", 0.5), verts=16),
+          cyl("sm_band", 0.205, 0.07, (0, 0, 2.34), material=C("#3a7aff", 0.5), verts=16)]
+    for k in range(3):
+        sm.append(sphere(f"sm_btn{k}", 0.05, (0, -0.45 + k * 0.0, 1.55 - k * 0.18), material=C("#1a1a22", 0.4), seg=8, rings=5))
+    for sgn in (-1, 1):
+        sm.append(cyl(f"sm_arm{sgn}", 0.03, 0.8, (sgn * 0.75, 0, 1.55), rot=(0, sgn * 1.1, 0), material=C("#6b4a2e", 0.9), verts=5))
+        sm.append(cyl(f"sm_fing{sgn}", 0.02, 0.25, (sgn * 1.08, 0, 1.82), rot=(0, sgn * 0.4, 0), material=C("#6b4a2e", 0.9), verts=5))
+    objs.append(join(sm, "snowman"))
     for o in objs:
         smooth(o, 35)
     return objs

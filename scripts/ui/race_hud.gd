@@ -200,6 +200,10 @@ func _refresh() -> void:
 	else:
 		lap_txt = "%s %d/%d" % [Game.t("lap"), mini(rider.lap + 1, L), L]
 		lbl_timer.text = _fmt(race.race_time)
+		if race.mode == Game.Mode.SKILL_SNOWMEN:
+			lbl_timer.text += "   %s %d/%d" % [Game.t("snowmen_hit"), race.snowmen_hit, race.targets.size()]
+		if race.specials and (race.mode == Game.Mode.SKILL_FLAKES or race.specials.flakes_of(rider).size() > 0):
+			lbl_timer.text += "   ★ %d" % race.specials.flakes_of(rider).size()
 		if race.mode == Game.Mode.SKILL_TARGETS:
 			lbl_timer.text += "   %s %d/%d" % [Game.t("targets_hit"), race.targets_hit, race.targets.size()]
 		if race.mode == Game.Mode.SKILL_SLALOM:

@@ -1,7 +1,8 @@
 extends Node
 ## Session state and scene flow. Holds the race configuration chosen in menus.
 
-enum Mode { GRAND_PRIX, QUICK_RACE, TIME_TRIAL, TRICK_ATTACK, SKILL_SLALOM, SKILL_LANDING, SKILL_COINS, MENU_BACKGROUND, SKILL_TARGETS }
+enum Mode { GRAND_PRIX, QUICK_RACE, TIME_TRIAL, TRICK_ATTACK, SKILL_SLALOM, SKILL_LANDING, SKILL_COINS, MENU_BACKGROUND, SKILL_TARGETS, SKILL_SNOWMEN, SKILL_FLAKES }
+const FLAKE_CREDITS := 10   ## credits per golden snowflake collected in a race
 
 var mode: int = Mode.QUICK_RACE
 var track_id: StringName = &"vale_pinheiros"
@@ -34,6 +35,8 @@ const SKILL_THRESHOLDS := {
 	"coins": [40, 70, 100],
 	"slalom_missed": [4, 2, 0],
 	"targets": [4, 7, 10],
+	"snowmen": [5, 9, 13],
+	"flakes": [8, 12, 16],
 }
 
 func lang() -> String:
@@ -248,6 +251,10 @@ func process_results() -> Dictionary:
 			s.skill_kind = "slalom_missed"; s.skill_value = float(me.missed)
 		Mode.SKILL_TARGETS:
 			s.skill_kind = "targets"; s.skill_value = float(me.get("targets", 0))
+		Mode.SKILL_SNOWMEN:
+			s.skill_kind = "snowmen"; s.skill_value = float(me.get("snowmen", 0))
+		Mode.SKILL_FLAKES:
+			s.skill_kind = "flakes"; s.skill_value = float(me.get("flakes", 0))
 	if s.skill_kind != "":
 		var finished_ok: bool = mode != Mode.SKILL_SLALOM or float(me.time) > 0.0
 		s.medal = skill_medal(s.skill_kind, s.skill_value) if finished_ok else 0
@@ -258,6 +265,17 @@ func process_results() -> Dictionary:
 		if s.skill_kind == "trick" and s.skill_value > float(prof.trick_best.get(String(track_id), 0)):
 			prof.trick_best[String(track_id)] = int(s.skill_value)
 			s.record = true
+	# golden snowflakes found during a race: credits + per-course album
+	if not me.is_empty() and mode in [Mode.GRAND_PRIX, Mode.QUICK_RACE, Mode.TIME_TRIAL]:
+		var ids: Array = me.get("flake_ids", [])
+		s["flakes"] = ids.size()
+		s.credits = int(s.credits) + ids.size() * FLAKE_CREDITS
+		var album: Dictionary = Save.profile().get("flake_album", {})
+		for fid in ids:
+			if not album.has(fid):
+				album[fid] = true
+				s.unlocks.append("flake:" + String(fid))
+		Save.profile()["flake_album"] = album
 	Save.add_credits(int(s.credits))
 	Save.write()
 	pending_unlocks.assign(s.unlocks)

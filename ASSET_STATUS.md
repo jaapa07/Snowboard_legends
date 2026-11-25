@@ -12,7 +12,7 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | board_thumbnail | 12 | 0 | 0 | 12 | 0 | validação de arquivo/formato |
 | item_library | 1 | 0 | 0 | 1 | 0 | validação de arquivo/formato |
 | item_icon | 13 | 0 | 0 | 0 | 13 | tests/run_all content check |
-| ui_sprite | 12 | 0 | 0 | 12 | 0 | validação de arquivo/formato |
+| ui_sprite | 17 | 0 | 0 | 17 | 0 | validação de arquivo/formato |
 | prop_library | 1 | 0 | 0 | 1 | 0 | validação de arquivo/formato |
 | track_scene | 9 | 0 | 0 | 0 | 9 | tests/run_all AI races on every course; docs/screenshots/tracks |
 | track_data | 9 | 0 | 0 | 0 | 9 | tests/run_all checkpoint spacing + AI races |
@@ -62,7 +62,7 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | board_thumb:aurora | `assets/sprites/boards/board_aurora.png` | integrated | Cycles render (tools/blender/render_objects.py board) | project-original | 256x256 |
 | board_thumb:comet | `assets/sprites/boards/board_comet.png` | integrated | Cycles render (tools/blender/render_objects.py board) | project-original | 256x256 |
 | board_thumb:legend | `assets/sprites/boards/board_legend.png` | integrated | Cycles render (tools/blender/render_objects.py board) | project-original | 256x256 |
-| items | `assets/models/items/items.glb` | integrated | scripted modelling in Blender (tools/blender/build_props.py) | project-original | 16 meshes |
+| items | `assets/models/items/items.glb` | integrated | scripted modelling in Blender (tools/blender/build_props.py) | project-original | 21 meshes |
 | item_icon:snowball | `assets/sprites/items/snowball.png` | verified | Cycles render of the item model (tools/blender/render_objects.py item) | project-original | 256x256 |
 | item_icon:icemine | `assets/sprites/items/icemine.png` | verified | Cycles render of the item model (tools/blender/render_objects.py item) | project-original | 256x256 |
 | item_icon:penguin | `assets/sprites/items/penguin.png` | verified | Cycles render of the item model (tools/blender/render_objects.py item) | project-original | 256x256 |
@@ -76,6 +76,11 @@ Estados: `missing` (arquivo ausente), `in_progress` (presente mas reprovado na v
 | item_icon:comet | `assets/sprites/items/comet.png` | verified | Cycles render of the item model (tools/blender/render_objects.py item) | project-original | 256x256 |
 | item_icon:whirl | `assets/sprites/items/whirl.png` | verified | Cycles render of the item model (tools/blender/render_objects.py item) | project-original | 256x256 |
 | ui:target | `assets/sprites/items/target.png` | integrated | Cycles render of the target model (tools/blender/render_objects.py item) | project-original | 256x256 |
+| ui:special_flake | `assets/sprites/items/special_flake.png` | integrated | Cycles render of the model (tools/blender/render_objects.py item) | project-original | 256x256 |
+| ui:special_crystal | `assets/sprites/items/special_crystal.png` | integrated | Cycles render of the model (tools/blender/render_objects.py item) | project-original | 256x256 |
+| ui:special_box | `assets/sprites/items/special_box.png` | integrated | Cycles render of the model (tools/blender/render_objects.py item) | project-original | 256x256 |
+| ui:special_bigcoin | `assets/sprites/items/special_bigcoin.png` | integrated | Cycles render of the model (tools/blender/render_objects.py item) | project-original | 256x256 |
+| ui:snowman | `assets/sprites/items/snowman.png` | integrated | Cycles render of the model (tools/blender/render_objects.py item) | project-original | 256x256 |
 | item_icon:coin | `assets/sprites/items/coin.png` | verified | Cycles render (tools/blender/render_objects.py item) | project-original | 256x256 |
 | props | `assets/models/props/props.glb` | integrated | scripted modelling in Blender (tools/blender/build_props.py) | project-original | 64 meshes |
 | track_scene:vale_pinheiros | `assets/models/tracks/vale_pinheiros.glb` | verified | authored course built in Blender from the course definition (tools/blender/build_tracks.py) | project-original | 54 meshes |

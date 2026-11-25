@@ -76,6 +76,11 @@ const S := {
 	"touch": ["Toque (tela)", "Touch (screen)"], "touch_controls": ["Controles na tela", "On-screen controls"],
 	"tilt_steering": ["Virar inclinando o aparelho", "Tilt to steer"], "auto": ["Automático", "Automatic"],
 	"tap_to_play": ["Toque em JOGAR", "Tap PLAY"], "touch_footer": ["Toque para escolher  ·  ◀ Voltar no canto superior", "Tap to choose  ·  ◀ Back in the top corner"],
+	"snowmen": ["Derruba-Bonecos", "Snowman Smash"], "snowmen_hit": ["Bonecos", "Snowmen"],
+	"snowmen_desc": ["Uma descida com poderes à vontade (bola de neve, redemoinho, onda): derrube os bonecos de neve.", "One run with free powers (snowball, whirlwind, wave): knock down the snowmen."],
+	"flake_hunt": ["Caça aos Flocos", "Golden Flake Hunt"], "golden_flakes": ["Flocos dourados", "Golden flakes"],
+	"flake_hunt_desc": ["Pegue os flocos dourados: mola para os altos, ímã para os da beirada, rajada para correr. Os poderes se renovam.", "Grab the golden flakes: spring for high ones, magnet for the edges, gust to speed up. Powers refill."],
+	"album": ["Álbum de flocos dourados", "Golden flake album"],
 	"credits_screen": ["Créditos do jogo", "Game credits"], "press_start": ["Pressione ENTER / START", "Press ENTER / START"],
 }
 

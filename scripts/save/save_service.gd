@@ -20,7 +20,7 @@ func default_data() -> Dictionary:
 		"schema": SCHEMA,
 		"profile": {"name": "Rider", "credits": 0, "riders": ["niko", "mika", "taro", "luna"], "boards_unlocked": ["starter", "carver", "float"],
 			"boards_owned": ["starter", "carver", "float"], "equipped": {"rider": "niko", "board": "starter"},
-			"medals": {}, "cups_unlocked": 1, "trick_best": {}, "skill_medals": {}, "board_levels": {}},
+			"medals": {}, "cups_unlocked": 1, "trick_best": {}, "skill_medals": {}, "board_levels": {}, "flake_album": {}},
 		"records": {},   ## track_id -> {board_id: best_time_seconds}
 		"ghosts": {},    ## track_id -> {"time": t, "rider": id, "board": id, "frames": [[x,y,z,yaw], ...]}
 		"settings": {"lang": "pt", "music": 0.8, "sfx": 0.9, "voice": 0.8, "quality": 1, "shake": true, "motion": true,

@@ -17,7 +17,7 @@ func _ready() -> void:
 		Game.difficulty = _int(args, "--difficulty", 1)
 		Game.headless_autoplay = "--autoplay" in args
 		var m := _str(args, "--mode", "quick")
-		Game.mode = {"quick": Game.Mode.QUICK_RACE, "tt": Game.Mode.TIME_TRIAL, "trick": Game.Mode.TRICK_ATTACK, "slalom": Game.Mode.SKILL_SLALOM, "targets": Game.Mode.SKILL_TARGETS, "coins": Game.Mode.SKILL_COINS, "landing": Game.Mode.SKILL_LANDING, "gp": Game.Mode.GRAND_PRIX}.get(m, Game.Mode.QUICK_RACE)
+		Game.mode = {"quick": Game.Mode.QUICK_RACE, "tt": Game.Mode.TIME_TRIAL, "trick": Game.Mode.TRICK_ATTACK, "slalom": Game.Mode.SKILL_SLALOM, "targets": Game.Mode.SKILL_TARGETS, "snowmen": Game.Mode.SKILL_SNOWMEN, "flakes": Game.Mode.SKILL_FLAKES, "coins": Game.Mode.SKILL_COINS, "landing": Game.Mode.SKILL_LANDING, "gp": Game.Mode.GRAND_PRIX}.get(m, Game.Mode.QUICK_RACE)
 		var humans: Array = []
 		for k in range(1, _int(args, "--humans", 1)):
 			humans.append({"type": "human", "device": ["kb_right", "joy0", "joy1"][k - 1], "rider": ["mika", "taro", "luna"][k - 1], "board": "carver"})

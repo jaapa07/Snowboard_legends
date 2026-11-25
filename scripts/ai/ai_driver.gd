@@ -62,7 +62,14 @@ func _think(r: RiderController, delta: float) -> InputCommand:
 	var s := r.s
 	var hw := tr.half_width(s)
 	var lat_goal := _racing_line(r, tr, s, hw)
-	if race.mode == Game.Mode.SKILL_TARGETS:
+	if race.mode == Game.Mode.SKILL_FLAKES and race.specials:
+		for pk in race.specials.pickups:
+			if pk.kind == "flake" and not pk.taken:
+				var pr := tr.project(pk.p, r.proj_idx)
+				if float(pr.s) > s + 3.0 and float(pr.s) - s < 60.0:
+					lat_goal = clampf(float(pr.lat), -hw + 1.5, hw - 1.5)   # steer for the next flake
+					break
+	if race.mode == Game.Mode.SKILL_TARGETS or race.mode == Game.Mode.SKILL_SNOWMEN:
 		var tg: Dictionary = race.next_target(s)
 		if not tg.is_empty() and float(tg.s) - s < 60.0:
 			lat_goal = float(tg.lat)   # line up with the next target
@@ -310,6 +317,23 @@ func _items(r: RiderController, c: InputCommand, tr: TrackRuntime, kmax: float, 
 			best_a = d; ahead = o
 		elif d < 0.0 and -d < best_b:
 			best_b = -d; behind = o
+	if race.mode == Game.Mode.SKILL_SNOWMEN and r.offense_item != &"":
+		var sm: Dictionary = race.next_target(r.s)
+		if not sm.is_empty():
+			var ds := float(sm.s) - r.s
+			if r.offense_item == &"wave" and ds < 9.0:
+				c.use_offense = true
+			elif r.offense_item != &"wave" and ds < 30.0 and ds > 5.0 and absf(r.lat - float(sm.lat)) < 1.2:
+				c.use_offense = true
+	if race.mode == Game.Mode.SKILL_FLAKES and r.utility_item != &"":
+		var high_ahead := false
+		for pk in race.specials.pickups:
+			if pk.kind == "flake" and not pk.taken:
+				var pr2 := tr.project(pk.p, r.proj_idx)
+				if float(pr2.s) - r.s > 4.0 and float(pr2.s) - r.s < 11.0 and float(pr2.height) > 3.0 and absf(float(pr2.lat) - r.lat) < 2.0:
+					high_ahead = true
+		if r.utility_item == &"magnet" or r.utility_item == &"gust" or (r.utility_item == &"spring" and high_ahead):
+			c.use_utility = true
 	if race.mode == Game.Mode.SKILL_TARGETS and r.offense_item == &"snowball":
 		var tg: Dictionary = race.next_target(r.s)
 		if not tg.is_empty() and float(tg.s) - r.s < 32.0 and float(tg.s) - r.s > 6.0 and absf(r.lat - float(tg.lat)) < 0.9:
