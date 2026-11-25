@@ -26,8 +26,10 @@ for o in sc.objects:
         o.hide_render = True
 for n in names:
     ob = bpy.data.objects[n]
-    ob.hide_render = False
-    pts = [ob.matrix_world @ Vector(c) for c in ob.bound_box]
+    parts = [ob] + list(ob.children_recursive)
+    for o in parts:
+        o.hide_render = False
+    pts = [o.matrix_world @ Vector(c) for o in parts if o.type == "MESH" for c in o.bound_box]
     ctr = sum(pts, Vector()) / 8
     ext = max((p - ctr).length for p in pts)
     if view == "board":
@@ -40,5 +42,6 @@ for n in names:
         cam_d.ortho_scale = ext * 2.1
     sc.render.filepath = os.path.join(outdir, n + ".png")
     bpy.ops.render.render(write_still=True)
-    ob.hide_render = True
+    for o in parts:
+        o.hide_render = True
     print("rendered", n)
