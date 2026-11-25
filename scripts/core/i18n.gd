@@ -70,6 +70,9 @@ const S := {
 	"targets": ["Tiro ao alvo", "Target shooting"], "targets_desc": ["Uma descida com bolas de neve à vontade (F / Y): acerte os alvos ao longo da pista.", "One run with unlimited snowballs (F / Y): hit the targets along the course."],
 	"targets_hit": ["Alvos", "Targets"], "signature": ["Manobra-assinatura", "Signature trick"],
 	"signature_hint": ["No ar: Q, E, Shift (LB, RB, X) em sequência.", "In the air: Q, E, Shift (LB, RB, X) in sequence."],
+	"local_mp": ["Multiplayer local", "Local multiplayer"],
+	"local_mp_desc": ["2 a 4 jogadores no mesmo PC, tela dividida. Teclado dividido ou gamepads; START entra no jogo.", "2 to 4 players on one PC, split screen. Split keyboard or gamepads; START joins."],
+	"player_joined": ["J%d entrou (%s)", "P%d joined (%s)"], "player_short": ["J", "P"],
 	"credits_screen": ["Créditos do jogo", "Game credits"], "press_start": ["Pressione ENTER / START", "Press ENTER / START"],
 }
 

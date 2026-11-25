@@ -99,6 +99,10 @@ func setup(r: RaceManager, rd: RiderController, screens: int) -> void:
 	minimap.size = minimap.custom_minimum_size
 	minimap.position = Vector2(-310, -400) * scale_f
 	add_child(minimap)
+	if screens > 1:
+		var human_idx := race.riders.filter(func(x): return x.is_human).find(rider)
+		var tag := _label(40, [Color(1, 0.5, 0.4), Color(0.4, 0.75, 1), Color(0.5, 1, 0.55), Color(1, 0.85, 0.3)][clampi(human_idx, 0, 3)], Vector2(-120, 18), Control.PRESET_TOP_RIGHT)
+		tag.text = "%s%d" % [Game.t("player_short"), human_idx + 1]
 	race.countdown.connect(_on_count)
 	race.lap_changed.connect(_on_lap)
 	race.rider_finished.connect(_on_finish)

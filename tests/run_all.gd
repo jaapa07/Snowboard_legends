@@ -936,10 +936,10 @@ func _e2e() -> void:
 	check(_focus() != null, "a control has visible focus")
 	# every main entry reachable with ui_down, focus never lost
 	var labels := []
-	for i in 9:
+	for i in 10:
 		labels.append((_focus() as Button).text if _focus() is Button else "?")
 		await _press("ui_down")
-	check(labels.size() == 9 and not "?" in labels, "all 9 main entries focusable", str(labels))
+	check(labels.size() == 10 and not "?" in labels and Game.t("local_mp") in labels, "all 10 main entries focusable (incl. local multiplayer)", str(labels))
 	var jd := InputEventJoypadButton.new(); jd.button_index = JOY_BUTTON_DPAD_DOWN; jd.pressed = true
 	var ja := InputEventJoypadButton.new(); ja.button_index = JOY_BUTTON_A; ja.pressed = true
 	var jb := InputEventJoypadButton.new(); jb.button_index = JOY_BUTTON_B; jb.pressed = true
@@ -949,7 +949,7 @@ func _e2e() -> void:
 	# options via gamepad: d-pad to "Opções" and A
 	menu.go("main", false)
 	await _frames(2)
-	for i in 7:
+	for i in 8:
 		await _joy(JOY_BUTTON_DPAD_DOWN)
 	await _joy(JOY_BUTTON_A)
 	check(menu.screen == "options", "gamepad d-pad + A open Options", menu.screen)
@@ -973,6 +973,24 @@ func _e2e() -> void:
 	check(Inputs.key_name("steer_left") == "J" and int(Save.settings().remaps.get("steer_left", 0)) == KEY_J, "steer_left remapped to J and saved", Inputs.key_name("steer_left"))
 	Inputs.reset_keyboard_defaults()
 	Save.settings().remaps = {}
+	# local multiplayer entry: two humans seated, a third joins with START on a free pad
+	menu.history.clear()
+	menu.go("main", false)
+	await _frames(2)
+	await _press("ui_down")
+	await _press("ui_down")
+	await _press("ui_accept")
+	check(menu.screen == "participants" and menu.slots.filter(func(x): return x.type == "human").size() == 2, "Local multiplayer seats 2 players", str(menu.slots))
+	var st := InputEventJoypadButton.new(); st.button_index = JOY_BUTTON_START; st.pressed = true; st.device = 2
+	get_viewport().push_input(st)
+	await _frames(3)
+	check(menu.slots.filter(func(x): return x.type == "human").size() == 3 and menu.slots.any(func(x): return x.device == "joy2"), "START on a free pad joins as P3", str(menu.slots))
+	get_viewport().push_input(st)
+	await _frames(3)
+	check(menu.slots.filter(func(x): return x.type == "human").size() == 3, "same pad cannot join twice")
+	menu._participants_done()
+	await _frames(2)
+	check(menu.screen == "rider" and menu.picks.size() == 3, "each human picks a rider in turn", str(menu.picks.size()))
 	# quick race: participants -> rider (confirm anim) -> board -> track -> launch request
 	menu.history.clear()
 	menu.go("main", false)
@@ -1134,7 +1152,7 @@ func _e2e_grand_prix() -> void:
 func _ai_races() -> void:
 	begin("ai: automated races")
 	var n := int(_arg("--ai-races", "2"))
-	var laps := int(_arg("--ai-laps", "5"))
+	var laps := int(_arg("--ai-laps", "0"))   # 0 = each course's own number of descents
 	var tracks: Array = []
 	var ta := _arg("--tracks", "")
 	if ta != "":
@@ -1144,12 +1162,12 @@ func _ai_races() -> void:
 		tracks = Registry.TRACK_IDS + Registry.EXTRA_TRACK_IDS
 	for tid in tracks:
 		var stats := {"track": String(tid), "races": 0, "completed": 0, "riders_finished": 0, "riders_total": 0, "cp_skips": 0, "nan": 0,
-			"resets": 0, "max_stall": 0.0, "times": [], "fails": [], "wins": {}, "laps": laps}
+			"resets": 0, "max_stall": 0.0, "times": [], "fails": [], "wins": {}, "laps": laps if laps > 0 else Registry.track(tid).default_laps}
 		for k in n:
 			var seed_ := 1000 + k * 37
 			Game.seed_value = seed_
 			Game.default_participants(String(Registry.RIDER_IDS[k % 8]), ["starter", "carver", "float", "rocket"][k % 4])
-			var race := _new_race(tid, laps, Game.Mode.QUICK_RACE, seed_, Game.participants.duplicate(true))
+			var race := _new_race(tid, laps if laps > 0 else Registry.track(tid).default_laps, Game.Mode.QUICK_RACE, seed_, Game.participants.duplicate(true))
 			var rm := _rm(race)
 			var done := [{}]
 			rm.race_done.connect(func(s): done[0] = s)

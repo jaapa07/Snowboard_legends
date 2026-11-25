@@ -25,6 +25,10 @@ var _oneshot_t: float = 0.0
 var _cur: String = ""
 var _up: Vector3 = Vector3.UP
 var _lean: float = 0.0
+var holder: Node3D
+var _squash: float = 0.0       ## landing compression (presentation only)
+var _bob_t: float = 0.0
+var _pitch: float = 0.0
 var _wind_player: AudioStreamPlayer3D
 var _carve_player: AudioStreamPlayer3D
 
@@ -33,7 +37,7 @@ func setup(r: RiderController) -> void:
 	name = "Visual"
 	pivot = Node3D.new(); add_child(pivot)
 	trick_pivot = Node3D.new(); trick_pivot.position = Vector3(0, 0.7, 0); pivot.add_child(trick_pivot)
-	var holder := Node3D.new(); holder.position = Vector3(0, -0.7, 0); trick_pivot.add_child(holder)
+	holder = Node3D.new(); holder.position = Vector3(0, -0.7, 0); trick_pivot.add_child(holder)
 	model = (load(r.def.model_path) as PackedScene).instantiate()
 	model.rotation.y = PI  # authored facing Blender -Y (= +Z here); race forward is -Z
 	holder.add_child(model)
@@ -157,7 +161,7 @@ func _build_fx() -> void:
 	shield_mesh.visible = false
 	add_child(shield_mesh)
 
-func play(name_: String, blend: float = 0.15) -> void:
+func play(name_: String, blend: float = 0.24) -> void:
 	if anim == null or name_ == _cur or not anim.has_animation(name_):
 		return
 	_cur = name_
@@ -179,8 +183,26 @@ func tick(delta: float) -> void:
 	var f := (fwd - _up * fwd.dot(_up)).normalized()
 	var x := f.cross(_up).normalized()
 	var b := Basis(x, _up, -f).orthonormalized()
-	_lean = lerpf(_lean, clampf(-r.yaw_rate * 0.16, -0.45, 0.45) if r.state == RiderController.State.GROUND else 0.0, delta * 8.0)
-	pivot.global_basis = b * Basis(Vector3.FORWARD, _lean)
+	# carving: lean into the turn (more with speed), smoothed; a slight forward pitch when tucked, back when braking
+	var lean_target := 0.0
+	if r.state == RiderController.State.GROUND:
+		lean_target = clampf(-r.yaw_rate * (0.16 + clampf(r.speed / 30.0, 0, 1) * 0.12), -0.62, 0.62)
+	_lean = lerpf(_lean, lean_target, 1.0 - exp(-delta * 7.0))
+	var pitch_target := 0.0
+	if r.state == RiderController.State.GROUND:
+		pitch_target = 0.10 if cmd.tuck else (-0.12 if cmd.brake else 0.0)
+	_pitch = lerpf(_pitch, pitch_target, 1.0 - exp(-delta * 6.0))
+	pivot.global_basis = b * Basis(Vector3.FORWARD, _lean) * Basis(Vector3.RIGHT, -_pitch)
+	# body: soft bob from snow bumps at speed + squash/stretch on landing
+	_bob_t += delta * (2.0 + r.speed * 0.35)
+	var bob := sin(_bob_t) * clampf(r.speed / 25.0, 0, 1) * 0.025 if r.state == RiderController.State.GROUND else 0.0
+	_squash = maxf(0.0, _squash - delta * 4.0)
+	var sq := sin(_squash * PI) * 0.16
+	holder.scale = Vector3(1.0 + sq * 0.5, 1.0 - sq, 1.0 + sq * 0.5)
+	holder.position.y = -0.7 + bob - sq * 0.25
+	if anim:
+		var moving := _cur in ["glide", "push", "carveLeft", "carveRight", "tuck"]
+		anim.speed_scale = clampf(0.75 + r.speed / 28.0, 0.75, 1.45) if moving else 1.0
 	pivot.global_position = r.global_position
 	var spin := r.spin_angle if r.state == RiderController.State.AIR else 0.0
 	var flip := r.flip_angle if r.state == RiderController.State.AIR else 0.0
@@ -257,6 +279,7 @@ func on_takeoff() -> void:
 
 func on_land(quality: String) -> void:
 	puff.restart(); puff.emitting = true
+	_squash = 1.0 if quality == "sloppy" else 0.7
 	if quality == "sloppy":
 		oneshot("landHard", 0.5)
 		Audio.play_3d("land_hard", rider, -2.0)

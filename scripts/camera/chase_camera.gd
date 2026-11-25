@@ -15,6 +15,39 @@ var _pos := Vector3.ZERO
 var _look := Vector3.ZERO
 var lift_mode := false
 
+func add_weather(theme: String, q: int) -> void:
+	## Ambient precipitation travelling with the camera: snowfall, night flakes, volcanic ash or a crosswind blizzard.
+	var p := GPUParticles3D.new()
+	p.amount = int([140, 320, 520][clampi(q, 0, 2)] * (1.8 if theme == "storm" else 1.0))
+	p.lifetime = 3.5
+	p.local_coords = false
+	p.visibility_aabb = AABB(Vector3(-30, -20, -40), Vector3(60, 40, 60))
+	var pm := ParticleProcessMaterial.new()
+	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	pm.emission_box_extents = Vector3(18, 2, 18)
+	pm.direction = Vector3(0, -1, 0)
+	pm.spread = 12.0
+	pm.initial_velocity_min = 1.2; pm.initial_velocity_max = 2.4
+	pm.gravity = Vector3(6.0, -1.5, 0) if theme == "storm" else Vector3(0.4, -1.2, 0)
+	pm.turbulence_enabled = true; pm.turbulence_noise_strength = 0.4; pm.turbulence_noise_scale = 3.0
+	pm.scale_min = 0.6; pm.scale_max = 1.3
+	var col: Color = {"night": Color(0.78, 0.85, 1.0, 0.85), "volcano": Color(0.42, 0.4, 0.4, 0.8), "storm": Color(0.95, 0.97, 1.0, 0.9)}.get(theme, Color(1, 1, 1, 0.85))
+	pm.color = col
+	p.process_material = pm
+	var q_ := QuadMesh.new(); q_.size = Vector2(0.09, 0.09)
+	var m := StandardMaterial3D.new()
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.vertex_color_use_as_albedo = true
+	var tex := "res://assets/sprites/fx/puff.png"
+	if ResourceLoader.exists(tex):
+		m.albedo_texture = load(tex)
+	q_.material = m
+	p.draw_pass_1 = q_
+	p.position = Vector3(0, 9, -10)   # ahead of and above the lens
+	add_child(p)
+
 func snap() -> void:
 	if target == null:
 		return

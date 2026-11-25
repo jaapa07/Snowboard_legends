@@ -137,6 +137,10 @@ func _unhandled_input(e: InputEvent) -> void:
 		back()
 
 func _input(e: InputEvent) -> void:
+	if screen == "participants" and e is InputEventJoypadButton and e.pressed and (e as InputEventJoypadButton).button_index == JOY_BUTTON_START:
+		if _try_join("joy%d" % e.device):
+			get_viewport().set_input_as_handled()
+		return
 	if _capture_action == "":
 		return
 	if e is InputEventKey and e.pressed and not e.echo:
@@ -221,6 +225,7 @@ func _screen_main() -> Control:
 	var entries := [
 		["grand_prix", "gp_desc", func(): _begin(Game.Mode.GRAND_PRIX)],
 		["quick_race", "quick_desc", func(): _begin(Game.Mode.QUICK_RACE)],
+		["local_mp", "local_mp_desc", func(): _begin_multiplayer()],
 		["time_trial", "tt_desc", func(): _begin(Game.Mode.TIME_TRIAL)],
 		["trick_attack", "trick_desc", func(): _begin(Game.Mode.TRICK_ATTACK)],
 		["skill_game", "select_challenge", func(): go("challenges")],
@@ -249,6 +254,31 @@ func _begin(mode: int) -> void:
 		go("participants")
 	else:
 		_start_picks()
+
+func _begin_multiplayer() -> void:
+	## Local multiplayer: two humans pre-seated (pads first, otherwise the two keyboard halves), CPUs fill the rest.
+	flow_mode = Game.Mode.QUICK_RACE
+	var pads := Input.get_connected_joypads()
+	var d1 := "joy%d" % pads[0] if pads.size() >= 2 else "kb_left"
+	var d2 := ("joy%d" % pads[1]) if pads.size() >= 2 else ("joy%d" % pads[0] if pads.size() == 1 else "kb_right")
+	slots = [{"type": "human", "device": d1}, {"type": "human", "device": d2}, {"type": "ai", "device": ""}, {"type": "ai", "device": ""}]
+	go("participants")
+
+const PLAYER_COLORS := [Color(1, 0.5, 0.4), Color(0.4, 0.75, 1), Color(0.5, 1, 0.55), Color(1, 0.85, 0.3)]
+
+func _try_join(device: String) -> bool:
+	## "Press A / Start to join": a free pad takes the first CPU/empty slot as a new human player.
+	for s in slots:
+		if s.type == "human" and String(s.device) == device:
+			return false
+	for i in range(1, 4):
+		if slots[i].type != "human":
+			slots[i] = {"type": "human", "device": device}
+			Audio.play("unlock", -4.0)
+			show_toast(t("player_joined") % [i + 1, _device_label(device)])
+			_build()
+			return true
+	return false
 
 # ---------------------------------------------------------------- participants (4 slots + device)
 func _device_options() -> PackedStringArray:
@@ -300,8 +330,8 @@ func _screen_participants() -> Control:
 	var cont := UiKit.button(t("continue_btn"), _participants_done, 420)
 	left.add_child(cont)
 	var info := _desc_panel(cols[1], 400)
-	info.text = ("Vagas CPU são preenchidas pela IA (mesma física). Vagas vazias ficam fora da corrida.\nCada jogador humano precisa de um controle diferente. Com 2 jogadores a tela é dividida na horizontal; com 3–4, em grade." if Game.lang() != "en"
-		else "CPU slots are driven by the AI (same physics). Empty slots sit out.\nEach human needs a different device. 2 players split horizontally; 3–4 use a grid.")
+	info.text = ("Aperte START num gamepad livre para entrar como novo jogador.\nVagas CPU são preenchidas pela IA (mesma física). Vagas vazias ficam fora da corrida.\nCada jogador humano precisa de um controle diferente. Com 2 jogadores a tela é dividida na horizontal; com 3–4, em grade." if Game.lang() != "en"
+		else "Press START on a free gamepad to join as a new player.\nCPU slots are driven by the AI (same physics). Empty slots sit out.\nEach human needs a different device. 2 players split horizontally; 3–4 use a grid.")
 	return first
 
 func _free_device(devs: PackedStringArray) -> String:

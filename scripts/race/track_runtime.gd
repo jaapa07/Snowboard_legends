@@ -201,6 +201,7 @@ func material(key: String) -> StandardMaterial3D:
 			m.albedo_color = Color(0.84, 0.88, 0.95)
 		_:
 			return null
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	m.resource_name = key
 	_mats[key] = m
 	return m
@@ -232,24 +233,39 @@ func _build_environment() -> void:
 	var top := Color(String(data.sky[0])); var hor := Color(String(data.sky[1]))
 	sm.sky_top_color = top; sm.sky_horizon_color = hor
 	sm.ground_horizon_color = hor; sm.ground_bottom_color = hor.darkened(0.3)
-	sm.sun_angle_max = 20.0
+	sm.sun_angle_max = 22.0
+	sm.sun_curve = 0.08
+	sm.sky_curve = 0.12
+	sm.sky_energy_multiplier = 1.05
+	sm.ground_curve = 0.04
 	sky.sky_material = sm
 	e.background_mode = Environment.BG_SKY; e.sky = sky
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY; e.ambient_light_energy = 0.75
-	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC; e.tonemap_exposure = 1.0
+	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC; e.tonemap_exposure = 1.0; e.tonemap_white = 6.0
 	e.fog_enabled = true; e.fog_light_color = Color(String(data.fog)); e.fog_density = 0.0016
-	e.fog_aerial_perspective = 0.4; e.fog_sky_affect = 0.3
-	e.glow_enabled = quality >= 1; e.glow_intensity = 0.35; e.glow_bloom = 0.02; e.glow_hdr_threshold = 1.2
-	e.ssao_enabled = quality >= 2; e.ssao_intensity = 1.2
-	e.adjustment_enabled = true; e.adjustment_saturation = 1.12; e.adjustment_contrast = 1.04
+	e.fog_aerial_perspective = 0.55; e.fog_sky_affect = 0.35
+	# valley haze: height fog thickens towards the lower slopes for depth
+	e.fog_height = float(pos[pos.size() - 1].y) + 20.0; e.fog_height_density = 0.004
+	e.glow_enabled = quality >= 1; e.glow_intensity = 0.45; e.glow_strength = 0.9; e.glow_bloom = 0.03; e.glow_hdr_threshold = 1.1
+	e.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
+	# contact shading around trees, props, riders and course edges
+	e.ssao_enabled = quality >= 1; e.ssao_radius = 1.6; e.ssao_intensity = 1.6; e.ssao_power = 1.4; e.ssao_detail = 0.6
+	e.ssao_light_affect = 0.15
+	e.ssil_enabled = quality >= 2; e.ssil_radius = 4.0; e.ssil_intensity = 0.6
+	e.adjustment_enabled = true; e.adjustment_saturation = 1.16; e.adjustment_contrast = 1.06
 	var theme := String(data.theme)
 	sun = DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(float(data.sun[0]), float(data.sun[1]), 0)
 	sun.light_energy = 1.0
 	sun.light_color = Color(1.0, 0.97, 0.92)
 	sun.shadow_enabled = quality >= 1
-	sun.directional_shadow_max_distance = 140.0 if quality >= 2 else 90.0
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+	sun.shadow_blur = 1.4
+	sun.shadow_bias = 0.04
+	sun.shadow_normal_bias = 1.2
+	sun.light_angular_distance = 0.8   # slightly soft penumbra
+	sun.directional_shadow_max_distance = 160.0 if quality >= 2 else 100.0
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS if quality >= 2 else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+	sun.directional_shadow_blend_splits = quality >= 2
 	match theme:
 		"night":
 			sun.light_energy = 0.35; sun.light_color = Color(0.6, 0.7, 1.0); e.ambient_light_energy = 0.8

@@ -132,7 +132,10 @@ func _build_screens() -> void:
 		var c := SubViewportContainer.new()
 		c.stretch = true
 		var vp := SubViewport.new()
-		vp.msaa_3d = Viewport.MSAA_2X if Game.quality() >= 1 else Viewport.MSAA_DISABLED
+		vp.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_4X, Viewport.MSAA_4X][clampi(Game.quality(), 0, 2)]
+		vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA   # cleans alpha-tested foliage edges MSAA misses
+		vp.use_debanding = true
+		vp.anisotropic_filtering_level = Viewport.ANISOTROPY_4X
 		vp.scaling_3d_scale = [0.75, 0.9, 1.0][clampi(Game.quality(), 0, 2)] if n == 1 else [0.7, 0.8, 0.9][clampi(Game.quality(), 0, 2)]
 		vp.audio_listener_enable_3d = i == 0
 		c.add_child(vp)
@@ -144,6 +147,8 @@ func _build_screens() -> void:
 		cam.motion_enabled = bool(Save.settings().motion)
 		cam.far = 1400.0
 		vp.add_child(cam)
+		if DisplayServer.get_name() != "headless":
+			cam.add_weather(String(track.data.theme), Game.quality())
 		cam.current = true
 		cam.snap()
 		cameras.append(cam)
