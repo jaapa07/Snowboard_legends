@@ -8,6 +8,7 @@ signal ranking_changed()
 signal rider_finished(rider: RiderController)
 signal lap_changed(rider: RiderController)
 signal countdown(value: int)
+signal race_done(summary: Dictionary)
 
 enum Phase { LOADING, COUNTDOWN, RACE, DONE }
 const RIDER_REPEL_DIST := 1.1
@@ -47,6 +48,9 @@ var paused: bool = false
 var pause_menu: Control
 var test_log: Array[String] = []
 var max_race_time: float = 600.0
+## QA instrumentation (read by tests/run_all): checkpoint skips, non-finite states, longest stall per rider
+var qa := {"cp_skips": 0, "nan": 0, "max_stall": {}, "resets": 0}
+var _stall: Dictionary = {}
 
 func _ready() -> void:
 	add_to_group("race_manager")
@@ -233,16 +237,28 @@ func _track_rider(r: RiderController, delta: float) -> void:
 	var s := float(pr.s)
 	# checkpoints must be passed in order; progress is capped beyond the next gate (anti-exploit)
 	var cps := track.checkpoints
+	var passed := 0
 	while r.next_cp < cps.size() and s >= cps[r.next_cp] - 1.0 and absf(r.lat) < track.half_width(s) + 8.0:
 		r.last_safe_s = cps[r.next_cp]
 		r.next_cp += 1
+		passed += 1
+	if passed > 1:
+		qa.cp_skips += passed - 1   # more than one gate in a single 1/60 s tick means a gate was skipped
+		test_log.append("cp skip rider %d at %.0f (+%d)" % [r.index, s, passed])
+	# stall tracking: grounded and not moving while the race runs
+	if r.state == RiderController.State.GROUND and r.speed < 1.0:
+		_stall[r.index] = float(_stall.get(r.index, 0.0)) + delta
+		qa.max_stall[r.index] = maxf(float(qa.max_stall.get(r.index, 0.0)), _stall[r.index])
+	else:
+		_stall[r.index] = 0.0
 	var cap := track.length if r.next_cp >= cps.size() else cps[r.next_cp] + 20.0
 	r.s = minf(s, cap)
 	r.progress = r.lap * track.length + r.s
 	# off-track / fell below the course
 	var hw := track.half_width(s)
 	var out: bool = absf(r.lat) > hw + track.data.berm_w + 4.0 or float(pr.height) < -9.0 or float(pr.dist) > hw + 30.0
-	if not r.global_position.is_finite() or not r.velocity.is_finite():
+	if not r.global_position.is_finite() or not r.velocity.is_finite() or is_nan(r.s):
+		qa.nan += 1
 		out = true
 		r.offtrack_t = 99.0
 	if out and r.state != RiderController.State.FROZEN:
@@ -271,6 +287,7 @@ func _reset_rider(r: RiderController) -> void:
 	r.reset_to(p, track.fwd[track.idx_at(s)], r.tuning.reset_penalty)
 	r.proj_idx = track.idx_at(s)
 	r.offtrack_t = 0.0
+	qa.resets += 1
 	test_log.append("reset rider %d at %.0f" % [r.index, s])
 
 func _repel() -> void:
@@ -402,9 +419,12 @@ func _end_race() -> void:
 		r.finish_time = -1.0
 	phase_changed.emit(phase)
 	Game.last_results = build_results()
+	var summary := {"track": String(Game.track_id), "laps": laps, "time": snappedf(race_time, 0.01), "resets": qa.resets, "results": Game.last_results,
+		"ai": ais.map(func(a): return a.stats), "cp_skips": qa.cp_skips, "nan": qa.nan, "max_stall": qa.max_stall, "log": test_log}
+	race_done.emit(summary)
+	if Game.has_meta("test_hold"):
+		return   # in-process test runner owns the flow
 	if Game.headless_autoplay:
-		var summary := {"track": String(Game.track_id), "laps": laps, "time": snappedf(race_time, 0.01), "resets": test_log.size(), "results": Game.last_results,
-			"ai": ais.map(func(a): return a.stats)}
 		print("RACE_RESULT " + JSON.stringify(summary))
 		if Game.has_meta("show_results"):
 			get_tree().create_timer(1.5).timeout.connect(Game.goto_results)

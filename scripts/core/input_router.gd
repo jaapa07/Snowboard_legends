@@ -29,6 +29,28 @@ func _ready() -> void:
 	_add_joy("jump", JOY_BUTTON_A); _add_joy("grab", JOY_BUTTON_X); _add_joy("item_offense", JOY_BUTTON_Y)
 	_add_joy("item_utility", JOY_BUTTON_B); _add_joy("spin_left", JOY_BUTTON_LEFT_SHOULDER); _add_joy("spin_right", JOY_BUTTON_RIGHT_SHOULDER)
 	_add_joy("pause", JOY_BUTTON_START)
+	# menu navigation by gamepad: D-pad + left stick move focus, A confirms, B goes back
+	for pair in [["ui_up", JOY_BUTTON_DPAD_UP], ["ui_down", JOY_BUTTON_DPAD_DOWN], ["ui_left", JOY_BUTTON_DPAD_LEFT],
+			["ui_right", JOY_BUTTON_DPAD_RIGHT], ["ui_accept", JOY_BUTTON_A], ["ui_cancel", JOY_BUTTON_B]]:
+		_ensure_joy(pair[0], pair[1])
+	for ax in [["ui_up", JOY_AXIS_LEFT_Y, -1.0], ["ui_down", JOY_AXIS_LEFT_Y, 1.0], ["ui_left", JOY_AXIS_LEFT_X, -1.0], ["ui_right", JOY_AXIS_LEFT_X, 1.0]]:
+		var m := InputEventJoypadMotion.new()
+		m.axis = ax[1]; m.axis_value = ax[2]; m.device = -1
+		if not InputMap.action_has_event(ax[0], m):
+			InputMap.action_add_event(ax[0], m)
+	# extra keyboard navigation for players resting on WASD
+	for k in [["ui_up", KEY_W], ["ui_down", KEY_S], ["ui_left", KEY_A], ["ui_right", KEY_D]]:
+		var ek := InputEventKey.new()
+		ek.physical_keycode = k[1]
+		if not InputMap.action_has_event(k[0], ek):
+			InputMap.action_add_event(k[0], ek)
+
+func _ensure_joy(action: String, button: JoyButton) -> void:
+	var ev := InputEventJoypadButton.new()
+	ev.button_index = button
+	ev.device = -1
+	if not InputMap.action_has_event(action, ev):
+		InputMap.action_add_event(action, ev)
 
 func _add_joy(action: String, button: JoyButton) -> void:
 	var ev := InputEventJoypadButton.new()
@@ -41,15 +63,24 @@ func apply_remaps(remaps: Dictionary) -> void:
 	for a in remaps:
 		if not InputMap.has_action(a):
 			continue
+		# replace the primary key, keep the remaining alternatives (e.g. arrows) after it
+		var keys: Array = []
+		var others: Array = []
 		for ev in InputMap.action_get_events(a):
 			if ev is InputEventKey:
-				InputMap.action_erase_event(a, ev)
-				break
-		if int(remaps[a]) <= 0:
-			continue  # explicitly unbound (its key was taken by another action)
-		var nk := InputEventKey.new()
-		nk.physical_keycode = int(remaps[a])
-		InputMap.action_add_event(a, nk)
+				keys.append(ev)
+			else:
+				others.append(ev)
+		InputMap.action_erase_events(a)
+		if int(remaps[a]) > 0:   # <= 0: explicitly unbound (its key was taken by another action)
+			var nk := InputEventKey.new()
+			nk.physical_keycode = int(remaps[a])
+			InputMap.action_add_event(a, nk)
+		for i in range(1, keys.size()):
+			if (keys[i] as InputEventKey).physical_keycode != int(remaps[a]):
+				InputMap.action_add_event(a, keys[i])
+		for ev in others:
+			InputMap.action_add_event(a, ev)
 
 func current_key_map() -> Dictionary:
 	## Primary keyboard key per action (0 = unbound); persisted as settings.remaps.

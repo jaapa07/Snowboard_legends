@@ -103,18 +103,31 @@ func start_grand_prix(cup: int) -> void:
 	track_id = Registry.CUPS[cup].tracks[0]
 	goto_race()
 
+func _test_intercept(scene: String) -> bool:
+	## In-process test runner (tests/run_all) records scene requests instead of switching scenes.
+	if has_meta("test_hold"):
+		set_meta("requested_scene", scene)
+		return true
+	return false
+
 func goto_race() -> void:
 	results_processed = false
 	last_summary = {}
+	if _test_intercept("race"):
+		return
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/race/race.tscn")
 
 func goto_menu(screen: String = "main") -> void:
+	if _test_intercept("menu:" + screen):
+		return
 	get_tree().paused = false
 	set_meta("menu_screen", screen)
 	get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
 
 func goto_results() -> void:
+	if _test_intercept("results"):
+		return
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/menus/results.tscn")
 

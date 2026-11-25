@@ -110,10 +110,11 @@ func _particles(tex_name: String, amount: int, life: float, size: float, additiv
 	return p
 
 func _build_fx() -> void:
-	spray = _particles("flake", 48, 0.7, 0.35)
+	# pulverised snow: soft puffs (the snowflake sprite read as giant icons behind the board)
+	spray = _particles("puff", 48, 0.6, 0.42)
 	var pm := spray.process_material as ParticleProcessMaterial
 	pm.direction = Vector3(0, 1, 1); pm.spread = 35.0; pm.initial_velocity_min = 2.0; pm.initial_velocity_max = 5.0
-	pm.color = Color(1, 1, 1, 0.9)
+	pm.color = Color(0.92, 0.96, 1.0, 0.75)
 	spray.position = Vector3(0, 0.1, 0.6)
 	spray.emitting = false
 	boost_fx = _particles("sparkle", 40, 0.4, 0.5, true)

@@ -9,6 +9,8 @@ const BACKUP := "user://save.bak.json"
 
 var data: Dictionary = {}
 var last_error: String = ""
+var path: String = PATH       ## overridable so automated tests never touch the player's save
+var backup_path: String = BACKUP
 
 func _ready() -> void:
 	load_or_create()
@@ -26,9 +28,10 @@ func default_data() -> Dictionary:
 	}
 
 func load_or_create() -> void:
-	var d := _read(PATH)
+	last_error = ""
+	var d := _read(path)
 	if d.is_empty():
-		d = _read(BACKUP)
+		d = _read(backup_path)
 		if not d.is_empty():
 			last_error = "save principal inválido; backup restaurado"
 	if d.is_empty():
@@ -79,7 +82,7 @@ func _fill_defaults(d: Dictionary, def: Dictionary) -> void:
 
 func write() -> bool:
 	var txt := JSON.stringify(data, "\t")
-	var tmp := PATH + ".tmp"
+	var tmp := path + ".tmp"
 	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
 		last_error = "não foi possível escrever o save"
@@ -87,9 +90,9 @@ func write() -> bool:
 	f.store_string(txt)
 	f.close()
 	var dir := DirAccess.open("user://")
-	if FileAccess.file_exists(PATH):
-		dir.copy(PATH, BACKUP)
-	var err := dir.rename(tmp.get_file(), PATH.get_file())
+	if FileAccess.file_exists(path):
+		dir.copy(path, backup_path)
+	var err := dir.rename(tmp.get_file(), path.get_file())
 	if err != OK:
 		last_error = "falha ao renomear save (%d)" % err
 		return false

@@ -45,6 +45,8 @@ var quality: int = 1
 func setup(track_def: TrackDefinition, q: int = 1, with_visuals: bool = true) -> void:
 	def = track_def
 	quality = q
+	# course dressing is static or animated in _process (coins, stations, cabins): no physics interpolation
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	name = "Track_" + String(def.id)
 	data = JSON.parse_string(FileAccess.get_file_as_string(def.data_path))
 	_parse()
@@ -375,9 +377,12 @@ func _build_props() -> void:
 
 # ---------------------------------------------------------------- lift
 var cabins: Array[Node3D] = []
+var _cable_pts: PackedVector3Array = PackedVector3Array()
+var _cable_len: PackedFloat32Array = PackedFloat32Array()
 var _cabin_t: float = 0.0
 
 func _build_lift() -> void:
+	_build_cable_path()
 	for p in [lift_bottom, lift_top]:
 		var st := Registry.prop_mesh(PROPS_GLB, "lift_station")
 		add_child(st)
@@ -393,9 +398,11 @@ func _build_lift() -> void:
 		t.scale = Vector3(1, maxf(0.3, h / 18.0), 1)
 		var dir := (lift_top - lift_bottom); dir.y = 0
 		t.rotation.y = atan2(dir.x, dir.z) + PI / 2
+	# the cable runs over the tower heads (a single straight span cut through terrain and the course)
 	for side in [-2.6, 2.6]:
 		var off: Vector3 = (lift_top - lift_bottom).cross(Vector3.UP).normalized() * side
-		_cable(lift_bottom + off, lift_top + off)
+		for k in _cable_pts.size() - 1:
+			_cable(_cable_pts[k] + off, _cable_pts[k + 1] + off)
 	for i in 10:
 		var c := Registry.prop_mesh(PROPS_GLB, "lift_cabin_%d" % (i % 4))
 		add_child(c)
@@ -417,11 +424,27 @@ func _cable(a: Vector3, b: Vector3) -> void:
 	var z := x.cross(y).normalized()
 	mi.global_basis = Basis(x, y, z)
 
+func _build_cable_path() -> void:
+	_cable_pts = PackedVector3Array([lift_bottom])
+	for tw in data.lift.towers:
+		var p := _v(tw.pos)
+		_cable_pts.append(Vector3(p.x, float(tw.cable_y), p.z))
+	_cable_pts.append(lift_top)
+	_cable_len = PackedFloat32Array([0.0])
+	for k in range(1, _cable_pts.size()):
+		_cable_len.append(_cable_len[k - 1] + _cable_pts[k - 1].distance_to(_cable_pts[k]))
+
 func cable_point(t: float, up_side: bool) -> Vector3:
+	## Point on the cable polyline (bottom -> tower heads -> top); t in 0..1 along its length.
+	if _cable_pts.size() < 2:
+		_build_cable_path()
 	var off := (lift_top - lift_bottom).cross(Vector3.UP).normalized() * (2.6 if up_side else -2.6)
-	var a := lift_bottom + off
-	var b := lift_top + off
-	return a.lerp(b, t) if up_side else b.lerp(a, t)
+	var u := clampf(t if up_side else 1.0 - t, 0.0, 1.0) * _cable_len[_cable_len.size() - 1]
+	for k in range(1, _cable_pts.size()):
+		if u <= _cable_len[k] or k == _cable_pts.size() - 1:
+			var seg := maxf(0.001, _cable_len[k] - _cable_len[k - 1])
+			return _cable_pts[k - 1].lerp(_cable_pts[k], clampf((u - _cable_len[k - 1]) / seg, 0.0, 1.0)) + off
+	return lift_top + off
 
 func _build_gates() -> void:
 	for s in [30.0, finish_s]:

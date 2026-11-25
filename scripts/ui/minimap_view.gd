@@ -29,7 +29,12 @@ func _process(_d: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.07, 0.18, 0.45), true)
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.04, 0.07, 0.18, 0.62)
+	bg.set_corner_radius_all(int(size.x * 0.1))
+	bg.border_color = Color(1, 1, 1, 0.5)
+	bg.set_border_width_all(2)
+	draw_style_box(bg, Rect2(Vector2.ZERO, size))
 	var pl := PackedVector2Array()
 	for p in _pts:
 		pl.append(_map(Vector3(p.x, 0, p.y)))

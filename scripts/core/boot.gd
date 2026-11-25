@@ -21,6 +21,14 @@ func _ready() -> void:
 		for k in range(1, _int(args, "--humans", 1)):
 			humans.append({"type": "human", "device": ["kb_right", "joy0", "joy1"][k - 1], "rider": ["mika", "taro", "luna"][k - 1], "board": "carver"})
 		Game.default_participants(_str(args, "--rider", "niko"), _str(args, "--board", "starter"), humans)
+		var opp := _str(args, "--opponents", "")
+		if opp != "":
+			var names := opp.split(",")
+			var j := 0
+			for p in Game.participants:
+				if p.type == "ai" and j < names.size():
+					p.rider = names[j]
+					j += 1
 		if "--show-results" in args:
 			Game.set_meta("show_results", true)
 		if m == "gp":
@@ -28,7 +36,9 @@ func _ready() -> void:
 			Game.cup_race = _int(args, "--cup-race", 0)
 		Game.goto_race.call_deferred()
 		var si := args.find("--screenshot")
-		if si >= 0:
+		if si >= 0 and "--shots" in args:
+			_capture_shots(args[si + 1], _str(args, "--shots", "10"), "--spectate" in args)
+		elif si >= 0:
 			_capture(args[si + 1], float(_str(args, "--at", "8")), _int(args, "--count", 1), float(_str(args, "--every", "3")))
 	else:
 		Game.goto_menu.call_deferred(_str(args, "--menu", "title"))
@@ -65,6 +75,35 @@ func _capture(path: String, at: float, count: int, every: float) -> void:
 		print("SCREENSHOT ", p)
 		if k < count - 1:
 			await get_tree().create_timer(every, true, false, true).timeout
+	get_tree().quit()
+
+func _capture_shots(path: String, times: String, spectate: bool) -> void:
+	## Several evidence frames from one run: warp (simulate without drawing) to each race time, draw ~0.25 s, grab.
+	## With --spectate the chase camera follows rider k on shot k (so every participant is photographed).
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	var k := 0
+	for ts in times.split(","):
+		var at := float(ts)
+		RenderingServer.render_loop_enabled = false
+		var rm: Node = null
+		while true:
+			await get_tree().process_frame
+			rm = get_tree().get_first_node_in_group("race_manager")
+			if rm and rm.race_time >= at - 0.25:
+				break
+		if spectate and rm.cameras.size() > 0:
+			var cam: ChaseCamera = rm.cameras[0]
+			cam.target = rm.riders[k % rm.riders.size()]
+			cam.snap()
+		RenderingServer.render_loop_enabled = true
+		for f in 15:
+			await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		var img := get_viewport().get_texture().get_image()
+		var p := path.replace(".png", "_%s.png" % (String(rm.riders[k % rm.riders.size()].def.id) if spectate else "t%03d" % int(at)))
+		img.save_png(p)
+		print("SCREENSHOT ", p)
+		k += 1
 	get_tree().quit()
 
 func _int(a: PackedStringArray, k: String, d: int) -> int:
