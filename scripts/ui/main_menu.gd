@@ -819,6 +819,7 @@ func _screen_options() -> Control:
 	tl.changed.connect(func(k): s.tilt_steering = k == 1; Save.write())
 	left.add_child(tl)
 	left.add_child(UiKit.button(t("controls"), func(): go("controls"), 680))
+	left.add_child(UiKit.button(t("about_credits"), func(): go("credits"), 680))
 	var desc := _desc_panel(cols[1])
 	desc.text = ("Qualidade afeta escala de renderização (0,75/0,9/1,0), sombras, SSAO e partículas.\nAssistência de IA: aproximação limitada a 5%% e respeita o teto físico." if Game.lang() != "en"
 		else "Quality changes render scale (0.75/0.9/1.0), shadows, SSAO and particles.\nAI assist: catch-up capped at 5%% and never above the physical limit.").replace("%%", "%")
@@ -852,6 +853,29 @@ func _screen_controls() -> Control:
 	desc.text = ("Gamepad: analógico esquerdo dirige, RT tuck, LT freio, A salto, X grab, LB/RB giro, Y item ofensivo, B utilitário, Start pausa. Zona morta 0,15.\nMultiplayer em um teclado: J1 usa WASD+Espaço+Q/E/Shift/F/R; J2 usa setas + numérico (0 salto, 4/6 giro, 5 grab, 1/2 itens)." if Game.lang() != "en"
 		else "Gamepad: left stick steers, RT tuck, LT brake, A jump, X grab, LB/RB spin, Y offensive item, B utility, Start pause. Deadzone 0.15.\nShared keyboard: P1 WASD+Space+Q/E/Shift/F/R; P2 arrows + numpad (0 jump, 4/6 spin, 5 grab, 1/2 items).")
 	return first
+
+func _screen_credits() -> Control:
+	## Third-party credits (mirrors ASSET_LICENSES.md).
+	var cols := _two_columns(t("about_credits"), 760)
+	var left: VBoxContainer = cols[0]
+	var en := Game.lang() == "en"
+	var rows := [
+		["Snowboard Legends 3D", "Jogo, personagens, pistas, música e efeitos sonoros originais do projeto." if not en else "Game, characters, courses, music and sound effects are original to the project."],
+		["Rokoko — Free Mocap", "Animações de captura de movimento: danças de vitória, esperas e queda. rokoko.com" if not en else "Motion-capture animation: victory dances, idles and fall. rokoko.com"],
+		["Mixamo (Adobe)", "Animações: remada, tombo de costas, levantar e tropeço. mixamo.com" if not en else "Animation: push, knock-down, get-up and stumble. mixamo.com"],
+		["Poly Haven · ambientCG", "Texturas fotográficas e céus HDRI (CC0)." if not en else "Photographic textures and HDRI skies (CC0)."],
+		["Inter", "Fonte — The Inter Project Authors (SIL OFL 1.1)." if not en else "Typeface — The Inter Project Authors (SIL OFL 1.1)."],
+		["Godot Engine", "Motor do jogo (MIT) — Godot Engine contributors." if not en else "Game engine (MIT) — Godot Engine contributors."],
+	]
+	for r in rows:
+		left.add_child(UiKit.label(String(r[0]), 26, UiKit.GOLD, true))
+		var d := UiKit.label(String(r[1]), 20)
+		d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		d.custom_minimum_size = Vector2(720, 0)
+		left.add_child(d)
+	var ok := UiKit.button(t("back"), func(): back(), 360)
+	left.add_child(ok)
+	return ok
 
 # ---------------------------------------------------------------- garage / shop
 func _screen_garage() -> Control:

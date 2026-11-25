@@ -1099,6 +1099,15 @@ func _e2e() -> void:
 	check(Inputs.key_name("steer_left") == "J" and int(Save.settings().remaps.get("steer_left", 0)) == KEY_J, "steer_left remapped to J and saved", Inputs.key_name("steer_left"))
 	Inputs.reset_keyboard_defaults()
 	Save.settings().remaps = {}
+	# third-party credits screen (Options -> Credits)
+	menu.go("credits")
+	await _frames(2)
+	var credit_text := ""
+	for n in menu.content.find_children("*", "Label", true, false):
+		credit_text += (n as Label).text + "\n"
+	check(credit_text.contains("Rokoko") and credit_text.contains("Mixamo") and credit_text.contains("Poly Haven"), "credits screen lists Rokoko, Mixamo and Poly Haven")
+	await _press("ui_cancel")
+	check(menu.screen == "controls", "back from credits", menu.screen)
 	# local multiplayer entry: two humans seated, a third joins with START on a free pad
 	menu.history.clear()
 	menu.go("main", false)

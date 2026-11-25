@@ -9,8 +9,8 @@
 	"engine": "4.4.1-stable (official)",
 	"failed": 0,
 	"failures": [],
-	"passed": 367,
-	"seconds": 61.0,
+	"passed": 369,
+	"seconds": 62.2,
 	"sections": {
 		"e2e: garage purchase + equip": {
 			"fail": 0,
@@ -22,7 +22,7 @@
 		},
 		"e2e: menu flow (keyboard + gamepad)": {
 			"fail": 0,
-			"pass": 23
+			"pass": 25
 		},
 		"e2e: race pause / restart / quit": {
 			"fail": 0,

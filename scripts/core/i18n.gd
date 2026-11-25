@@ -15,6 +15,7 @@ const S := {
 	"items": ["Itens", "Items"], "on": ["Ligado", "On"], "off": ["Desligado", "Off"], "easy": ["Iniciante", "Rookie"], "normal": ["Normal", "Normal"],
 	"expert": ["Especialista", "Expert"], "start": ["Começar", "Start"], "locked": ["Bloqueado", "Locked"], "buy": ["Comprar", "Buy"],
 	"equip": ["Equipar", "Equip"], "owned": ["Adquirida", "Owned"], "confirm_buy": ["Confirmar compra?", "Confirm purchase?"],
+	"about_credits": ["Créditos e agradecimentos", "Credits"],
 	"yes": ["Sim", "Yes"], "no": ["Não", "No"], "not_enough": ["Créditos insuficientes", "Not enough credits"],
 	"no_coins": ["Moedas insuficientes!", "Not enough coins!"], "perfect": ["POUSO PERFEITO!", "PERFECT LANDING!"],
 	"overtake": ["Ultrapassagem!", "Overtake!"], "lift": ["Teleférico", "Lift"], "wrong_way": ["Volte para a pista!", "Back on track!"],
