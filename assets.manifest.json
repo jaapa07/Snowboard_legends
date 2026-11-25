@@ -16,10 +16,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 600256,
-   "sha1": "d6d5a7bae546",
+   "bytes": 958200,
+   "sha1": "a95675a76075",
    "meshes": 1,
-   "materials": 17,
+   "materials": 21,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -35,8 +35,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 64623,
-   "sha1": "d6df8e021bc4",
+   "bytes": 65018,
+   "sha1": "39de8c2c094e",
    "size_px": [
     256,
     256
@@ -57,10 +57,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 628788,
-   "sha1": "c55113312584",
+   "bytes": 986336,
+   "sha1": "1d187d70f9a3",
    "meshes": 1,
-   "materials": 18,
+   "materials": 21,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -76,8 +76,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 56763,
-   "sha1": "b8a008adc52e",
+   "bytes": 56945,
+   "sha1": "70294e20c3df",
    "size_px": [
     256,
     256
@@ -98,10 +98,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 577680,
-   "sha1": "6be00a252d84",
+   "bytes": 935920,
+   "sha1": "d89825f5cfb8",
    "meshes": 1,
-   "materials": 17,
+   "materials": 21,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -117,8 +117,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 68638,
-   "sha1": "c32ff6183914",
+   "bytes": 67623,
+   "sha1": "bd9f9f2e49e4",
    "size_px": [
     256,
     256
@@ -139,10 +139,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 610144,
-   "sha1": "16b4dcc98070",
+   "bytes": 968084,
+   "sha1": "61793017e6ee",
    "meshes": 1,
-   "materials": 18,
+   "materials": 22,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -158,8 +158,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 59186,
-   "sha1": "097f00f3b41f",
+   "bytes": 60374,
+   "sha1": "4ad1539dd396",
    "size_px": [
     256,
     256
@@ -180,10 +180,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 620464,
-   "sha1": "1e3baad980a0",
+   "bytes": 976500,
+   "sha1": "19ca8e1e8563",
    "meshes": 1,
-   "materials": 22,
+   "materials": 26,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -199,8 +199,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 69078,
-   "sha1": "1197865a1187",
+   "bytes": 69739,
+   "sha1": "632ec2616b61",
    "size_px": [
     256,
     256
@@ -221,10 +221,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 604756,
-   "sha1": "146c197d8d9c",
+   "bytes": 961588,
+   "sha1": "fee331f276d5",
    "meshes": 1,
-   "materials": 18,
+   "materials": 21,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -240,8 +240,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 57998,
-   "sha1": "1a2bfb4743f5",
+   "bytes": 56370,
+   "sha1": "31641b643d31",
    "size_px": [
     256,
     256
@@ -262,10 +262,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 574912,
-   "sha1": "5b524a5241b7",
+   "bytes": 932788,
+   "sha1": "c3682fc7bb5e",
    "meshes": 1,
-   "materials": 17,
+   "materials": 21,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -281,8 +281,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 63764,
-   "sha1": "66cb025379ec",
+   "bytes": 62357,
+   "sha1": "562bc79fe92b",
    "size_px": [
     256,
     256
@@ -303,10 +303,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 609676,
-   "sha1": "e2e74b0e042a",
+   "bytes": 967492,
+   "sha1": "4f5b3a4f065d",
    "meshes": 1,
-   "materials": 19,
+   "materials": 23,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -322,8 +322,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 61550,
-   "sha1": "02f3890013c2",
+   "bytes": 61599,
+   "sha1": "70445c20c6b2",
    "size_px": [
     256,
     256
@@ -344,10 +344,10 @@
    ],
    "required": true,
    "fallback": null,
-   "bytes": 683040,
-   "sha1": "355e1558d84b",
+   "bytes": 1040448,
+   "sha1": "45b84c704395",
    "meshes": 1,
-   "materials": 21,
+   "materials": 25,
    "clips": 24,
    "status": "verified",
    "verified_by": "tests/run_all unit content + races; docs/screenshots/riders"
@@ -363,8 +363,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 71710,
-   "sha1": "dece54c0f188",
+   "bytes": 68392,
+   "sha1": "8a763cf19f88",
    "size_px": [
     256,
     256
@@ -3248,8 +3248,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 294911,
-   "sha1": "56739872c874",
+   "bytes": 351012,
+   "sha1": "b3c0df22d848",
    "size_px": [
     1024,
     1024
@@ -3267,8 +3267,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 21351,
-   "sha1": "5340dc20297c",
+   "bytes": 23966,
+   "sha1": "3418610fb0b0",
    "size_px": [
     180,
     180
@@ -3286,8 +3286,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 19103,
-   "sha1": "facf3b8ebb21",
+   "bytes": 21382,
+   "sha1": "57c87608caee",
    "size_px": [
     167,
     167
@@ -3305,8 +3305,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 16645,
-   "sha1": "38663801d1c0",
+   "bytes": 18562,
+   "sha1": "a6273d445a6e",
    "size_px": [
     152,
     152
@@ -3324,8 +3324,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 11936,
-   "sha1": "32fcc0027f73",
+   "bytes": 13124,
+   "sha1": "74042aab537b",
    "size_px": [
     120,
     120
@@ -3343,8 +3343,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 7505,
-   "sha1": "c34a0d2e223b",
+   "bytes": 8140,
+   "sha1": "bb04bb2e76e6",
    "size_px": [
     87,
     87
@@ -3362,8 +3362,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 6684,
-   "sha1": "0f48bda5dfa4",
+   "bytes": 7177,
+   "sha1": "bbf04f615e03",
    "size_px": [
     80,
     80
@@ -3381,8 +3381,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 6282,
-   "sha1": "4f21c0c49501",
+   "bytes": 6688,
+   "sha1": "765e0c1bca94",
    "size_px": [
     76,
     76
@@ -3400,8 +3400,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 4476,
-   "sha1": "fcb81de4ca80",
+   "bytes": 4716,
+   "sha1": "47934499ff56",
    "size_px": [
     60,
     60
@@ -3419,8 +3419,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 4256,
-   "sha1": "0f6d218f6ffb",
+   "bytes": 4488,
+   "sha1": "d74111182c9d",
    "size_px": [
     58,
     58
@@ -3438,8 +3438,8 @@
    "dependencies": [],
    "required": true,
    "fallback": null,
-   "bytes": 2550,
-   "sha1": "cc421e824fe3",
+   "bytes": 2629,
+   "sha1": "bab5a38ece14",
    "size_px": [
     40,
     40

@@ -59,17 +59,22 @@ def vg(o, bone):
 
 
 def build_mesh(rid, s):
-    k = s["scale"]; bw = s["bw"]; hr = s["hr"] * k
+    k = s["scale"]; bw = s["bw"]; hr = s["hr"] * k * 1.12   # caricature: bigger head
     parts = []
     hip_z = 0.60 * k
     H = Vector((0, 0, hip_z))
     chest = H + U * 0.26 * k
-    neck = H + U * (0.46 * k)
+    neck = H + U * (0.44 * k)
     head_c = neck + U * (hr * 0.95)
     skin, jacket, accent, pants = C(s["skin"], 0.7), C(s["jacket"], 0.75), C(s["accent"], 0.6), C(s["pants"], 0.8)
     # torso / jacket
-    t = sphere("torso", 1.0, chest, scale=(0.24 * bw * k, 0.24 * bw * k, 0.30 * k), material=jacket, seg=16, rings=10)
-    t.rotation_euler = (0, 0, YAW); parts.append(vg(t, "spine"))
+    t = sphere("torso", 1.0, chest, scale=(0.275 * bw * k, 0.265 * bw * k, 0.31 * k), material=jacket, seg=18, rings=12)
+    t.rotation_euler = (0, 0, YAW); subsurf(t); parts.append(vg(t, "spine"))
+    quilt = C(s["jacket"], 0.85)
+    for qi, (dz, rr) in enumerate(((-0.13, 0.245), (0.0, 0.27), (0.13, 0.245))):   # puffer-jacket quilting
+        qb = torus(f"quilt{qi}", rr * bw * k, 0.032 * k, chest + U * dz * k, material=quilt, seg=22, cseg=6)
+        qb.scale = (1.0, 0.97, 1.0)
+        parts.append(vg(qb, "spine"))
     hem = torus("hem", 0.215 * bw * k, 0.045 * k, H + U * 0.07 * k, material=accent, seg=18, cseg=6)
     hem.scale = (1, 1, 1); parts.append(vg(hem, "hips"))
     col = torus("collar", 0.11 * k, 0.05 * k, neck - U * 0.03 * k, material=accent, seg=14, cseg=6)
@@ -79,7 +84,7 @@ def build_mesh(rid, s):
     for side in (-1, 1):  # jacket side stripes / pockets
         pk = box(f"pocket{side}", (0.09 * k, 0.03, 0.07 * k), chest + F * 0.21 * bw * k + R * side * 0.11 * bw * k - U * 0.08 * k, material=accent, bevel=0.01)
         pk.rotation_euler = (0, 0, YAW + side * 0.3); parts.append(vg(pk, "spine"))
-    pel = sphere("pelvis", 1.0, H, scale=(0.2 * bw * k, 0.17 * bw * k, 0.12 * k), material=pants, seg=14, rings=8)
+    pel = sphere("pelvis", 1.0, H, scale=(0.235 * bw * k, 0.2 * bw * k, 0.15 * k), material=pants, seg=16, rings=10)
     pel.rotation_euler = (0, 0, YAW); parts.append(vg(pel, "hips"))
     if s.get("pads"):
         for side in (-1, 1):
@@ -112,23 +117,40 @@ def build_mesh(rid, s):
                 p0 = p1
     # neck + head
     parts.append(vg(cyl("neck", 0.07 * k, 0.1 * k, neck, material=skin, verts=10), "head"))
-    hd = sphere("head", hr, head_c, scale=(1.0, 0.95, 0.95), material=skin, seg=20, rings=14)
-    parts.append(vg(hd, "head"))
+    hd = sphere("head", hr, head_c, scale=(1.0, 0.95, 0.93), material=skin, seg=20, rings=14)
+    subsurf(hd); parts.append(vg(hd, "head"))
+    for side in (-1, 1):   # ears: rounded, with an inner fold
+        ec = head_c + R * side * hr * 0.97 - U * hr * 0.05 - F * hr * 0.05
+        ear = sphere(f"ear{side}", hr * 0.2, ec, scale=(0.45, 0.8, 1.0), material=skin, seg=10, rings=7)
+        ear.rotation_euler = (0, 0, YAW); parts.append(vg(ear, "head"))
+        ein = sphere(f"earin{side}", hr * 0.11, ec + R * side * hr * 0.06, scale=(0.3, 0.6, 0.8), material=C("#e0907a", 0.7), seg=8, rings=5)
+        ein.rotation_euler = (0, 0, YAW); parts.append(vg(ein, "head"))
     # face (eyes, pupils, highlights, brows, nose, mouth, cheeks)
     eye_w = C("#ffffff", 0.3)
     for side in (-1, 1):
         ep = head_c + F * hr * 0.86 + R * side * hr * 0.36 + U * hr * 0.05
-        e = sphere(f"eye{side}", hr * 0.24, ep, scale=(0.75, 0.45, 1.0), material=eye_w, seg=12, rings=8)
+        e = sphere(f"eye{side}", hr * 0.27, ep, scale=(0.75, 0.45, 1.05), material=eye_w, seg=14, rings=10)
         e.rotation_euler = (0, 0, YAW); parts.append(vg(e, "head"))
-        pu = sphere(f"pupil{side}", hr * 0.13, ep + F * hr * 0.1 - U * hr * 0.02, scale=(0.8, 0.4, 1.1), material=C(s["eye"], 0.2), seg=10, rings=6)
+        ir = sphere(f"iris{side}", hr * 0.16, ep + F * hr * 0.095 - U * hr * 0.02, scale=(0.85, 0.4, 1.1), material=C(s["eye"], 0.25), seg=12, rings=8)
+        ir.rotation_euler = (0, 0, YAW); parts.append(vg(ir, "head"))
+        pu = sphere(f"pupil{side}", hr * 0.085, ep + F * hr * 0.125 - U * hr * 0.02, scale=(0.85, 0.35, 1.1), material=C("#0c0c12", 0.2), seg=10, rings=6)
         pu.rotation_euler = (0, 0, YAW); parts.append(vg(pu, "head"))
-        hl = sphere(f"hl{side}", hr * 0.045, ep + F * hr * 0.15 + U * hr * 0.06 + R * side * hr * 0.03, material=C("#ffffff", 0.1, 0, "#ffffff", 0.5), seg=6, rings=4)
+        hl = sphere(f"hl{side}", hr * 0.05, ep + F * hr * 0.16 + U * hr * 0.07 + R * side * hr * 0.035, material=C("#ffffff", 0.1, 0, "#ffffff", 0.6), seg=6, rings=4)
         parts.append(vg(hl, "head"))
-        br = box(f"brow{side}", (hr * 0.28, 0.02, hr * 0.06), ep + U * hr * 0.32 + F * hr * 0.04, material=C(s["hair"], 0.8))
+        hl2 = sphere(f"hlb{side}", hr * 0.025, ep + F * hr * 0.16 - U * hr * 0.06 - R * side * hr * 0.03, material=C("#ffffff", 0.1, 0, "#ffffff", 0.6), seg=6, rings=4)
+        parts.append(vg(hl2, "head"))
+        lid = sphere(f"lid{side}", hr * 0.285, ep + U * hr * 0.035, scale=(0.78, 0.48, 1.05), material=skin, seg=14, rings=10)
+        lid.rotation_euler = (0, 0, YAW)
+        apply_transform(lid)
+        for v in lid.data.vertices:   # keep only the top cap: an upper eyelid that gives the eyes expression
+            if (Vector(v.co) - ep).dot(U) < hr * 0.12:
+                v.co = Vector(v.co) - U * ((Vector(v.co) - ep).dot(U) - hr * 0.12)
+        parts.append(vg(lid, "head"))
+        br = box(f"brow{side}", (hr * 0.34, 0.03, hr * 0.085), ep + U * hr * 0.36 + F * hr * 0.04, material=C(s["hair"], 0.8), bevel=hr * 0.03)
         br.rotation_euler = (0, -side * 0.15, YAW); parts.append(vg(br, "head"))
         ck = sphere(f"cheek{side}", hr * 0.13, head_c + F * hr * 0.78 + R * side * hr * 0.55 - U * hr * 0.25, scale=(1, 0.35, 0.7), material=C("#ff9a9a", 0.7), seg=8, rings=5)
         ck.rotation_euler = (0, 0, YAW + side * 0.5); parts.append(vg(ck, "head"))
-    no = sphere("nose", hr * 0.1, head_c + F * hr * 0.98 - U * hr * 0.12, material=C(s["skin"], 0.6), seg=8, rings=5)
+    no = sphere("nose", hr * 0.14, head_c + F * hr * 0.97 - U * hr * 0.12, scale=(1.0, 0.9, 0.85), material=C(s["skin"], 0.55), seg=10, rings=7)
     parts.append(vg(no, "head"))
     mo = torus("mouth", hr * 0.12, hr * 0.03, head_c + F * hr * 0.9 - U * hr * 0.36, material=C("#8a2a2a", 0.5), seg=12, cseg=4)
     mo.rotation_mode = "QUATERNION"
@@ -281,19 +303,22 @@ def build_mesh(rid, s):
         sh = chest + R * side * 0.24 * bw * k + U * 0.1 * k
         el = sh + R * side * 0.08 * k - U * 0.2 * k + F * 0.03 * k
         wr = el + R * side * 0.03 * k - U * 0.18 * k + F * 0.06 * k
-        parts.append(vg(sphere(f"shoulder{sn}", 0.085 * k * bw, sh, material=jacket, seg=10, rings=7), f"upperarm.{sn}"))
-        parts.append(vg(seg_cyl(f"uarm{sn}", sh, el, 0.075 * k, jacket, r2=0.065 * k), f"upperarm.{sn}"))
-        parts.append(vg(sphere(f"elbow{sn}", 0.066 * k, el, material=jacket, seg=10, rings=6), f"forearm.{sn}"))
-        parts.append(vg(seg_cyl(f"farm{sn}", el, wr, 0.065 * k, jacket, r2=0.06 * k), f"forearm.{sn}"))
+        sho = sphere(f"shoulder{sn}", 0.115 * k * bw, sh, material=jacket, seg=12, rings=8); subsurf(sho)
+        parts.append(vg(sho, f"upperarm.{sn}"))
+        parts.append(vg(seg_cyl(f"uarm{sn}", sh, el, 0.1 * k, jacket, r2=0.09 * k, verts=14), f"upperarm.{sn}"))
+        parts.append(vg(torus(f"uq{sn}", 0.098 * k, 0.022 * k, (sh + el) / 2, material=quilt, seg=14, cseg=5), f"upperarm.{sn}"))
+        elb = sphere(f"elbow{sn}", 0.092 * k, el, material=jacket, seg=12, rings=8); subsurf(elb)
+        parts.append(vg(elb, f"forearm.{sn}"))
+        parts.append(vg(seg_cyl(f"farm{sn}", el, wr, 0.09 * k, jacket, r2=0.08 * k, verts=14), f"forearm.{sn}"))
         if s.get("wraps"):
             for wi in range(3):
                 wp = wr + (el - wr).normalized() * (0.03 + wi * 0.035)
                 parts.append(vg(torus(f"wrap{sn}{wi}", 0.064 * k, 0.014 * k, wp, material=C(s["wraps"], 0.9), seg=10, cseg=4), f"forearm.{sn}"))
-        parts.append(vg(torus(f"cuff{sn}", 0.06 * k, 0.025 * k, wr + (el - wr).normalized() * 0.02, material=accent, seg=12, cseg=5), f"forearm.{sn}"))
-        gs = (1.7 if s.get("big_gloves") else 1.0)
-        gl = sphere(f"glove{sn}", 0.075 * k * gs, wr + (wr - el).normalized() * 0.06 * gs, scale=(1, 0.85, 1.1), material=C(s["glove"], 0.8), seg=12, rings=8)
-        parts.append(vg(gl, f"hand.{sn}"))
-        th = sphere(f"thumb{sn}", 0.03 * k * gs, wr + (wr - el).normalized() * 0.05 * gs + F * 0.06 * gs, material=C(s["glove"], 0.8), seg=8, rings=5)
+        parts.append(vg(torus(f"cuff{sn}", 0.082 * k, 0.03 * k, wr + (el - wr).normalized() * 0.02, material=accent, seg=14, cseg=6), f"forearm.{sn}"))
+        gs = (1.55 if s.get("big_gloves") else 1.25)   # chunky cartoon mittens
+        gl = sphere(f"glove{sn}", 0.08 * k * gs, wr + (wr - el).normalized() * 0.065 * gs, scale=(1, 0.8, 1.15), material=C(s["glove"], 0.8), seg=14, rings=10)
+        subsurf(gl); parts.append(vg(gl, f"hand.{sn}"))
+        th = sphere(f"thumb{sn}", 0.036 * k * gs, wr + (wr - el).normalized() * 0.05 * gs + F * 0.065 * gs, scale=(1, 1, 1.3), material=C(s["glove"], 0.8), seg=10, rings=6)
         parts.append(vg(th, f"hand.{sn}"))
     # legs: feet placed along the board (front = -Y)
     foot = {"R": Vector((0, -0.24, 0.11)), "L": Vector((0, 0.24, 0.11))}
@@ -304,7 +329,7 @@ def build_mesh(rid, s):
         a, b = hipj[sn], foot[sn]
         mid = (a + b) / 2 + F * 0.12 * k
         knees[sn] = mid
-        parts.append(vg(seg_cyl(f"thigh{sn}", a, mid, 0.09 * k * bw, pants, r2=0.08 * k), f"thigh.{sn}"))
+        parts.append(vg(seg_cyl(f"thigh{sn}", a, mid, 0.122 * k * bw, pants, r2=0.108 * k, verts=14), f"thigh.{sn}"))
         if s.get("pouch") and sn == "R":
             pp = (a + mid) / 2 + R * 0.1 * k
             pz = box("legpouch", (0.07 * k, 0.12 * k, 0.11 * k), pp, material=C("#5a4632", 0.85), bevel=0.015)
@@ -313,13 +338,15 @@ def build_mesh(rid, s):
             parts.append(vg(st2, f"thigh.{sn}"))
         if s.get("pouch"):
             parts.append(vg(sphere(f"kneepad{sn}", 0.085 * k, mid + F * 0.035 * k, scale=(1, 0.6, 1.1), material=C("#2a2d36", 0.5), seg=10, rings=6), f"shin.{sn}"))
-        parts.append(vg(sphere(f"knee{sn}", 0.082 * k, mid, material=pants, seg=10, rings=6), f"shin.{sn}"))
-        parts.append(vg(seg_cyl(f"shin{sn}", mid, b + U * 0.08, 0.08 * k, pants, r2=0.085 * k), f"shin.{sn}"))
-        bt = box(f"boot{sn}", (0.3 * k, 0.15 * k, 0.16 * k), b + U * 0.02 + Vector((0.02, 0, 0)), material=boots, bevel=0.04, segs=2)
+        kn_ = sphere(f"knee{sn}", 0.11 * k, mid, material=pants, seg=14, rings=9)
+        parts.append(vg(kn_, f"shin.{sn}"))
+        parts.append(vg(seg_cyl(f"shin{sn}", mid, b + U * 0.1, 0.105 * k, pants, r2=0.125 * k, verts=14), f"shin.{sn}"))   # flared snow pants
+        parts.append(vg(torus(f"pantcuff{sn}", 0.12 * k, 0.026 * k, b + U * 0.12, material=C(s["pants"], 0.9), seg=14, cseg=5), f"shin.{sn}"))
+        bt = box(f"boot{sn}", (0.34 * k, 0.19 * k, 0.2 * k), b + U * 0.03 + Vector((0.02, 0, 0)), material=boots, bevel=0.07, segs=3)
         parts.append(vg(bt, f"ik.{sn}"))
-        st = box(f"bootstrap{sn}", (0.32 * k, 0.04, 0.05 * k), b + U * 0.06 + Vector((0.02, 0, 0)), material=accent)
+        st = box(f"bootstrap{sn}", (0.36 * k, 0.05, 0.055 * k), b + U * 0.08 + Vector((0.02, 0, 0)), material=accent, bevel=0.015)
         parts.append(vg(st, f"ik.{sn}"))
-        sole = box(f"sole{sn}", (0.31 * k, 0.16 * k, 0.04), b - U * 0.055 + Vector((0.02, 0, 0)), material=C("#2a2a30", 0.6))
+        sole = box(f"sole{sn}", (0.35 * k, 0.2 * k, 0.045), b - U * 0.06 + Vector((0.02, 0, 0)), material=C("#2a2a30", 0.6), bevel=0.015)
         parts.append(vg(sole, f"ik.{sn}"))
     body = join(parts, rid + "_body")
     smooth(body, 50)

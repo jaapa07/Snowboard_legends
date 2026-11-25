@@ -25,7 +25,7 @@ m.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.9, 
 b.data.materials.append(m)
 cam_d = bpy.data.cameras.new("cam"); cam = bpy.data.objects.new("cam", cam_d); sc.collection.objects.link(cam)
 if mode == "portrait":
-    target = Vector((0, 0, 1.32)); dist = 2.25; cam_d.lens = 60
+    target = Vector((0, 0, 1.36)); dist = 2.75; cam_d.lens = 60
     d = Vector((0.85, -1.0, 0.15)).normalized()
 else:
     target = Vector((0, 0, 0.65)); dist = 3.4; cam_d.lens = 45

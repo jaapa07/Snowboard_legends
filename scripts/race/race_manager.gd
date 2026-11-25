@@ -280,6 +280,25 @@ func _track_rider(r: RiderController, delta: float) -> void:
 	if passed > 1:
 		qa.cp_skips += passed - 1   # more than one gate in a single 1/60 s tick means a gate was skipped
 		test_log.append("cp skip rider %d at %.0f (+%d)" % [r.index, s, passed])
+	# wedged anywhere (any state): a rider that has not moved 0.5 m in 4 s is put back on a free lane
+	var movable: bool = r.state in [RiderController.State.GROUND, RiderController.State.AIR, RiderController.State.GRIND]
+	if movable:
+		if not r.has_meta("anchor_p"):
+			r.set_meta("anchor_p", r.global_position)
+		var anchor: Vector3 = r.get_meta("anchor_p")
+		var at := float(r.get_meta("anchor_t", 0.0)) + delta
+		if r.global_position.distance_to(anchor) > 0.5:
+			r.set_meta("anchor_p", r.global_position)
+			at = 0.0
+		r.set_meta("anchor_t", at)
+		qa.max_stall[r.index] = maxf(float(qa.max_stall.get(r.index, 0.0)), at)
+		if at > 4.0:
+			qa["unstuck"] = int(qa.get("unstuck", 0)) + 1
+			test_log.append("unstick rider %d at %.0f" % [r.index, r.s])
+			r.set_meta("anchor_t", 0.0)
+			_reset_rider(r)
+			r.set_meta("anchor_p", r.global_position)
+			return
 	# stall tracking: grounded and not moving while the race runs
 	if r.state == RiderController.State.GROUND and r.speed < 1.0:
 		_stall[r.index] = float(_stall.get(r.index, 0.0)) + delta
@@ -334,9 +353,29 @@ func _safe_reset_s(s: float) -> float:
 		s = prev
 	return s
 
+func _safe_reset_lat(s: float) -> float:
+	## A free lane at s: the centre unless a split divider or a hazard sits there (resetting into the
+	## divider collider left a rider wedged mid-air for the rest of the race).
+	var cand := [0.0, 3.5, -3.5, 6.0, -6.0]
+	for sp in track.splits:
+		if s > float(sp.s0) - 12.0 and s < float(sp.s1) + 12.0:
+			var off := float(sp.div) * 0.5 + 2.5
+			cand = [off, -off, off + 2.0, -off - 2.0]
+	for lat in cand:
+		var blocked := absf(float(lat)) > track.half_width(s) - 1.0
+		for hz in track.hazards:
+			if absf(float(hz.s) - s) < 10.0 and absf(float(hz.lat) - float(lat)) < 2.5:
+				blocked = true
+		var z := track.zone_at(s + 8.0, float(lat))
+		if not z.is_empty() and String(z.kind) == "pit":
+			blocked = true
+		if not blocked:
+			return float(lat)
+	return 0.0
+
 func _reset_rider(r: RiderController) -> void:
 	var s := _safe_reset_s(r.last_safe_s)
-	var p := track.point_at(s, 0.0, 0.5)
+	var p := track.point_at(s, _safe_reset_lat(s), 0.5)
 	r.reset_to(p, track.fwd[track.idx_at(s)], r.tuning.reset_penalty)
 	r.proj_idx = track.idx_at(s)
 	r.last_safe_s = s
@@ -490,7 +529,7 @@ func _end_race() -> void:
 	phase_changed.emit(phase)
 	Game.last_results = build_results()
 	var summary := {"track": String(Game.track_id), "laps": laps, "time": snappedf(race_time, 0.01), "resets": qa.resets, "results": Game.last_results,
-		"ai": ais.map(func(a): return a.stats), "cp_skips": qa.cp_skips, "nan": qa.nan, "max_stall": qa.max_stall, "log": test_log}
+		"ai": ais.map(func(a): return a.stats), "cp_skips": qa.cp_skips, "nan": qa.nan, "unstuck": int(qa.get("unstuck", 0)), "max_stall": qa.max_stall, "log": test_log}
 	race_done.emit(summary)
 	if Game.has_meta("test_hold"):
 		return   # in-process test runner owns the flow

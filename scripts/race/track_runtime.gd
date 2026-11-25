@@ -281,6 +281,68 @@ func _build_environment() -> void:
 	env.environment = e
 	add_child(env)
 	add_child(sun)
+	_build_clouds(theme)
+
+var _clouds: MultiMeshInstance3D
+var _cloud_base: Array[Transform3D] = []
+
+func _build_clouds(theme: String) -> void:
+	## Stylised cloud banks: soft billboard puffs scattered high above and around the course, drifting slowly.
+	var lo := Vector3(INF, INF, INF); var hi := Vector3(-INF, -INF, -INF)
+	for i in range(0, pos.size(), 8):
+		lo = lo.min(pos[i]); hi = hi.max(pos[i])
+	var ctr := (lo + hi) * 0.5
+	var span := maxf(hi.x - lo.x, hi.z - lo.z) * 0.5 + 350.0
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = true
+	var count: int = [14, 26, 36][clampi(quality, 0, 2)]
+	mm.instance_count = count * 4
+	var q := QuadMesh.new(); q.size = Vector2(1, 1)
+	var m := StandardMaterial3D.new()
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.vertex_color_use_as_albedo = true
+	m.disable_fog = false
+	if ResourceLoader.exists("res://assets/sprites/fx/puff.png"):
+		m.albedo_texture = load("res://assets/sprites/fx/puff.png")
+	q.material = m
+	mm.mesh = q
+	var col := {"night": Color(0.42, 0.48, 0.72, 0.75), "volcano": Color(0.55, 0.5, 0.5, 0.8), "storm": Color(0.82, 0.85, 0.92, 0.9), "sky": Color(1.0, 0.92, 0.96, 0.9)}.get(theme, Color(1, 1, 1, 0.9)) as Color
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(String(def.id))
+	var k := 0
+	for c in count:
+		var a := rng.randf() * TAU
+		var r := span * rng.randf_range(0.55, 1.15)
+		var base := Vector3(ctr.x + cos(a) * r, hi.y + rng.randf_range(90.0, 200.0), ctr.z + sin(a) * r)
+		var size := rng.randf_range(70.0, 150.0)
+		for p in 4:   # each cloud = 4 overlapping puffs of different size and brightness
+			var off := Vector3(rng.randf_range(-0.6, 0.6), rng.randf_range(-0.12, 0.2), rng.randf_range(-0.6, 0.6)) * size
+			var sz := size * rng.randf_range(0.55, 1.0)
+			var t := Transform3D(Basis().scaled(Vector3(sz * 1.6, sz, 1.0)), base + off)
+			mm.set_instance_transform(k, t)
+			mm.set_instance_color(k, col.lightened(rng.randf_range(0.0, 0.15)) * Color(1, 1, 1, rng.randf_range(0.7, 1.0)))
+			_cloud_base.append(t)
+			k += 1
+	_clouds = MultiMeshInstance3D.new()
+	_clouds.multimesh = mm
+	_clouds.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_clouds.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+	add_child(_clouds)
+
+func _drift_clouds(delta: float) -> void:
+	if _clouds == null:
+		return
+	_cloud_t += delta
+	var mm := _clouds.multimesh
+	var drift := Vector3(1.6, 0, 0.6) * _cloud_t   # slow wind drift
+	for i in _cloud_base.size():
+		var t := _cloud_base[i]
+		mm.set_instance_transform(i, Transform3D(t.basis, t.origin + drift))
+
+var _cloud_t := 0.0
 
 # ---------------------------------------------------------------- colliders for features
 func _static(name_: String) -> StaticBody3D:
@@ -508,6 +570,7 @@ func _build_gates() -> void:
 	ls.rotation.y = atan2(-fwd[idx_at(lift_s)].x, -fwd[idx_at(lift_s)].z)
 
 func _process(delta: float) -> void:
+	_drift_clouds(delta)
 	_coin_spin += delta * 3.0
 	_cabin_t += delta / 14.0
 	for i in cabins.size():
