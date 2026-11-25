@@ -8,17 +8,17 @@ config/description="Spiritual successor arcade snowboard racer. Godot 4.4.1."
 config/version="1.0.0"
 run/main_scene="res://scenes/menus/boot.tscn"
 config/features=PackedStringArray("4.4", "Forward Plus")
-config/icon="res://assets/sprites/ui/icon.png"
+
 boot_splash/bg_color=Color(0.05, 0.09, 0.2, 1)
 boot_splash/show_image=false
 
 [autoload]
 
-Game="*res://scripts/core/game.gd"
 Registry="*res://scripts/core/registry.gd"
 Save="*res://scripts/save/save_service.gd"
-Audio="*res://scripts/core/audio_manager.gd"
 Inputs="*res://scripts/core/input_router.gd"
+Audio="*res://scripts/core/audio_manager.gd"
+Game="*res://scripts/core/game.gd"
 
 [display]
 

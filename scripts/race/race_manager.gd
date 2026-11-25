@@ -92,7 +92,7 @@ func _spawn() -> void:
 	for i in ps.size():
 		var p: Dictionary = ps[i]
 		var r := RiderController.new()
-		var human := p.type == "human" and not Game.headless_autoplay
+		var human: bool = p.type == "human" and not Game.headless_autoplay
 		var prov: Object
 		if human:
 			prov = HumanProvider.new(String(p.device))
@@ -189,6 +189,11 @@ func _race_tick(delta: float) -> void:
 		_track_rider(r, delta)
 	_repel()
 	_lift_tick(delta)
+	if Game.headless_autoplay and Engine.get_physics_frames() % 300 == 0:
+		var parts: Array[String] = []
+		for r in riders:
+			parts.append("%s s=%.0f lat=%.1f v=%.1f st=%d lap=%d cp=%d y=%.1f" % [r.def.id, r.s, r.lat, r.speed, r.state, r.lap, r.next_cp, r.global_position.y])
+		print("T=%.0f | " % race_time + " | ".join(parts))
 	_rank_t += delta
 	if _rank_t >= 0.1:
 		_rank_t = 0.0
@@ -236,7 +241,7 @@ func _track_rider(r: RiderController, delta: float) -> void:
 	r.progress = r.lap * track.length + r.s
 	# off-track / fell below the course
 	var hw := track.half_width(s)
-	var out := absf(r.lat) > hw + track.data.berm_w + 4.0 or float(pr.height) < -9.0 or float(pr.dist) > hw + 30.0
+	var out: bool = absf(r.lat) > hw + track.data.berm_w + 4.0 or float(pr.height) < -9.0 or float(pr.dist) > hw + 30.0
 	if not r.global_position.is_finite() or not r.velocity.is_finite():
 		out = true
 		r.offtrack_t = 99.0
@@ -397,7 +402,12 @@ func _end_race() -> void:
 		r.finish_time = -1.0
 	phase_changed.emit(phase)
 	Game.last_results = build_results()
-	if not Game.headless_autoplay:
+	if Game.headless_autoplay:
+		var summary := {"track": String(Game.track_id), "laps": laps, "time": snappedf(race_time, 0.01), "resets": test_log.size(), "results": Game.last_results,
+			"ai": ais.map(func(a): return a.stats)}
+		print("RACE_RESULT " + JSON.stringify(summary))
+		get_tree().quit(0)
+	else:
 		get_tree().create_timer(3.5).timeout.connect(Game.goto_results)
 
 func build_results() -> Array:

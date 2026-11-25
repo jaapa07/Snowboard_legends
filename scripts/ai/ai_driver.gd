@@ -24,6 +24,7 @@ var _flip_goal: float = 0.0
 var _grab_goal: float = 0.0
 var _item_t: float = 0.0
 var _noise: float = 0.0
+var _was_jump: bool = false
 var stats := {"jumps": 0, "tricks": 0, "items": 0, "recoveries": 0}
 
 func _init(diff: int, seed_: int, race_node: Node) -> void:
@@ -117,8 +118,10 @@ func _think(r: RiderController, delta: float) -> InputCommand:
 			_stuck_t = 0.0
 			stats.recoveries += 1
 	_items(r, c, tr, kmax, delta)
-	if c.jump_held:
+	if c.jump_held and not _was_jump:
 		_plan_trick(r)
+		stats.jumps += 1
+	_was_jump = c.jump_held
 	return c
 
 func _racing_line(r: RiderController, tr: TrackRuntime, s: float, hw: float) -> float:
@@ -136,7 +139,7 @@ func _racing_line(r: RiderController, tr: TrackRuntime, s: float, hw: float) -> 
 				var fancy := _lane_has_feature(tr, sp, right)
 				var bad_r := _lane_bad(tr, sp, right)
 				var bad_l := _lane_bad(tr, sp, left)
-				var take_fancy := rng.randf() < LANE_SKILL[difficulty]
+				var take_fancy: bool = rng.randf() < LANE_SKILL[difficulty]
 				var choice := right if (fancy and take_fancy) else left
 				if not fancy and rng.randf() < 0.5:
 					choice = right
@@ -146,9 +149,14 @@ func _racing_line(r: RiderController, tr: TrackRuntime, s: float, hw: float) -> 
 					choice = right
 				_lane_choice[key] = choice
 			return _lane_choice[key]
-	for pl in tr.platforms:
-		if s > float(pl.s0) - 30.0 and s < float(pl.s1) and difficulty >= 1 and rng.randf() < 0.02:
-			pass
+	# item stations: steer through a station when we can afford it and the slot is free
+	if r.race_coins >= ItemSystem.PRICE and race.items.enabled:
+		for st in tr.stations:
+			var ds: float = float(st.s) - s
+			if ds > 0.0 and ds < 70.0:
+				var want := (String(st.slot) == "offense" and r.offense_item == &"") or (String(st.slot) == "utility" and r.utility_item == &"")
+				if want:
+					return float(st.lat)
 	return lat
 
 func _lane_has_feature(tr: TrackRuntime, sp: Dictionary, lane_lat: float) -> bool:
@@ -219,6 +227,8 @@ func _plan_trick(r: RiderController) -> void:
 		_grab_goal = 0.45
 
 func _air(r: RiderController, c: InputCommand) -> InputCommand:
+	if fsm != S.TRICK and (_trick_goal > 0.0 or _flip_goal > 0.0):
+		stats.tricks += 1
 	fsm = S.TRICK
 	# predicted remaining air time from vertical speed and height above the course
 	var h := maxf(0.0, r.global_position.y - r.track.point_at(r.s, r.lat).y)

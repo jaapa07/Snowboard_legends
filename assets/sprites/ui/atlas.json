@@ -1,0 +1,247 @@
+{
+ "size": [
+  1024,
+  1024
+ ],
+ "padding": 4,
+ "sprites": {
+  "confetti_strip": {
+   "rect": [
+    0,
+    0,
+    256,
+    64
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 4,
+   "frame_size": [
+    64,
+    64
+   ]
+  },
+  "flake": {
+   "rect": [
+    260,
+    0,
+    64,
+    64
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    64,
+    64
+   ]
+  },
+  "puff": {
+   "rect": [
+    328,
+    0,
+    64,
+    64
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    64,
+    64
+   ]
+  },
+  "shard": {
+   "rect": [
+    396,
+    0,
+    64,
+    64
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    64,
+    64
+   ]
+  },
+  "sparkle": {
+   "rect": [
+    464,
+    0,
+    64,
+    64
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    64,
+    64
+   ]
+  },
+  "star": {
+   "rect": [
+    532,
+    0,
+    64,
+    64
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    64,
+    64
+   ]
+  },
+  "arrow_left": {
+   "rect": [
+    600,
+    0,
+    128,
+    128
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    128,
+    128
+   ]
+  },
+  "arrow_right": {
+   "rect": [
+    732,
+    0,
+    128,
+    128
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    128,
+    128
+   ]
+  },
+  "icon": {
+   "rect": [
+    0,
+    132,
+    256,
+    256
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    256,
+    256
+   ]
+  },
+  "logo": {
+   "rect": [
+    0,
+    392,
+    1200,
+    420
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    1200,
+    420
+   ]
+  },
+  "medal_bronze": {
+   "rect": [
+    0,
+    816,
+    128,
+    160
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    128,
+    160
+   ]
+  },
+  "medal_gold": {
+   "rect": [
+    132,
+    816,
+    128,
+    160
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    128,
+    160
+   ]
+  },
+  "medal_silver": {
+   "rect": [
+    264,
+    816,
+    128,
+    160
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    128,
+    160
+   ]
+  },
+  "warning": {
+   "rect": [
+    396,
+    816,
+    128,
+    128
+   ],
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "frames": 1,
+   "frame_size": [
+    128,
+    128
+   ]
+  }
+ }
+}

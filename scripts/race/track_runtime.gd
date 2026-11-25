@@ -339,7 +339,7 @@ func _build_props() -> void:
 			if not groups.has(k):
 				groups[k] = []
 			groups[k].append(pr)
-	var veg_scale := [0.55, 0.8, 1.0][clampi(quality, 0, 2)]
+	var veg_scale: float = [0.55, 0.8, 1.0][clampi(quality, 0, 2)]
 	for k in groups:
 		var mesh := Registry.mesh_of(PROPS_GLB, k)
 		if mesh == null:
@@ -392,7 +392,7 @@ func _build_lift() -> void:
 		var dir := (lift_top - lift_bottom); dir.y = 0
 		t.rotation.y = atan2(dir.x, dir.z) + PI / 2
 	for side in [-2.6, 2.6]:
-		var off := (lift_top - lift_bottom).cross(Vector3.UP).normalized() * side
+		var off: Vector3 = (lift_top - lift_bottom).cross(Vector3.UP).normalized() * side
 		_cable(lift_bottom + off, lift_top + off)
 	for i in 10:
 		var c := Registry.prop_mesh(PROPS_GLB, "lift_cabin_%d" % (i % 4))

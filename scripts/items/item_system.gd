@@ -168,7 +168,7 @@ func _physics_process(delta: float) -> void:
 	for i in range(projectiles.size() - 1, -1, -1):
 		var pj: Dictionary = projectiles[i]
 		pj.t += delta
-		var done := pj.t > PROJECTILE_LIFE
+		var done: bool = pj.t > PROJECTILE_LIFE
 		match String(pj.kind):
 			"snowball":
 				var nxt: Vector3 = pj.p + pj.v * delta

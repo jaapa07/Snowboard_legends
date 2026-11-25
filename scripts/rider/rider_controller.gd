@@ -38,6 +38,8 @@ var off_ground_t: float = 0.0
 var jump_charge: float = 0.0
 var _jump_was_held: bool = false
 var _buffer_t: float = 0.0
+var _vf: float = 0.0
+var _vl: float = 0.0
 var spin_angle: float = 0.0
 var flip_angle: float = 0.0
 var grab_time: float = 0.0
@@ -122,6 +124,7 @@ func place_at(p: Vector3, heading_fwd: Vector3) -> void:
 	global_position = p
 	yaw = atan2(-heading_fwd.x, -heading_fwd.z)
 	velocity = Vector3.ZERO
+	_vf = 0.0; _vl = 0.0
 	yaw_rate = 0.0
 	spin_angle = 0.0; flip_angle = 0.0
 	reset_physics_interpolation()
@@ -168,6 +171,7 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector3.ZERO
 			if frozen_t <= 0.0:
 				state = State.GROUND
+				_vf = 0.0; _vl = 0.0
 		State.FINISHED:
 			_step_finished(delta)
 	if is_controllable():
@@ -221,8 +225,9 @@ func _step_ground(cmd: InputCommand, delta: float) -> void:
 	var f := (d - ground_n * d.dot(ground_n)).normalized()
 	var r := f.cross(ground_n).normalized()
 	var si := _surface_info()
-	var vf := velocity.dot(f)
-	var vl := velocity.dot(r)
+	# speed is integrated internally; the slide result only removes what walls actually blocked
+	var vf := _vf
+	var vl := _vl
 	# gravity along the tangent plane
 	var g := Vector3(0, -tuning.gravity, 0)
 	vf += g.dot(f) * delta * tuning.slope_accel_factor * m_accel
@@ -256,6 +261,17 @@ func _step_ground(cmd: InputCommand, delta: float) -> void:
 	velocity = f * vf + r * vl - ground_n * tuning.ground_stick + wind * delta * 10.0
 	floor_snap_length = 0.7
 	move_and_slide()
+	for ci in get_slide_collision_count():
+		var cn := get_slide_collision(ci).get_normal()
+		if cn.y < 0.55:  # wall / obstacle: lose the blocked part of the motion
+			var into := minf(0.0, (f * vf + r * vl).dot(cn))
+			var blocked := cn * into
+			vf -= blocked.dot(f)
+			vl -= blocked.dot(r)
+			if into < -6.0:
+				slow_t = maxf(slow_t, 0.25)
+	_vf = vf
+	_vl = vl
 	_rider_coins()
 	# jump input: charge while held, fire on release
 	if cmd.jump_held:
@@ -273,6 +289,13 @@ func _step_ground(cmd: InputCommand, delta: float) -> void:
 		off_ground_t += delta
 		if off_ground_t > tuning.coyote_time:
 			_enter_air(false)
+
+func _seed_speed() -> void:
+	var d := forward_dir()
+	var f := (d - ground_n * d.dot(ground_n)).normalized()
+	var r := f.cross(ground_n).normalized()
+	_vf = velocity.dot(f)
+	_vl = velocity.dot(r)
 
 func _do_jump(charge: float, accel_hop: bool) -> void:
 	if state != State.GROUND and off_ground_t > tuning.coyote_time:
@@ -345,6 +368,7 @@ func _land() -> void:
 		dev += (impact - 16.0) * 3.0
 	ground_n = get_floor_normal()
 	state = State.GROUND
+	_seed_speed()
 	off_ground_t = 0.0
 	floor_snap_length = 0.7
 	var quality := "clean"
@@ -353,10 +377,10 @@ func _land() -> void:
 		return
 	elif dev > tuning.land_clean_deg:
 		quality = "sloppy"
-		velocity *= tuning.sloppy_speed_mult
+		_scale_speed(tuning.sloppy_speed_mult)
 	elif dev < tuning.land_perfect_deg and (spin_deg > 150.0 or flip_deg > 300.0 or grab_time > 0.3):
 		quality = "perfect"
-		velocity += forward_dir() * 2.0
+		_vf += 2.0
 	_score_tricks(spin_deg, flip_deg, quality)
 	visual.on_land(quality)
 	spin_angle = 0.0; flip_angle = 0.0
@@ -369,7 +393,7 @@ func _score_tricks(spin_deg: float, flip_deg: float, quality: String) -> void:
 	var pts := 0
 	var spins := int(round(spin_deg / 180.0))
 	if spins >= 1:
-		var key := ["180", "360", "540", "720"][mini(spins, 4) - 1]
+		var key: String = ["180", "360", "540", "720"][mini(spins, 4) - 1]
 		parts.append(key); pts += BASE_POINTS[key]
 	var flips := int(round(flip_deg / 360.0))
 	if flips >= 1:
@@ -419,6 +443,7 @@ func _step_fallen(delta: float) -> void:
 	move_and_slide()
 	if fallen_t <= 0.0:
 		state = State.GROUND
+		_seed_speed()
 		invuln_t = 1.0
 		visual.on_recover()
 
@@ -517,15 +542,15 @@ func apply_hit(kind: String) -> bool:
 	match kind:
 		"snowball":
 			slow_t = 1.0 * res
-			velocity *= 0.55
+			_scale_speed(0.55)
 			visual.on_hit()
 		"icemine":
 			spinout_t = 1.2 * res
-			velocity *= 0.7
+			_scale_speed(0.7)
 			visual.on_hit()
 		"penguin":
 			if state == State.GROUND or state == State.AIR:
-				velocity *= 0.4
+				_scale_speed(0.4)
 				_crash()
 				fallen_t = minf(fallen_t, 1.0)
 		"wave":
@@ -539,6 +564,14 @@ func apply_hit(kind: String) -> bool:
 func push(impulse: Vector3) -> void:
 	if state == State.GROUND or state == State.AIR:
 		velocity += impulse
+		var f := forward_dir()
+		_vf += impulse.dot(f)
+		_vl += impulse.dot(f.cross(Vector3.UP))
+
+func _scale_speed(k: float) -> void:
+	velocity *= k
+	_vf *= k
+	_vl *= k
 
 # ------------------------------------------------------------------ lift / reset
 func enter_lift() -> void:
@@ -555,6 +588,7 @@ func exit_lift(p: Vector3, fwd_dir: Vector3) -> void:
 	state = State.GROUND
 	invuln_t = 1.0
 	velocity = fwd_dir * 6.0
+	_vf = 6.0
 	visual.on_lift(false)
 
 func reset_to(p: Vector3, fwd_dir: Vector3, penalty: float) -> void:
