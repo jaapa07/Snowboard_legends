@@ -14,7 +14,7 @@ Capturas reais: `docs/screenshots/`.
 ## Assets (`ASSET_STATUS.md`, `assets.manifest.json` — 221 entradas, 0 missing/in_progress; `--check` bloqueia release)
 - ✅ 9 pilotos rigados (8 + Kaito, original e secreto), 24 clips cada (validados no GLB pelo manifesto). ⚠ 5,7–7,4k tri, abaixo do orçamento indicativo 8–18k.
 - ✅ Clip `push` (remada com o pé de trás) por transferência de movimento de captura Mixamo ("Skateboarding"), espelhado para base goofy, aplicado aos 9 pilotos — `tools/blender/mixamo_retarget.py`; FBX original não versionado (termos da Adobe), fallback para o clip autoral sem ele. O clip "andando parado" foi testado para `glide` e descartado (< 3° de movimento).
-- 🟡 Clips de captura Rokoko: `victory` (9 comemorações diferentes), `idle` (esperas variadas por piloto), `fall` + `recover` (queda presa à prancha e levantar) — `mixamo_retarget.transfer_abs`; licença do pacote **a confirmar**.
+- 🟡 Clips de captura Rokoko: `victory` (9 comemorações diferentes), `idle` (esperas variadas por piloto), `fall` + `recover` (queda presa à prancha e levantar; 2 variantes: Rokoko Falling e Mixamo Knocked Down/Getting Up), `hit` (Mixamo Jogging Stumble) — `mixamo_retarget.transfer_abs`; licença do pacote **a confirmar**.
 - ✅ 12 pranchas, props/vegetação/teleférico, 12 itens (10 + cometa caçador + redemoinho), moeda, 2 estações, alvo de desafio.
 - ✅ 9 pistas GLB + dados; checkpoints a cada 60 m (teste de conteúdo); descidas por pista (3–9).
 - ✅ Retratos (9) e ícones de itens (12 + moeda + alvo) renderizados em Cycles (`tools/blender/render_rider.py`, `render_objects.py`).

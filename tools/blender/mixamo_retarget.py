@@ -202,7 +202,7 @@ def pick_window(clip, length=(96, 144), step=6, max_hips=0.8):
 
 def transfer_abs(clip, window, our_dir: dict, chest_facing: Vector, leg_scale: float, loop_blend: int = 10,
                  hips_clamp: float = 0.1, base_hips_loc=(0, 0, -0.04), z_range=(-0.3, 0.08), speed: float = 1.0,
-                 upper_only: bool = False, base_q: dict = None):
+                 upper_only: bool = False, base_q: dict = None, z_bias: float = 0.0):
     """speed > 1 plays the capture faster (falls are quicker on a board than standing). upper_only keeps the
     hips/legs in the authored base pose (seated captures used for a standing rider)."""
     s, e = window
@@ -228,7 +228,7 @@ def transfer_abs(clip, window, our_dir: dict, chest_facing: Vector, leg_scale: f
             o = Y @ f["hips_off"]
             h = Vector((max(-hips_clamp, min(hips_clamp, o.x)), max(-hips_clamp, min(hips_clamp, o.y)), o.z)) * leg_scale
             pose["hips_loc"] = (base_hips_loc[0] + h.x, base_hips_loc[1] + h.y,
-                                base_hips_loc[2] + max(z_range[0], min(z_range[1], h.z)))
+                                base_hips_loc[2] + max(z_range[0], min(z_range[1], h.z + z_bias * leg_scale)))
         keys.append((k, pose))
     if loop_blend:
         n = len(keys)

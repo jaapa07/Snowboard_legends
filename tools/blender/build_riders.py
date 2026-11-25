@@ -643,8 +643,18 @@ ABS = {
     # Pilot_Wave (seated) was tried for liftIdle with upper_only=True: the chosen stretch read as a slumped head,
     # no visible wave, so the authored lift clip stays.
     # strapped-in fall: body goes over, board stays on the feet; then the get-up
-    "fall": ({"*": "Falling_HUMANIK_769.fbx"}, dict(window=(30, 108), speed=2.0, loop=False, hips_clamp=0.35, z_range=(-0.62, 0.05))),
-    "recover": ({"*": "Falling_HUMANIK_769.fbx"}, dict(window=(350, 400), speed=2.0, loop=False, hips_clamp=0.35, z_range=(-0.62, 0.05))),
+    # two strapped-in falls (board stays on the feet), each with its matching get-up:
+    #   Rokoko "Falling" (over to the side, sits up) and Mixamo "Knocked Down" + "Getting Up" (flat on the back)
+    "fall": ({**{r: "Falling_HUMANIK_769.fbx" for r in ("niko", "taro", "yuki", "kaito", "pippa")},
+              **{r: "Knocked_Down.fbx" for r in ("mika", "luna", "boro", "zed")}},
+             dict(window=(30, 108), speed=2.0, loop=False, hips_clamp=0.35, z_range=(-0.62, 0.05),
+                  per_file={"Knocked_Down.fbx": dict(window=(6, 60), speed=1.3, z_bias=0.06)})),
+    "recover": ({**{r: "Falling_HUMANIK_769.fbx" for r in ("niko", "taro", "yuki", "kaito", "pippa")},
+                 **{r: "Getting_Up.fbx" for r in ("mika", "luna", "boro", "zed")}},
+                dict(window=(350, 400), speed=2.0, loop=False, hips_clamp=0.35, z_range=(-0.62, 0.05),
+                     per_file={"Getting_Up.fbx": dict(window=(66, 146), speed=2.5, z_bias=0.12)})),
+    # Mixamo "Jogging Stumble": stagger when hit by a power (feet stay on the board)
+    "hit": ({"*": "Jogging_Stumble.fbx"}, dict(window=(2, 28), speed=1.0, loop=False, hips_clamp=0.12)),
 }
 _SAMPLES = {}
 ABS_CLIPS = {}   # (clip, rider) -> (sample, window)
@@ -660,14 +670,14 @@ def load_abs(ids):
             if fn not in _SAMPLES:
                 _SAMPLES[fn] = mixr.sample_abs(path, 24)
             smp = _SAMPLES[fn]
-            win = opt.get("window") or mixr.pick_window(smp, length=opt.get("length", (96, 144)))
-            ABS_CLIPS[(clip, rid)] = (smp, win)
+            o = {**opt, **opt.get("per_file", {}).get(fn, {})}
+            win = o.get("window") or mixr.pick_window(smp, length=o.get("length", (96, 144)))
+            ABS_CLIPS[(clip, rid)] = (smp, win, o)
             print(f"MOCAP {clip}/{rid} <- {fn} frames {win[0]}-{win[1]}")
 
 
 def abs_clip(rig, clip, rid):
-    smp, win = ABS_CLIPS[(clip, rid)]
-    opt = ABS[clip][1]
+    smp, win, opt = ABS_CLIPS[(clip, rid)]
     our_dir = {b: (rig.data.bones[b].tail_local - rig.data.bones[b].head_local).normalized() for b in mixr.ORDER}
     leg_scale = rig.data.bones["hips"].head_local.z / smp["rest_h"]
     base = opt.get("base")
@@ -676,7 +686,8 @@ def abs_clip(rig, clip, rid):
         kw = dict(base_q={b: char_q(*base.get(b, (0, 0, 0))) for b in mixr.ORDER}, base_hips_loc=base["hips_loc"])
     return mixr.transfer_abs(smp, win, our_dir, F, leg_scale, loop_blend=10 if opt.get("loop", True) else 0,
                              hips_clamp=opt.get("hips_clamp", 0.1), z_range=opt.get("z_range", (-0.3, 0.08)),
-                             speed=opt.get("speed", 1.0), upper_only=opt.get("upper_only", False), **kw)
+                             speed=opt.get("speed", 1.0), upper_only=opt.get("upper_only", False),
+                             z_bias=opt.get("z_bias", 0.0), **kw)
 
 
 def make_actions(rig, victory_kind, rid=""):
