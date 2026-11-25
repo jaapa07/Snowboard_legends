@@ -220,7 +220,7 @@ func _surface_info() -> Dictionary:
 
 func _step_ground(cmd: InputCommand, delta: float) -> void:
 	var n := get_floor_normal() if is_on_floor() else ground_n
-	ground_n = ground_n.slerp(n, clampf(delta * 12.0, 0.0, 1.0)).normalized()
+	ground_n = ground_n.lerp(n, clampf(delta * 12.0, 0.0, 1.0)).normalized()
 	var d := forward_dir()
 	var f := (d - ground_n * d.dot(ground_n)).normalized()
 	var r := f.cross(ground_n).normalized()

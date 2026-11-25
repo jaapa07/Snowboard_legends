@@ -173,7 +173,7 @@ func tick(delta: float) -> void:
 	var cmd := r.last_cmd
 	# orientation: yaw, ground alignment, carving lean
 	var target_up := r.ground_n if r.state == RiderController.State.GROUND or r.state == RiderController.State.FALLEN else Vector3.UP
-	_up = _up.slerp(target_up, clampf(delta * 10.0, 0, 1)).normalized()
+	_up = _up.lerp(target_up, clampf(delta * 10.0, 0, 1)).normalized()  # lerp: slerp of near-parallel unit vectors trips Godot axis-normalization checks
 	var fwd := r.forward_dir()
 	var f := (fwd - _up * fwd.dot(_up)).normalized()
 	var x := f.cross(_up).normalized()

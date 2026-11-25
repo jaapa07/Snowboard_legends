@@ -18,21 +18,8 @@ func _ready() -> void:
 		var si := args.find("--screenshot")
 		if si >= 0:
 			_capture(args[si + 1], float(_str(args, "--at", "8")), _int(args, "--count", 1), float(_str(args, "--every", "3")))
-		var shot := _str(args, "--screenshot", "")
-		if shot != "":
-			_capture(shot, float(_str(args, "--at", "12")))
 	else:
 		Game.goto_menu.call_deferred()
-
-func _capture(path: String, at: float) -> void:
-	## Evidence capture: renders the real game frame after `at` seconds of game time and quits.
-	reparent.call_deferred(get_tree().root)
-	await get_tree().create_timer(at, true, false, true).timeout
-	await RenderingServer.frame_post_draw
-	var img := get_viewport().get_texture().get_image()
-	img.save_png(path)
-	print("SCREENSHOT ", path)
-	get_tree().quit()
 
 func _capture(path: String, at: float, count: int, every: float) -> void:
 	## Real frame grabs from the running game (evidence screenshots).
