@@ -209,7 +209,7 @@ func _draw() -> void:
 		draw_circle(_stick_origin + k, 46 * u, Color(1, 1, 1, 0.45))
 	else:
 		var hint := Vector2(_safe.position.x + 200 * u, _safe.end.y - 180 * u)
-		draw_circle(hint, STICK_R, Color(0.04, 0.07, 0.18, 0.22))
+		draw_circle(hint, STICK_R, Color(0.04, 0.07, 0.18, 0.12))
 		draw_arc(hint, STICK_R, 0, TAU, 48, Color(1, 1, 1, 0.45), 3.0)
 		draw_string(_font, hint + Vector2(-70, 8) * u, "◀  ▶" if not tilt_steering else "▲ / ▼", HORIZONTAL_ALIGNMENT_CENTER, 140 * u, int(28 * u), Color(1, 1, 1, 0.35))
 		var cap := ("DIREÇÃO" if not tilt_steering else "↑ AGACHAR  ↓ FREAR") if Game.lang() != "en" else ("STEER" if not tilt_steering else "↑ TUCK  ↓ BRAKE")

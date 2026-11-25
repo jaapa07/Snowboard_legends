@@ -281,7 +281,7 @@ func _build_environment() -> void:
 	else:
 		sky.sky_material = sm
 	e.background_mode = Environment.BG_SKY; e.sky = sky
-	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY; e.ambient_light_energy = 0.75
+	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY; e.ambient_light_energy = 0.6
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC; e.tonemap_exposure = 1.0; e.tonemap_white = 6.0
 	e.fog_enabled = true; e.fog_light_color = Color(String(data.fog)); e.fog_density = 0.0016 if not (Game.perf_low() and quality == 0) else 0.0035
 	e.fog_aerial_perspective = 0.55; e.fog_sky_affect = 0.35
@@ -293,11 +293,11 @@ func _build_environment() -> void:
 	e.ssao_enabled = quality >= 1; e.ssao_radius = 1.6; e.ssao_intensity = 1.6; e.ssao_power = 1.4; e.ssao_detail = 0.6
 	e.ssao_light_affect = 0.15
 	e.ssil_enabled = quality >= 2; e.ssil_radius = 4.0; e.ssil_intensity = 0.6
-	e.adjustment_enabled = true; e.adjustment_saturation = 1.16; e.adjustment_contrast = 1.06
+	e.adjustment_enabled = true; e.adjustment_saturation = 1.24; e.adjustment_contrast = 1.12
 	var theme := String(data.theme)
 	sun = DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(float(data.sun[0]), float(data.sun[1]), 0)
-	sun.light_energy = 1.0
+	sun.light_energy = 1.25
 	sun.light_color = Color(1.0, 0.97, 0.92)
 	sun.shadow_enabled = quality >= 1
 	sun.shadow_blur = 1.4
