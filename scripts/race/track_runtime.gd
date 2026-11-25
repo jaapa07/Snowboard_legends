@@ -265,7 +265,7 @@ func _build_environment() -> void:
 	sm.ground_curve = 0.04
 	var theme0 := String(data.theme)
 	var pano_path := "res://assets/sky/sky_%s.jpg" % theme0
-	if ResourceLoader.exists(pano_path):
+	if ResourceLoader.exists(pano_path) and OS.get_environment("SBL_NO_PANO") == "":
 		# photographic CC0 sky dome (Poly Haven pure-sky HDRI, tone-mapped and graded per theme)
 		var pm := PanoramaSkyMaterial.new()
 		pm.panorama = load(pano_path)
