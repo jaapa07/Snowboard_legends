@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"cume_celestial"
+display_name = "Cume Celestial"
+display_name_en = "Celestial Summit"
+scene_path = "res://assets/models/tracks/cume_celestial.glb"
+data_path = "res://assets/data/tracks/cume_celestial.json"
+music_path = "res://assets/audio/music/track_cume_celestial.ogg"
+map_path = "res://assets/sprites/maps/cume_celestial.png"
+cup = 4
+length_m = 1500.0
+description_pt = "A prova final: técnica, saltos e rotas."
+description_en = "The final test: technique, jumps and routes."
+campaign = true

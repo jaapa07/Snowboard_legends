@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RiderDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/rider_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"yuki"
+display_name = "Yuki"
+speed = 2
+control = 5
+jump = 4
+accel = 4
+resist = 2
+model_path = "res://assets/models/riders/yuki.glb"
+portrait_path = "res://assets/sprites/portraits/yuki.png"
+color = Color(0.227, 0.478, 1.000, 1)
+tagline_pt = "Leve como neve fresca."
+tagline_en = "Light as fresh powder."
+unlock = "cup1:gold"

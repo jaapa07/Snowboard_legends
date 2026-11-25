@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"magnet"
+display_name = "Ímã"
+display_name_en = "Magnet"
+slot = "utility"
+icon_path = "res://assets/sprites/items/magnet.png"
+model_node = "item_magnet"
+duration = 5.0
+weights = PackedFloat32Array(1.0, 1.0, 1.0, 0.8)
+description_pt = "Atrai moedas próximas por 5 s."
+counterplay_pt = "Alcance limitado."

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"vale_pinheiros"
+display_name = "Vale dos Pinheiros"
+display_name_en = "Pine Valley"
+scene_path = "res://assets/models/tracks/vale_pinheiros.glb"
+data_path = "res://assets/data/tracks/vale_pinheiros.json"
+music_path = "res://assets/audio/music/track_vale_pinheiros.ogg"
+map_path = "res://assets/sprites/maps/vale_pinheiros.png"
+cup = 1
+length_m = 850.0
+description_pt = "Descida aberta entre pinheiros, vila e riacho."
+description_en = "Open run through pines, village and creek."
+campaign = true

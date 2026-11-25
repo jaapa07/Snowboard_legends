@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"tempestade_polar"
+display_name = "Tempestade Polar"
+display_name_en = "Polar Storm"
+scene_path = "res://assets/models/tracks/tempestade_polar.glb"
+data_path = "res://assets/data/tracks/tempestade_polar.json"
+music_path = "res://assets/audio/music/track_tempestade_polar.ogg"
+map_path = "res://assets/sprites/maps/tempestade_polar.png"
+cup = 4
+length_m = 1300.0
+description_pt = "Vento lateral, gelo e nevasca."
+description_en = "Crosswinds, ice and whiteout."
+campaign = true

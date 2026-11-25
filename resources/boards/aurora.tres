@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"aurora"
+display_name = "Aurora"
+category = "balanced"
+speed_mod = 0.04
+control_mod = 0.02
+jump_mod = 0.04
+accel_mod = 0.02
+spin_mod = 0.02
+price = 800
+unlock = "cup3:silver"
+node_name = "board_aurora"
+thumbnail_path = "res://assets/sprites/boards/board_aurora.png"
+description_pt = "Equilíbrio refinado entre tudo."
+description_en = "Refined balance of everything."

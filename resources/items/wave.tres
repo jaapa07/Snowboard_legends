@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"wave"
+display_name = "Onda de neve"
+display_name_en = "Snow wave"
+slot = "offense"
+icon_path = "res://assets/sprites/items/wave.png"
+model_node = "item_wave"
+duration = 0.6
+weights = PackedFloat32Array(0.8, 1.0, 1.0, 0.9)
+description_pt = "Empurra rivais próximos."
+counterplay_pt = "Mantenha distância."

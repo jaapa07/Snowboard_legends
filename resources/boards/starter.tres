@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"starter"
+display_name = "Starter"
+category = "balanced"
+speed_mod = 0.0
+control_mod = 0.0
+jump_mod = 0.0
+accel_mod = 0.0
+spin_mod = 0.0
+price = 0
+unlock = "start"
+node_name = "board_starter"
+thumbnail_path = "res://assets/sprites/boards/board_starter.png"
+description_pt = "Prancha de iniciante: sem pontos fracos."
+description_en = "No weak points."

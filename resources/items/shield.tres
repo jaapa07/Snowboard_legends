@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"shield"
+display_name = "Escudo aurora"
+display_name_en = "Aurora shield"
+slot = "utility"
+icon_path = "res://assets/sprites/items/shield.png"
+model_node = "item_shield"
+duration = 6.0
+weights = PackedFloat32Array(1.8, 1.2, 0.8, 0.6)
+description_pt = "Bloqueia um ataque, expira em 6 s."
+counterplay_pt = "Espere expirar."

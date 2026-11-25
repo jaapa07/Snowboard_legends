@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"lago_cristal"
+display_name = "Lago Cristal"
+display_name_en = "Crystal Lake"
+scene_path = "res://assets/models/tracks/lago_cristal.glb"
+data_path = "res://assets/data/tracks/lago_cristal.json"
+music_path = "res://assets/audio/music/track_lago_cristal.ogg"
+map_path = "res://assets/sprites/maps/lago_cristal.png"
+cup = 1
+length_m = 1000.0
+description_pt = "Gelo escorregadio, cavernas e túnel estreito."
+description_en = "Slippery ice, caves and a narrow tunnel."
+campaign = true

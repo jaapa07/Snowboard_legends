@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"alpine"
+display_name = "Alpine"
+category = "carving"
+speed_mod = 0.08
+control_mod = 0.08
+jump_mod = -0.1
+accel_mod = -0.02
+spin_mod = -0.1
+price = 650
+unlock = "cup3:bronze"
+node_name = "board_alpine"
+thumbnail_path = "res://assets/sprites/boards/board_alpine.png"
+description_pt = "Rígida e rápida, odeia pousos tortos."
+description_en = "Stiff and fast, hates sloppy landings."

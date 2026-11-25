@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"comet"
+display_name = "Comet"
+category = "speed"
+speed_mod = 0.12
+control_mod = -0.04
+jump_mod = 0.0
+accel_mod = 0.06
+spin_mod = -0.08
+price = 900
+unlock = "cup4:bronze"
+node_name = "board_comet"
+thumbnail_path = "res://assets/sprites/boards/board_comet.png"
+description_pt = "Arranca como um cometa."
+description_en = "Launches like a comet."

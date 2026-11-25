@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"estacao_abandonada"
+display_name = "Estação Abandonada"
+display_name_en = "Abandoned Station"
+scene_path = "res://assets/models/tracks/estacao_abandonada.glb"
+data_path = "res://assets/data/tracks/estacao_abandonada.json"
+music_path = "res://assets/audio/music/track_estacao_abandonada.ogg"
+map_path = "res://assets/sprites/maps/estacao_abandonada.png"
+cup = 3
+length_m = 1100.0
+description_pt = "Vagões, túnel ferroviário e rampas metálicas."
+description_en = "Wagons, rail tunnel and metal ramps."
+campaign = true

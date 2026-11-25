@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"float"
+display_name = "Float"
+category = "freestyle"
+speed_mod = -0.04
+control_mod = 0.0
+jump_mod = 0.1
+accel_mod = 0.0
+spin_mod = 0.06
+price = 0
+unlock = "start"
+node_name = "board_float"
+thumbnail_path = "res://assets/sprites/boards/board_float.png"
+description_pt = "Flutua no ar, gira fácil."
+description_en = "Floats and spins easily."

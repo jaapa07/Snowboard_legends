@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RiderDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/rider_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"boro"
+display_name = "Boro"
+speed = 4
+control = 2
+jump = 2
+accel = 4
+resist = 5
+model_path = "res://assets/models/riders/boro.glb"
+portrait_path = "res://assets/sprites/portraits/boro.png"
+color = Color(0.227, 0.659, 0.290, 1)
+tagline_pt = "Tanque da montanha, difícil de derrubar."
+tagline_en = "Mountain tank, hard to knock down."
+unlock = "cup1:silver"

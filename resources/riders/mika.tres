@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RiderDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/rider_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"mika"
+display_name = "Mika"
+speed = 3
+control = 5
+jump = 4
+accel = 2
+resist = 3
+model_path = "res://assets/models/riders/mika.glb"
+portrait_path = "res://assets/sprites/portraits/mika.png"
+color = Color(1.000, 0.435, 0.369, 1)
+tagline_pt = "Precisão cirúrgica nas curvas."
+tagline_en = "Surgical precision in turns."
+unlock = "start"

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"carver"
+display_name = "Carver"
+category = "carving"
+speed_mod = -0.04
+control_mod = 0.1
+jump_mod = -0.04
+accel_mod = 0.02
+spin_mod = -0.04
+price = 0
+unlock = "start"
+node_name = "board_carver"
+thumbnail_path = "res://assets/sprites/boards/board_carver.png"
+description_pt = "Agarra a neve nas curvas fechadas."
+description_en = "Bites hard into tight turns."

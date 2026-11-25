@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"gust"
+display_name = "Rajada"
+display_name_en = "Gust"
+slot = "utility"
+icon_path = "res://assets/sprites/items/gust.png"
+model_node = "item_gust"
+duration = 2.0
+weights = PackedFloat32Array(0.4, 1.0, 1.4, 1.8)
+description_pt = "Impulso de velocidade por 2 s."
+counterplay_pt = "Curvas exigem controle."

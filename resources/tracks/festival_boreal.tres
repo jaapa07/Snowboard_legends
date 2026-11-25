@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"festival_boreal"
+display_name = "Festival Boreal"
+display_name_en = "Boreal Festival"
+scene_path = "res://assets/models/tracks/festival_boreal.glb"
+data_path = "res://assets/data/tracks/festival_boreal.json"
+music_path = "res://assets/audio/music/track_festival_boreal.ogg"
+map_path = "res://assets/sprites/maps/festival_boreal.png"
+cup = 2
+length_m = 950.0
+description_pt = "Noite de lanternas, rails e telhados."
+description_en = "Lantern night, rails and rooftops."
+campaign = true

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RiderDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/rider_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"niko"
+display_name = "Niko"
+speed = 3
+control = 4
+jump = 3
+accel = 4
+resist = 3
+model_path = "res://assets/models/riders/niko.glb"
+portrait_path = "res://assets/sprites/portraits/niko.png"
+color = Color(0.098, 0.765, 0.753, 1)
+tagline_pt = "Corajoso e equilibrado."
+tagline_en = "Brave all-rounder."
+unlock = "start"

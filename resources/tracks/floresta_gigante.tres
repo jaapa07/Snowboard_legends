@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"floresta_gigante"
+display_name = "Floresta Gigante"
+display_name_en = "Giant Forest"
+scene_path = "res://assets/models/tracks/floresta_gigante.glb"
+data_path = "res://assets/data/tracks/floresta_gigante.json"
+music_path = "res://assets/audio/music/track_floresta_gigante.ogg"
+map_path = "res://assets/sprites/maps/floresta_gigante.png"
+cup = 3
+length_m = 1200.0
+description_pt = "Árvores colossais, raízes e trilha elevada."
+description_en = "Colossal trees, roots and a raised trail."
+campaign = true

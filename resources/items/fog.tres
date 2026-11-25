@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"fog"
+display_name = "Névoa"
+display_name_en = "Fog"
+slot = "offense"
+icon_path = "res://assets/sprites/items/fog.png"
+model_node = "item_fog"
+duration = 2.0
+weights = PackedFloat32Array(0.6, 1.0, 1.0, 1.0)
+description_pt = "Nuvem que reduz a visibilidade por 2 s."
+counterplay_pt = "Saia da área."

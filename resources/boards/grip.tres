@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"grip"
+display_name = "Grip"
+category = "carving"
+speed_mod = -0.02
+control_mod = 0.12
+jump_mod = -0.06
+accel_mod = 0.04
+spin_mod = -0.06
+price = 350
+unlock = "cup1:bronze"
+node_name = "board_grip"
+thumbnail_path = "res://assets/sprites/boards/board_grip.png"
+description_pt = "Controle máximo em gelo."
+description_en = "Max control on ice."

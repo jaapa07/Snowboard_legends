@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"repair"
+display_name = "Reparador"
+display_name_en = "Repair kit"
+slot = "utility"
+icon_path = "res://assets/sprites/items/repair.png"
+model_node = "item_repair"
+duration = 0.0
+weights = PackedFloat32Array(0.6, 0.8, 1.2, 1.6)
+description_pt = "Recupera rapidamente de uma queda."
+counterplay_pt = "Uso único."

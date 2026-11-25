@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"pico_vulcanico"
+display_name = "Pico Vulcânico"
+display_name_en = "Volcanic Peak"
+scene_path = "res://assets/models/tracks/pico_vulcanico.glb"
+data_path = "res://assets/data/tracks/pico_vulcanico.json"
+music_path = "res://assets/audio/music/track_pico_vulcanico.ogg"
+map_path = "res://assets/sprites/maps/pico_vulcanico.png"
+cup = 2
+length_m = 1150.0
+description_pt = "Rocha escura, vapor e fenda sinalizada."
+description_en = "Dark rock, steam and a marked fissure."
+campaign = true

@@ -1,0 +1,13 @@
+# Godot
+.godot/
+*.import.tmp
+export_credentials.cfg
+# builds are published as release artifacts, not committed
+builds/*
+!builds/.gitkeep
+# python
+__pycache__/
+*.pyc
+# blender autosaves
+*.blend1
+*.blend@

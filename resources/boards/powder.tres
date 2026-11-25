@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"powder"
+display_name = "Powder"
+category = "balanced"
+speed_mod = 0.04
+control_mod = 0.04
+jump_mod = 0.02
+accel_mod = -0.06
+spin_mod = -0.02
+price = 500
+unlock = "cup2:bronze"
+node_name = "board_powder"
+thumbnail_path = "res://assets/sprites/boards/board_powder.png"
+description_pt = "Desliza em neve fofa sem perder ritmo."
+description_en = "Keeps pace in soft snow."

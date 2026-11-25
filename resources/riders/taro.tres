@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RiderDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/rider_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"taro"
+display_name = "Taro"
+speed = 5
+control = 2
+jump = 3
+accel = 3
+resist = 4
+model_path = "res://assets/models/riders/taro.glb"
+portrait_path = "res://assets/sprites/portraits/taro.png"
+color = Color(1.000, 0.478, 0.102, 1)
+tagline_pt = "Velocidade bruta, curva aberta."
+tagline_en = "Raw speed, wide turns."
+unlock = "start"

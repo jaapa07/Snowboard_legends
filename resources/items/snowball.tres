@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/item_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"snowball"
+display_name = "Bola de neve"
+display_name_en = "Snowball"
+slot = "offense"
+icon_path = "res://assets/sprites/items/snowball.png"
+model_node = "item_snowball"
+duration = 1.0
+weights = PackedFloat32Array(1.0, 1.4, 1.4, 1.2)
+description_pt = "Projétil frontal: desacelera por 1 s."
+counterplay_pt = "Desvie ou use escudo."

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RiderDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/rider_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"zed"
+display_name = "Zed"
+speed = 5
+control = 3
+jump = 2
+accel = 4
+resist = 2
+model_path = "res://assets/models/riders/zed.glb"
+portrait_path = "res://assets/sprites/portraits/zed.png"
+color = Color(1.000, 0.847, 0.000, 1)
+tagline_pt = "Vem do futuro, só pensa em velocidade."
+tagline_en = "From the future, all about speed."
+unlock = "cup2:silver"

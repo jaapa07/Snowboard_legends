@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TrackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/track_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"parque_manobras"
+display_name = "Parque de Manobras"
+display_name_en = "Trick Park"
+scene_path = "res://assets/models/tracks/parque_manobras.glb"
+data_path = "res://assets/data/tracks/parque_manobras.json"
+music_path = "res://assets/audio/music/track_parque_manobras.ogg"
+map_path = "res://assets/sprites/maps/parque_manobras.png"
+cup = 0
+length_m = 520.0
+description_pt = "Circuito de rampas e rails para Trick Attack."
+description_en = "Ramps and rails circuit for Trick Attack."
+campaign = false

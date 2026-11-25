@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"rail"
+display_name = "Rail"
+category = "freestyle"
+speed_mod = -0.06
+control_mod = 0.04
+jump_mod = 0.04
+accel_mod = 0.04
+spin_mod = 0.08
+price = 550
+unlock = "cup2:silver"
+node_name = "board_rail"
+thumbnail_path = "res://assets/sprites/boards/board_rail.png"
+description_pt = "Feita para corrimãos e combos."
+description_en = "Built for rails and combos."

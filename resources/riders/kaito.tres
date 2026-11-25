@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RiderDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/rider_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"kaito"
+display_name = "Kaito"
+speed = 4
+control = 3
+jump = 4
+accel = 3
+resist = 3
+model_path = "res://assets/models/riders/kaito.glb"
+portrait_path = "res://assets/sprites/portraits/kaito.png"
+color = Color(0.784, 0.157, 0.235, 1)
+tagline_pt = "Aventureiro andarilho das montanhas; piloto secreto."
+tagline_en = "Wandering mountain adventurer; secret rider."
+unlock = "cup4:gold"

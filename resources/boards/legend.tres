@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BoardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/core/board_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"legend"
+display_name = "Legend"
+category = "speed"
+speed_mod = 0.08
+control_mod = 0.04
+jump_mod = 0.04
+accel_mod = 0.04
+spin_mod = 0.04
+price = 1500
+unlock = "cup4:gold"
+node_name = "board_legend"
+thumbnail_path = "res://assets/sprites/boards/board_legend.png"
+description_pt = "A prancha das lendas: boa em tudo, perfeita em nada."
+description_en = "Great at all, perfect at none."

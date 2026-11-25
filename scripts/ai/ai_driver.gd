@@ -1,0 +1,304 @@
+class_name AIDriver
+extends RefCounted
+## Computer rider. Uses the same InputCommand path and physics as humans. No teleports, no free coins.
+## FSM: Race, Overtake, Avoid, Jump, Trick, Recover, LiftQueue, Finish. Reaction delay per difficulty.
+
+enum S { RACE, OVERTAKE, AVOID, JUMP, TRICK, RECOVER, LIFT_QUEUE, FINISH }
+const REACTION_MS := [450, 250, 120]
+const LANE_SKILL := [0.25, 0.55, 0.85]
+const TRICK_AMBITION := [0.3, 0.6, 0.9]
+
+var difficulty: int = 1
+var rng := RandomNumberGenerator.new()
+var fsm: int = S.RACE
+var race: Node
+var _buffer: Array[InputCommand] = []
+var _delay_frames: int = 15
+var _lane_choice: Dictionary = {}      ## split s0 -> lateral
+var _target_lat: float = 0.0
+var _lat_smooth: float = 0.0
+var _stuck_t: float = 0.0
+var _trick_goal: float = 0.0
+var _trick_dir: int = 1
+var _flip_goal: float = 0.0
+var _grab_goal: float = 0.0
+var _item_t: float = 0.0
+var _noise: float = 0.0
+var stats := {"jumps": 0, "tricks": 0, "items": 0, "recoveries": 0}
+
+func _init(diff: int, seed_: int, race_node: Node) -> void:
+	difficulty = clampi(diff, 0, 2)
+	rng.seed = seed_
+	race = race_node
+	_delay_frames = int(round(REACTION_MS[difficulty] / (1000.0 / 60.0)))
+
+func command(r: RiderController, delta: float) -> InputCommand:
+	var ideal := _think(r, delta)
+	_buffer.append(ideal)
+	if _buffer.size() > _delay_frames:
+		var out: InputCommand = _buffer.pop_front()
+		# steering + air controls react with delay; item edges keep their single frame
+		return out
+	return InputCommand.new()
+
+func _think(r: RiderController, delta: float) -> InputCommand:
+	var c := InputCommand.new()
+	var tr: TrackRuntime = r.track
+	if r.finished:
+		fsm = S.FINISH
+		return c
+	if r.state == RiderController.State.LIFT:
+		fsm = S.LIFT_QUEUE
+		return c
+	if r.state == RiderController.State.FALLEN:
+		if r.utility_item == &"repair":
+			c.use_utility = true
+		return c
+	if r.state == RiderController.State.AIR or r.state == RiderController.State.GRIND:
+		return _air(r, c)
+	# ---- ground
+	fsm = S.RACE
+	var s := r.s
+	var hw := tr.half_width(s)
+	var lat_goal := _racing_line(r, tr, s, hw)
+	lat_goal = _avoid(r, tr, s, lat_goal, hw)
+	lat_goal = _overtake(r, s, lat_goal, hw)
+	_lat_smooth = lerpf(_lat_smooth, lat_goal, clampf(delta * 3.0, 0, 1))
+	var look := clampf(10.0 + r.speed * 0.9, 10.0, 35.0)
+	if r.fog_t > 0.0:
+		look *= 0.6
+	var tgt := tr.point_at(minf(s + look, tr.length - 1.0), _lat_smooth)
+	var to := tgt - r.global_position
+	var desired := atan2(-to.x, -to.z)
+	var err := wrapf(desired - r.yaw, -PI, PI)
+	var gain := 2.4 + difficulty * 0.4
+	if r.fog_t > 0.0:
+		_noise = lerpf(_noise, rng.randf_range(-0.5, 0.5), 0.1)
+		err += _noise * 0.3
+	var steer := -err * gain
+	if absf(steer) < 0.04:
+		steer = 0.0   # hysteresis dead band avoids oscillation
+	c.steer = clampf(steer, -1.0, 1.0)
+	# speed: limit by upcoming curvature
+	var kmax := 0.0
+	var ss := s
+	while ss < minf(s + 30.0 + r.speed * 0.5, tr.length - 1.0):
+		kmax = maxf(kmax, absf(tr.curv[tr.idx_at(ss)]))
+		ss += 4.0
+	var krad := deg_to_rad(kmax)
+	var vcap := 99.0 if krad < 0.0005 else sqrt((26.0 + difficulty * 3.0) * r.m_control / krad)
+	if r.speed > vcap + 1.5 or absf(err) > 0.8:
+		c.brake = true
+	elif kmax < 0.25 and absf(err) < 0.25:
+		c.tuck = true
+	var z := tr.zone_at(s, r.lat)
+	if not z.is_empty() and String(z.kind) == "ice":
+		c.tuck = false
+	# ramps: charge the jump and release at the lip
+	for rp in tr.ramps:
+		var lip: float = float(rp.s) + float(rp.l) * 0.5
+		var dlat := absf(r.lat - float(rp.lat))
+		if dlat < float(rp.w) * 0.5 and s > float(rp.s) - float(rp.l) * 0.5 - 6.0 and s < lip - 0.6:
+			c.jump_held = true
+			fsm = S.JUMP
+	# stuck recovery
+	if r.speed < 2.0 and race.phase == 2:
+		_stuck_t += delta
+	else:
+		_stuck_t = 0.0
+	if _stuck_t > 2.5:
+		fsm = S.RECOVER
+		var back := tr.point_at(minf(s + 8.0, tr.length - 1.0), 0.0) - r.global_position
+		c.steer = clampf(-wrapf(atan2(-back.x, -back.z) - r.yaw, -PI, PI) * 3.0, -1, 1)
+		c.brake = false; c.tuck = false
+		if _stuck_t > 3.5:
+			c.jump_held = int(_stuck_t * 4.0) % 2 == 0
+		if _stuck_t > 6.0:
+			_stuck_t = 0.0
+			stats.recoveries += 1
+	_items(r, c, tr, kmax, delta)
+	if c.jump_held:
+		_plan_trick(r)
+	return c
+
+func _racing_line(r: RiderController, tr: TrackRuntime, s: float, hw: float) -> float:
+	# inside line through the next curve, centre on straights
+	var k := tr.curv[tr.idx_at(minf(s + 25.0, tr.length - 1.0))]
+	var lat := clampf(k * 6.0, -hw * 0.45, hw * 0.45)
+	for sp in tr.splits:
+		if s > float(sp.s0) - 45.0 and s < float(sp.s1):
+			var key := float(sp.s0)
+			if not _lane_choice.has(key):
+				var shw := tr.half_width(float(sp.s0) + 10.0)
+				var lane_w := shw - float(sp.div) * 0.5
+				var left := -(float(sp.div) * 0.5 + lane_w * 0.5)
+				var right := -left
+				var fancy := _lane_has_feature(tr, sp, right)
+				var bad_r := _lane_bad(tr, sp, right)
+				var bad_l := _lane_bad(tr, sp, left)
+				var take_fancy := rng.randf() < LANE_SKILL[difficulty]
+				var choice := right if (fancy and take_fancy) else left
+				if not fancy and rng.randf() < 0.5:
+					choice = right
+				if choice == right and bad_r and not (fancy and difficulty >= 1):
+					choice = left
+				if choice == left and bad_l:
+					choice = right
+				_lane_choice[key] = choice
+			return _lane_choice[key]
+	for pl in tr.platforms:
+		if s > float(pl.s0) - 30.0 and s < float(pl.s1) and difficulty >= 1 and rng.randf() < 0.02:
+			pass
+	return lat
+
+func _lane_has_feature(tr: TrackRuntime, sp: Dictionary, lane_lat: float) -> bool:
+	for rp in tr.ramps:
+		if float(rp.s) >= float(sp.s0) - 5.0 and float(rp.s) <= float(sp.s1) and signf(float(rp.lat)) == signf(lane_lat):
+			return true
+	for pl in tr.platforms:
+		if absf(float(pl.s0) - float(sp.s0)) < 20.0 and signf(float(pl.lat)) == signf(lane_lat):
+			return true
+	return false
+
+func _lane_bad(tr: TrackRuntime, sp: Dictionary, lane_lat: float) -> bool:
+	for z in tr.zones:
+		if String(z.kind) in ["slush", "pit"] and float(z.s0) < float(sp.s1) and float(z.s1) > float(sp.s0):
+			var zc := (float(z.lat0) + float(z.lat1)) * 0.5
+			if signf(zc) == signf(lane_lat):
+				return true
+	return false
+
+func _avoid(r: RiderController, tr: TrackRuntime, s: float, lat: float, hw: float) -> float:
+	for hz in tr.hazards:
+		var d := float(hz.s) - s
+		if d > 0.0 and d < 45.0 and absf(lat - float(hz.lat)) < 3.2:
+			fsm = S.AVOID
+			var side := 1.0 if float(hz.lat) <= 0.0 else -1.0
+			return clampf(float(hz.lat) + side * 4.0, -hw + 1.5, hw - 1.5)
+	for z in tr.zones:
+		var k := String(z.kind)
+		if (k == "slush" or k == "pit") and float(z.s0) - s < 40.0 and float(z.s1) > s:
+			if lat >= float(z.lat0) - 1.0 and lat <= float(z.lat1) + 1.0:
+				var has_ramp := false
+				for rp in tr.ramps:
+					if float(rp.s) < float(z.s0) and float(z.s0) - float(rp.s) < 20.0 and absf(float(rp.lat) - lat) < float(rp.w):
+						has_ramp = true
+				if not has_ramp or k == "slush" and difficulty == 0:
+					fsm = S.AVOID
+					var mid := (float(z.lat0) + float(z.lat1)) * 0.5
+					return clampf(mid + (-1.0 if mid > 0 else 1.0) * (absf(float(z.lat1) - float(z.lat0)) * 0.5 + 2.5), -hw + 1.0, hw - 1.0)
+	for m in race.items.mines:
+		var p: Vector3 = m.node.global_position if m.node else m.p
+		var pr := tr.project(p, r.proj_idx)
+		if float(pr.s) - s > 0.0 and float(pr.s) - s < 30.0 and absf(float(pr.lat) - lat) < 2.0:
+			fsm = S.AVOID
+			return clampf(float(pr.lat) + (3.0 if float(pr.lat) < 0 else -3.0), -hw + 1.0, hw - 1.0)
+	return lat
+
+func _overtake(r: RiderController, s: float, lat: float, hw: float) -> float:
+	for o in race.riders:
+		if o == r or o.finished or o.lap != r.lap:
+			continue
+		var d: float = o.s - s
+		if d > 0.0 and d < 12.0 and absf(o.lat - lat) < 1.6:
+			fsm = S.OVERTAKE
+			var side := 2.2 if o.lat <= 0.0 else -2.2
+			return clampf(o.lat + side, -hw + 1.2, hw - 1.2)
+	return lat
+
+func _plan_trick(r: RiderController) -> void:
+	var amb: float = TRICK_AMBITION[difficulty]
+	_trick_dir = 1 if rng.randf() < 0.5 else -1
+	var roll := rng.randf()
+	_trick_goal = 0.0; _flip_goal = 0.0; _grab_goal = 0.0
+	if roll < amb:
+		_trick_goal = [PI, TAU, TAU + PI][rng.randi_range(0, mini(2, difficulty + 1))]
+	if roll < amb * 0.35 and difficulty >= 1:
+		_flip_goal = TAU
+	if rng.randf() < amb * 0.6:
+		_grab_goal = 0.45
+
+func _air(r: RiderController, c: InputCommand) -> InputCommand:
+	fsm = S.TRICK
+	# predicted remaining air time from vertical speed and height above the course
+	var h := maxf(0.0, r.global_position.y - r.track.point_at(r.s, r.lat).y)
+	var g := r.tuning.gravity
+	var vy := r.velocity.y
+	var t_left := (vy + sqrt(maxf(0.0, vy * vy + 2.0 * g * h))) / g
+	var spin_rate := deg_to_rad(r.tuning.spin_rate_deg) * r.m_spin
+	var flip_rate := deg_to_rad(r.tuning.flip_rate_deg) * r.m_spin
+	var need_spin := absf(_trick_goal) - absf(r.spin_angle)
+	if _trick_goal > 0.0 and need_spin > 0.05:
+		if need_spin / spin_rate < t_left - 0.12:
+			c.spin_left = _trick_dir > 0
+			c.spin_right = _trick_dir < 0
+		else:
+			_trick_goal = 0.0
+	elif absf(r.spin_angle) > 0.1:
+		# make sure we land aligned: finish the half-turn if it fits
+		var rem := fposmod(absf(r.spin_angle), PI)
+		if rem > 0.25 and (PI - rem) / spin_rate < t_left - 0.05:
+			c.spin_left = r.spin_angle > 0.0
+			c.spin_right = r.spin_angle < 0.0
+	var need_flip := _flip_goal - absf(r.flip_angle)
+	if _flip_goal > 0.0 and need_flip > 0.05 and need_flip / flip_rate < t_left - 0.15:
+		c.flip_back = true
+	elif absf(r.flip_angle) > 0.2:
+		var remf := fposmod(absf(r.flip_angle), TAU)
+		if remf > 0.3 and (TAU - remf) / flip_rate < t_left - 0.05:
+			c.flip_back = r.flip_angle < 0.0
+			c.flip_front = r.flip_angle > 0.0
+	if _grab_goal > 0.0 and r.grab_time < _grab_goal and t_left > 0.3:
+		c.grab = true
+	# difficulty-based imprecision: rookies sometimes over-rotate
+	if difficulty == 0 and rng.randf() < 0.004:
+		c.spin_left = true
+	var tgt := r.track.point_at(minf(r.s + 20.0, r.track.length - 1.0), _lat_smooth)
+	var to := tgt - r.global_position
+	c.steer = clampf(-wrapf(atan2(-to.x, -to.z) - r.yaw, -PI, PI) * 1.5, -1, 1)
+	return c
+
+func _items(r: RiderController, c: InputCommand, tr: TrackRuntime, kmax: float, delta: float) -> void:
+	_item_t -= delta
+	if _item_t > 0.0:
+		return
+	var ahead: RiderController = null
+	var behind: RiderController = null
+	var best_a := 9999.0
+	var best_b := 9999.0
+	for o in race.riders:
+		if o == r or o.finished or o.state == RiderController.State.LIFT:
+			continue
+		var d: float = o.progress - r.progress
+		if d > 0.0 and d < best_a:
+			best_a = d; ahead = o
+		elif d < 0.0 and -d < best_b:
+			best_b = -d; behind = o
+	match r.offense_item:
+		&"snowball", &"penguin":
+			if ahead and best_a < 30.0 and best_a > 4.0:
+				c.use_offense = true
+		&"wave":
+			if (ahead and best_a < 9.0) or (behind and best_b < 9.0):
+				c.use_offense = true
+		&"icemine":
+			if behind and best_b < 25.0:
+				c.use_offense = true
+		&"fog":
+			if ahead and best_a < 40.0:
+				c.use_offense = true
+	match r.utility_item:
+		&"gust":
+			if kmax < 0.3:
+				c.use_utility = true
+		&"shield":
+			if behind and best_b < 20.0 or rng.randf() < 0.01:
+				c.use_utility = true
+		&"spring":
+			if kmax < 0.2 and rng.randf() < 0.02:
+				c.use_utility = true
+		&"magnet":
+			c.use_utility = rng.randf() < 0.05
+	if c.use_offense or c.use_utility:
+		stats.items += 1
+		_item_t = 1.0 + rng.randf() * (2.0 - difficulty * 0.6)
