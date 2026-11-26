@@ -14,6 +14,9 @@ var _back_to_idle_t: float = 0.0
 var _hop_t: float = 0.0
 var _current_key: String = ""
 var ped: MeshInstance3D
+var _rider_mode: bool = false
+var _t: float = 0.0
+const RIDER_FACE := -0.61   # riders stand with the chest turned 35 deg off the board axis: face the camera
 
 func _init() -> void:
 	stretch = true
@@ -65,11 +68,14 @@ func _init() -> void:
 	frame_rider()
 
 func frame_rider() -> void:
-	cam.look_at_from_position(Vector3(0, 1.35, 5.4), Vector3(0, 0.85, 0), Vector3.UP)
+	# full body + board, filling ~70 % of the stage height
+	cam.look_at_from_position(Vector3(0, 1.15, 4.3), Vector3(0, 0.78, 0), Vector3.UP)
+	_rider_mode = true
 	if ped:
 		ped.visible = true
 
 func frame_board() -> void:
+	_rider_mode = false
 	cam.look_at_from_position(Vector3(0, 1.5, 2.6), Vector3(0, 0.45, 0), Vector3.UP)
 
 func clear() -> void:
@@ -131,7 +137,13 @@ func confirm() -> void:
 		_back_to_idle_t = 1.6
 
 func _process(delta: float) -> void:
-	turntable.rotation.y += delta * spin_speed
+	_t += delta
+	if _rider_mode:
+		# gentle sway around the front view instead of a full spin (a full turn showed the rider's back/profile
+		# most of the time)
+		turntable.rotation.y = RIDER_FACE + sin(_t * 0.7) * 0.55
+	else:
+		turntable.rotation.y += delta * spin_speed
 	if _hop_t > 0.0:
 		_hop_t -= delta
 		turntable.position.y = sin((0.5 - _hop_t) / 0.5 * PI) * 0.25

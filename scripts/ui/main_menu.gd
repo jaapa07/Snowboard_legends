@@ -126,11 +126,20 @@ func _build() -> void:
 	if _back_btn:
 		_back_btn.queue_free()
 		_back_btn = null
-	if TouchControls.enabled() and screen != "title":
-		# phones have no Esc / B: an on-screen back button inside the safe area
-		_back_btn = UiKit.button("◀ " + t("back"), back, 220, 72)
+	if screen != "title":
+		# always-visible back button (phones have no Esc / B; mouse users need one too), top-right inside the
+		# safe area. Anchored to the right edge: offsets are relative to that edge (the old absolute position
+		# was added to the right anchor and pushed the button off screen).
+		var big := TouchControls.enabled()
+		var w := 230.0 if big else 190.0
+		var h := 72.0 if big else 56.0
+		_back_btn = UiKit.button("◀ " + t("back"), back, w, h)
+		_back_btn.focus_mode = Control.FOCUS_NONE   # keep d-pad/keyboard focus on the screen's own controls
 		_back_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		_back_btn.position = Vector2(get_viewport().get_visible_rect().size.x - 260 - _safe_inset().x, 24 + _safe_inset().y)
+		_back_btn.offset_right = -(32.0 + ins.x)
+		_back_btn.offset_left = _back_btn.offset_right - w
+		_back_btn.offset_top = 22.0 + ins.y
+		_back_btn.offset_bottom = _back_btn.offset_top + h
 		root.add_child(_back_btn)
 
 func show_toast(msg: String, col: Color = UiKit.GOLD) -> void:
